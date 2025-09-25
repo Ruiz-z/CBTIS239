@@ -1,0 +1,5 @@
+package com.cbtis239.escolares.repo;
+import com.cbtis239.escolares.model.Permission;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PermissionRepository extends JpaRepository<Permission, Long> {}
