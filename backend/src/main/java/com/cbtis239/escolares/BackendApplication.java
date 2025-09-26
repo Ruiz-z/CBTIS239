@@ -1,4 +1,4 @@
-package cbtis239.backend;
+package com.cbtis239.escolares;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

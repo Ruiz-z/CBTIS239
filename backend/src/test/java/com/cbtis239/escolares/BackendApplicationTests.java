@@ -1,4 +1,4 @@
-package cbtis239.backend;
+package com.cbtis239.escolares;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
