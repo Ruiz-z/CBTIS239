@@ -1,0 +1,71 @@
+/* Fondo general gris claro */
+.root, .app-root {
+    -fx-background-color: #f2f4f7;
+}
+
+/* Barra roja superior */
+.header {
+    -fx-background-color: #9E0B0F; /* rojo institucional */
+    -fx-padding: 10 16 10 16;
+}
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 0.3px;
+}
+
+/* Tarjeta blanca centrada con sombra y bordes redondeados */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 16, 0.15, 0, 4);
+}
+
+/* Icono del candado */
+.lock-icon {
+    -fx-fill: #555; /* gris oscuro */
+}
+
+/* Etiquetas del formulario */
+.field-label {
+    -fx-text-fill: #222;
+    -fx-font-size: 13px;
+}
+
+/* Campos de texto y contraseña */
+.text-field, .password-field {
+    -fx-padding: 8 10 8 10;   /* más alto y ancho */
+    -fx-border-color: #555;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+/* Botones */
+.btn {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 20 8 20;   /* más grandes */
+}
+
+/* Botón primario (Iniciar Sesión) */
+.btn-primary {
+    -fx-background-color: #f2f2f2;
+    -fx-border-color: #666;
+    -fx-text-fill: #111;
+}
+.btn-primary:hover { -fx-background-color: #e6e6e6; }
+
+/* Botón secundario (Salir) */
+.btn-secondary {
+    -fx-background-color: #f2f2f2;
+    -fx-border-color: #666;
+    -fx-text-fill: #111;
+}
+.btn-secondary:hover { -fx-background-color: #e6e6e6; }
+
+/* Mensaje de error */
+.error-label {
+    -fx-text-fill: #bb0000;
+    -fx-font-size: 12px;
+}
