@@ -6,15 +6,16 @@ plugins {
 repositories { mavenCentral() }
 
 java {
-  toolchain { languageVersion = JavaLanguageVersion.of(17) } // o 21/23 según tu JDK
+  toolchain { languageVersion = JavaLanguageVersion.of(17) }
 }
 
 dependencies {
-  // opcionales; puedes comentarlos si aún no los usas
-  // implementation 'org.kordamp.bootstrapfx:bootstrapfx-core:0.4.0'
-  // implementation 'org.controlsfx:controlsfx:11.2.1'
-  // implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
+  implementation 'org.kordamp.ikonli:ikonli-core:12.3.1'
+  implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
+  implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack:12.3.1'
+
 }
+
 
 javafx {
   version = '21.0.3' // si usas JDK 23, cambia a '23'
@@ -24,3 +25,4 @@ javafx {
 application {
   mainClass = 'cbtis239.front.MainApp'
 }
+

@@ -1,1 +1,3 @@
-rootProject.name = "front"
+rootProject.name = "CBTIS239"
+include("front")
+include("backend")

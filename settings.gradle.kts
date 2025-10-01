@@ -1,6 +1,6 @@
 rootProject.name = "CBTIS239"
 
-include("backend", "frontend")
+include("backend", "front")
 
 project(":backend").projectDir = file("backend")
-project(":frontend").projectDir = file("frontend")
+project(":front").projectDir = file("front")
