@@ -1,5 +1,6 @@
 package cbtis239.front;
 
+import cbtis239.front.util.SceneNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -13,18 +14,23 @@ public class LoginController {
 
     @FXML
     private void onLogin(ActionEvent e) {
-        String u = txtUser.getText() == null ? "" : txtUser.getText().trim();
-        String p = txtPass.getText() == null ? "" : txtPass.getText().trim();
+        String u = txtUser.getText();
+        String p = txtPass.getText();
 
-        if (u.equals("admin") && p.equals("admin")) {
-            lblError.setVisible(false);
-            System.out.println("Login OK → ir al menú");
+        // Simulación de validación (luego conectas con BD o backend real)
+        if ("admin".equals(u) && "1234".equals(p)) {
+            lblError.setVisible(false); // ocultar error
+            SceneNavigator.switchFromEvent(e, "/cbtis239/front/views/register_user.fxml",
+                    "Registrar Nuevo Usuario"
+            );
 
+            System.out.println("Login OK -> ir al registro");
         } else {
             lblError.setText("Usuario o contraseña incorrectos");
             lblError.setVisible(true);
         }
     }
+
 
     @FXML
     private void onExit(ActionEvent e) {
