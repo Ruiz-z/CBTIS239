@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import java.lang.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.RegisterUserController"
+            stylesheets="@/cbtis239/front/css/register.css"
+            styleClass="register-root"
+            prefWidth="720" prefHeight="420">
+
+    <!-- Barra roja superior con título -->
+    <top>
+        <StackPane styleClass="topbar">
+            <Label text="Registrar Nuevo Usuario" styleClass="topbar-title"/>
+        </StackPane>
+    </top>
+
+    <center>
+        <!-- Contenedor central -->
+        <HBox spacing="24" alignment="CENTER_LEFT" styleClass="center-pad">
+            <padding>
+                <Insets top="24" right="24" bottom="16" left="24"/>
+            </padding>
+
+            <!-- Icono grande a la izquierda -->
+            <VBox alignment="CENTER" spacing="8" prefWidth="160">
+                <FontIcon iconLiteral="fas-user-plus" iconSize="96"/>
+            </VBox>
+
+            <!-- Formulario -->
+            <GridPane hgap="12" vgap="14" styleClass="form-grid">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" minWidth="140"/>
+                    <ColumnConstraints minWidth="360" hgrow="NEVER"/>
+                    <ColumnConstraints minWidth="140"/>
+                </columnConstraints>
+
+                <!-- Usuario -->
+                <Label text="Usuario:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtUsuario" GridPane.rowIndex="0" GridPane.columnIndex="1" promptText="usuario.sis"/>
+
+                <!-- Contraseña + Generar -->
+                <Label text="Contraseña:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+
+                <StackPane GridPane.rowIndex="1" GridPane.columnIndex="1">
+                    <!-- oculto por defecto -->
+                    <PasswordField fx:id="txtPassword" promptText="••••••" style="-fx-padding: 6 28 6 6;"/>
+                    <!-- visible cuando se activa el ojo -->
+                    <TextField fx:id="txtPasswordPlain" promptText="contraseña"
+                               visible="false" managed="false"
+                               style="-fx-padding: 6 28 6 6;"/>
+                    <!-- ojito -->
+                    <ToggleButton fx:id="tbShowPwd" onAction="#onTogglePwd" focusTraversable="false">
+                        <styleClass>
+                            <String fx:value="icon-button"/>
+                        </styleClass>
+                        <graphic>
+                            <FontIcon iconLiteral="fas-eye"/>
+                        </graphic>
+                        <StackPane.alignment>
+                            <Pos fx:constant="CENTER_RIGHT"/>
+                        </StackPane.alignment>
+                    </ToggleButton>
+                </StackPane>
+
+                <Button text="Generar Contraseña" onAction="#onGeneratePassword"
+                        styleClass="btn-skinny"
+                        GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+
+                <!-- Confirmar -->
+                <Label text="Confirmar contraseña:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+
+                <StackPane GridPane.rowIndex="2" GridPane.columnIndex="1">
+                    <PasswordField fx:id="txtConfirm" promptText="••••••" style="-fx-padding: 6 28 6 6;"/>
+                    <TextField fx:id="txtConfirmPlain" promptText="contraseña"
+                               visible="false" managed="false"
+                               style="-fx-padding: 6 28 6 6;"/>
+                    <ToggleButton fx:id="tbShowConfirm" onAction="#onToggleConfirm" focusTraversable="false">
+                        <styleClass>
+                            <String fx:value="icon-button"/>
+                        </styleClass>
+                        <graphic>
+                            <FontIcon iconLiteral="fas-eye"/>
+                        </graphic>
+                        <StackPane.alignment>
+                            <Pos fx:constant="CENTER_RIGHT"/>
+                        </StackPane.alignment>
+                    </ToggleButton>
+                </StackPane>
+
+                <!-- Nombres -->
+                <Label text="Nombre (s):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtNombres" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <!-- Apellido Paterno -->
+                <Label text="Apellido Paterno:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtApPat" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                <!-- Apellido Materno -->
+                <Label text="Apellido Materno:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtApMat" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                <!-- Rol -->
+                <Label text="Rol de Usuario:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="cbRol" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                <!-- Botón registrar centrado -->
+                <Button text="Registrar Usuario" fx:id="btnRegistrar" disable="true"
+                        onAction="#onRegistrar" styleClass="btn-skinny"
+                        GridPane.rowIndex="7" GridPane.columnIndex="1" GridPane.halignment="CENTER"/>
+            </GridPane>
+        </HBox>
+    </center>
+
+    <!-- Botones inferiores -->
+    <bottom>
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="10" right="12" bottom="10" left="12"/>
+            </padding>
+            <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-skinny"/>
+            <Button text="Finalizar" onAction="#onFinalizar" styleClass="btn-skinny"/>
+        </HBox>
+    </bottom>
+</BorderPane>
