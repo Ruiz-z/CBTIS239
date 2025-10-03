@@ -1,0 +1,46 @@
+/* Fondo general gris claro */
+.register-root {
+    -fx-background-color: #eeeeee;
+}
+
+/* Barra roja superior */
+.topbar {
+    -fx-background-color: #8B0E0E;
+    -fx-padding: 10 0 10 0; /* alto parecido al mock */
+}
+.topbar-title {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px; /* tamaño del mock */
+}
+
+/* Formulario: labels y campos */
+.form-grid .label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #333333;
+}
+
+/* Mismo ancho para textfields / password / combo */
+.form-grid .text-field,
+.form-grid .password-field,
+.form-grid .combo-box-base {
+    -fx-pref-width: 360;     /* ancho de campo como en el mock */
+    -fx-background-color: white;
+}
+
+/* Botones pequeños (como en el mock) */
+.btn-skinny {
+    -fx-font-size: 10px;
+    -fx-padding: 4 10 4 10;
+}
+
+/* Espaciado “card” central */
+.center-pad {
+    -fx-padding: 24 24 16 24; /* márgenes de la vista interna */
+}
+/* Botón de ojo sin bordes ni fondo */
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 6 0 6;
+}
+
