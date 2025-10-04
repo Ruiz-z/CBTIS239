@@ -20,11 +20,11 @@ public class LoginController {
         // Simulación de validación (luego conectas con BD o backend real)
         if ("admin".equals(u) && "1234".equals(p)) {
             lblError.setVisible(false); // ocultar error
-            SceneNavigator.switchFromEvent(e, "/cbtis239/front/views/register_user.fxml",
+            SceneNavigator.switchFromEvent(e, "/cbtis239/front/views/menu.fxml",
                     "Registrar Nuevo Usuario"
             );
 
-            System.out.println("Login OK -> ir al registro");
+            System.out.println("Login OK");
         } else {
             lblError.setText("Usuario o contraseña incorrectos");
             lblError.setVisible(true);

@@ -1,0 +1,18 @@
+/* ... lo que ya tenías ... */
+
+.nav-btn .ikonli-font-icon {
+    -fx-icon-color: white;           /* color iconos en sidebar */
+    -fx-opacity: 0.95;
+}
+.toggle-button:selected .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-opacity: 1.0;
+}
+.nav-btn:hover .ikonli-font-icon {
+    -fx-opacity: 1.0;
+}
+
+/* Si quieres ícono oscuro en el centro o topbar */
+.button.ghost .ikonli-font-icon {
+    -fx-icon-color: white;
+}

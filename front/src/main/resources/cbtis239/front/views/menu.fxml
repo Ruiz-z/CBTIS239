@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane fx:controller="cbtis239.front.ui.users.MenuController"
+            xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            stylesheets="@/cbtis239/front/css/menu.css">
+
+    <!-- BARRA SUPERIOR -->
+    <top>
+        <HBox styleClass="topbar">
+            <Label text="Menu Servicios Escolares" styleClass="topbar-title"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Button onAction="#onCancelar" styleClass="ghost" contentDisplay="LEFT" graphicTextGap="8">
+                <graphic><FontIcon iconLiteral="mdi2-close" iconSize="16"/></graphic>
+                <text>Cancelar</text>
+            </Button>
+        </HBox>
+    </top>
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox spacing="8" styleClass="sidebar" prefWidth="180">
+            <VBox.margin><Insets top="16" left="16" right="16" bottom="16"/></VBox.margin>
+
+            <fx:define>
+                <ToggleGroup fx:id="menuGroup"/>
+            </fx:define>
+            <ToggleButton text="Expediente" toggleGroup="$menuGroup"
+                          onAction="#openExpediente" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fab fa-expeditedssl" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <ToggleButton text="Docente" toggleGroup="$menuGroup"
+                          onAction="#openDocente" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas fa-chalkboard-teacher" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <ToggleButton text="Cursos" toggleGroup="$menuGroup"
+                          onAction="#openCursos" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral= "fas fa-slash" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <ToggleButton text="Credencial" toggleGroup="$menuGroup"
+                          onAction="#openCredencial" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="mdi2-card-account-details-outline" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <ToggleButton text="Grupo" toggleGroup="$menuGroup"
+                          onAction="#openGrupo" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="mdi2-account-group-outline" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <ToggleButton text="Asignatura" toggleGroup="$menuGroup"
+                          onAction="#openAsignatura" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="mdi2-school-outline" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <ToggleButton text="Aulas" toggleGroup="$menuGroup"
+                          onAction="#openAulas" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="mdi2-office-building" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <Separator/>
+
+            <ToggleButton text="Volver" toggleGroup="$menuGroup"
+                          onAction="#onVolver" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="mdi2-arrow-left" iconSize="18"/></graphic>
+            </ToggleButton>
+        </VBox>
+    </left>
+
+    <!-- CONTENIDO CENTRAL -->
+    <center>
+        <StackPane fx:id="contentArea" styleClass="content">
+            <VBox alignment="TOP_CENTER" spacing="16">
+                <Label text="Bienvenido Servicios Escolares" styleClass="welcome-title"/>
+                <HBox spacing="8">
+                    <Button text="Actualizar Pagado" onAction="#onActualizarPagado"/>
+                    <Button text="Cancelar" onAction="#onCancelar"/>
+                </HBox>
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>
