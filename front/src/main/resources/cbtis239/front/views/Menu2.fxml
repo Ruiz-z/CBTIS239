@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane fx:controller="cbtis239.front.ui.users.Menu2Controller"
+            xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            stylesheets="@/cbtis239/front/css/menu2.css">
+
+    <!-- BARRA SUPERIOR -->
+    <top>
+        <HBox styleClass="topbar">
+            <Label text="Menu Servicios Escolares" styleClass="topbar-title"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Button onAction="#onCancelar" styleClass="ghost" contentDisplay="LEFT" graphicTextGap="8">
+                <graphic><FontIcon iconLiteral="fas-times" iconSize="16"/></graphic>
+                <text>Cancelar</text>
+            </Button>
+        </HBox>
+    </top>
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox spacing="8" styleClass="sidebar" prefWidth="180">
+            <VBox.margin><Insets top="16" left="16" right="16" bottom="16"/></VBox.margin>
+
+            <fx:define>
+                <ToggleGroup fx:id="menuGroup"/>
+            </fx:define>
+
+            <!-- Expediente -->
+            <ToggleButton text="Expediente" toggleGroup="$menuGroup"
+                          onAction="#openExpediente" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-clipboard" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <!-- Docente -->
+            <ToggleButton text="Docente" toggleGroup="$menuGroup"
+                          onAction="#openDocente" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-chalkboard-teacher" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <!-- Cursos -->
+            <ToggleButton text="Cursos" toggleGroup="$menuGroup"
+                          onAction="#openCursos" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-book" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <!-- Credencial -->
+            <ToggleButton text="Credencial" toggleGroup="$menuGroup"
+                          onAction="#openCredencial" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-credit-card" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <!-- Grupo -->
+            <ToggleButton text="Grupo" toggleGroup="$menuGroup"
+                          onAction="#openGrupo" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-users" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <!-- Asignatura -->
+            <ToggleButton text="Asignatura" toggleGroup="$menuGroup"
+                          onAction="#openAsignatura" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-book-open" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <!-- Aulas -->
+            <ToggleButton text="Aulas" toggleGroup="$menuGroup"
+                          onAction="#openAulas" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <Separator/>
+
+            <Button text="Volver al Menú"
+                    onAction="#onVolver"
+                    styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-arrow-left" iconSize="18"/></graphic>
+            </Button>
+
+        </VBox>
+    </left>
+
+    <!-- CONTENIDO CENTRAL -->
+    <center>
+        <StackPane fx:id="contentArea" styleClass="content">
+            <VBox alignment="TOP_CENTER" spacing="16">
+                <Label text="Bienvenido Servicios Escolares" styleClass="welcome-title"/>
+                <HBox spacing="8">
+
+                    <Button text="Cancelar" onAction="#onCancelar"/>
+                </HBox>
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>

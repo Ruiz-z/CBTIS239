@@ -37,7 +37,7 @@
     -fx-background-radius: 0 15 15 0;
 }
 
-/* Botones del menú */
+/* Toggle buttons estilo menú */
 .nav-btn {
     -fx-background-color: transparent;
     -fx-text-fill: white;
@@ -54,17 +54,28 @@
     -fx-background-color: rgba(255, 255, 255, 0.25);
 }
 
-/* Iconos Ikonli en el sidebar */
+/* ======== ICONOS IKONLI ======== */
+
+/* Íconos dentro de los botones del sidebar */
 .nav-btn .ikonli-font-icon {
-    -fx-icon-color: white;
-    -fx-opacity: 0.95;
+    -fx-icon-color: white;   /* Color blanco por defecto */
+    -fx-opacity: 0.95;       /* Un poco translúcido */
 }
+
+/* Cuando el toggle está seleccionado */
 .toggle-button:selected .ikonli-font-icon {
-    -fx-icon-color: white;
-    -fx-opacity: 1.0;
+    -fx-icon-color: white;   /* Sigue en blanco */
+    -fx-opacity: 1.0;        /* 100% opaco (más fuerte) */
 }
+
+/* Cuando el mouse pasa sobre el botón */
 .nav-btn:hover .ikonli-font-icon {
-    -fx-opacity: 1.0;
+    -fx-opacity: 1.0;        /* Se ilumina más */
+}
+
+/* Íconos en el botón "ghost" de la topbar (Cancelar) */
+.button.ghost .ikonli-font-icon {
+    -fx-icon-color: white;
 }
 
 /* ======== CONTENIDO CENTRAL ======== */

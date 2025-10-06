@@ -14,7 +14,7 @@
             <Label text="Menu Servicios Escolares" styleClass="topbar-title"/>
             <Pane HBox.hgrow="ALWAYS"/>
             <Button onAction="#onCancelar" styleClass="ghost" contentDisplay="LEFT" graphicTextGap="8">
-                <graphic><FontIcon iconLiteral="mdi2-close" iconSize="16"/></graphic>
+                <graphic><FontIcon iconLiteral="fas-times" iconSize="16"/></graphic>
                 <text>Cancelar</text>
             </Button>
         </HBox>
@@ -22,70 +22,75 @@
 
     <!-- SIDEBAR -->
     <left>
-        <VBox spacing="8" styleClass="sidebar" prefWidth="180">
+        <VBox spacing="8" styleClass="sidebar" prefWidth="200">
             <VBox.margin><Insets top="16" left="16" right="16" bottom="16"/></VBox.margin>
 
             <fx:define>
                 <ToggleGroup fx:id="menuGroup"/>
             </fx:define>
-            <ToggleButton text="Expediente" toggleGroup="$menuGroup"
-                          onAction="#openExpediente" styleClass="nav-btn"
-                          contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fab fa-expeditedssl" iconSize="18"/></graphic>
+
+            <!-- Inscripción -->
+            <ToggleButton text="Inscripción" toggleGroup="$menuGroup"
+                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-clipboard" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <ToggleButton text="Docente" toggleGroup="$menuGroup"
-                          onAction="#openDocente" styleClass="nav-btn"
-                          contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fas fa-chalkboard-teacher" iconSize="18"/></graphic>
+            <!-- Horario -->
+            <ToggleButton text="Horario" toggleGroup="$menuGroup"
+                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-clock" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <ToggleButton text="Cursos" toggleGroup="$menuGroup"
-                          onAction="#openCursos" styleClass="nav-btn"
-                          contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral= "fas fa-slash" iconSize="18"/></graphic>
+            <!-- Registrar Usuario -->
+            <ToggleButton text="Registrar Usuario" toggleGroup="$menuGroup"
+                          onAction="#openRegistrarUsuario"
+                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-user-plus" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <ToggleButton text="Credencial" toggleGroup="$menuGroup"
-                          onAction="#openCredencial" styleClass="nav-btn"
-                          contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="mdi2-card-account-details-outline" iconSize="18"/></graphic>
+            <!-- Roles -->
+            <ToggleButton text="Roles" toggleGroup="$menuGroup"
+                          onAction="#openRolesView"
+                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-user-shield" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <ToggleButton text="Grupo" toggleGroup="$menuGroup"
-                          onAction="#openGrupo" styleClass="nav-btn"
-                          contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="mdi2-account-group-outline" iconSize="18"/></graphic>
+
+
+            <!-- Asistencia -->
+            <ToggleButton text="Asistencia" toggleGroup="$menuGroup"
+                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-user-check" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <ToggleButton text="Asignatura" toggleGroup="$menuGroup"
-                          onAction="#openAsignatura" styleClass="nav-btn"
-                          contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="mdi2-school-outline" iconSize="18"/></graphic>
+            <!-- Alumnos -->
+            <ToggleButton text="Alumnos" toggleGroup="$menuGroup"
+                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10"
+                          onAction="#openAlumnoView">
+                <graphic><FontIcon iconLiteral="fas-users" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <ToggleButton text="Aulas" toggleGroup="$menuGroup"
-                          onAction="#openAulas" styleClass="nav-btn"
-                          contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="mdi2-office-building" iconSize="18"/></graphic>
+            <!-- Más opciones -->
+            <ToggleButton text="Más Opciones" toggleGroup="$menuGroup"
+                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10"
+                          onAction="#openMenu2">
+                <graphic><FontIcon iconLiteral="fas-angle-right" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <Separator/>
 
-            <ToggleButton text="Volver" toggleGroup="$menuGroup"
-                          onAction="#onVolver" styleClass="nav-btn"
-                          contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="mdi2-arrow-left" iconSize="18"/></graphic>
-            </ToggleButton>
         </VBox>
     </left>
 
     <!-- CONTENIDO CENTRAL -->
     <center>
         <StackPane fx:id="contentArea" styleClass="content">
-            <VBox alignment="TOP_CENTER" spacing="16">
+            <VBox alignment="TOP_CENTER" spacing="20">
                 <Label text="Bienvenido Servicios Escolares" styleClass="welcome-title"/>
-                <HBox spacing="8">
+
+                <!-- Ícono central -->
+                <FontIcon iconLiteral="fas-user-cog" iconSize="140" style="-fx-icon-color: black;"/>
+
+                <HBox spacing="12" alignment="CENTER">
                     <Button text="Actualizar Pagado" onAction="#onActualizarPagado"/>
                     <Button text="Cancelar" onAction="#onCancelar"/>
                 </HBox>
