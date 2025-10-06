@@ -3,26 +3,33 @@ plugins {
   id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
-repositories { mavenCentral() }
-
-java {
-  toolchain { languageVersion = JavaLanguageVersion.of(17) }
+repositories {
+  mavenCentral()
 }
 
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17) // Usa JDK 17
+  }
+}
+
+
 dependencies {
+  // Ikonli (íconos FontAwesome en JavaFX)
   implementation 'org.kordamp.ikonli:ikonli-core:12.3.1'
   implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
   implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack:12.3.1'
 
+  // JavaFX (usa solo una versión coherente)
+  implementation 'org.openjfx:javafx-controls:21.0.4'
+  implementation 'org.openjfx:javafx-fxml:21.0.4'
 }
 
-
 javafx {
-  version = '21.0.3' // si usas JDK 23, cambia a '23'
-  modules = ['javafx.controls','javafx.fxml']
+  version = '21.0.4' // debe coincidir con las dependencias de arriba
+  modules = ['javafx.controls', 'javafx.fxml']
 }
 
 application {
   mainClass = 'cbtis239.front.MainApp'
 }
-
