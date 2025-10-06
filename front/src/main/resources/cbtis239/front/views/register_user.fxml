@@ -1,130 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.geometry.Pos?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-<?import java.lang.*?>
+
+
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="cbtis239.front.ui.users.RegisterUserController"
+            prefWidth="900" prefHeight="550"
             stylesheets="@/cbtis239/front/css/register.css"
-            styleClass="register-root"
-            prefWidth="720" prefHeight="420">
+            styleClass="register-root">
 
-    <!-- Barra roja superior con título -->
+    <!-- Barra superior -->
     <top>
         <StackPane styleClass="topbar">
             <Label text="Registrar Nuevo Usuario" styleClass="topbar-title"/>
         </StackPane>
+
     </top>
 
+    <!-- Contenido -->
     <center>
-        <!-- Contenedor central -->
-        <HBox spacing="24" alignment="CENTER_LEFT" styleClass="center-pad">
-            <padding>
-                <Insets top="24" right="24" bottom="16" left="24"/>
-            </padding>
+        <VBox alignment="CENTER" spacing="20">
+            <!-- Ícono Usuario grande -->
 
-            <!-- Icono grande a la izquierda -->
-            <VBox alignment="CENTER" spacing="8" prefWidth="160">
-                <FontIcon iconLiteral="fas-user-plus" iconSize="96"/>
-            </VBox>
+            <!-- Contenedor del formulario -->
+            <HBox spacing="40" alignment="CENTER_LEFT" styleClass="content-box">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
 
-            <!-- Formulario -->
-            <GridPane hgap="12" vgap="14" styleClass="form-grid">
-                <columnConstraints>
-                    <ColumnConstraints halignment="RIGHT" minWidth="140"/>
-                    <ColumnConstraints minWidth="360" hgrow="NEVER"/>
-                    <ColumnConstraints minWidth="140"/>
-                </columnConstraints>
+                <GridPane hgap="15" vgap="18" styleClass="form-box">
+                    <columnConstraints>
+                        <ColumnConstraints halignment="RIGHT" minWidth="160"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="300" maxWidth="400"/>
+                        <ColumnConstraints minWidth="140"/>
+                    </columnConstraints>
 
-                <!-- Usuario -->
-                <Label text="Usuario:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtUsuario" GridPane.rowIndex="0" GridPane.columnIndex="1" promptText="usuario.sis"/>
+                    <!-- Usuario -->
+                    <Label text="Usuario:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtUsuario" GridPane.rowIndex="0" GridPane.columnIndex="1" promptText="usuario.sis"/>
 
-                <!-- Contraseña + Generar -->
-                <Label text="Contraseña:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <!-- Contraseña -->
+                    <Label text="Contraseña:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <PasswordField fx:id="txtPassword" promptText="••••••" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <Button text="Generar" onAction="#onGeneratePassword" styleClass="btn-skinny"
+                            GridPane.rowIndex="1" GridPane.columnIndex="2"/>
 
-                <StackPane GridPane.rowIndex="1" GridPane.columnIndex="1">
-                    <!-- oculto por defecto -->
-                    <PasswordField fx:id="txtPassword" promptText="••••••" style="-fx-padding: 6 28 6 6;"/>
-                    <!-- visible cuando se activa el ojo -->
-                    <TextField fx:id="txtPasswordPlain" promptText="contraseña"
-                               visible="false" managed="false"
-                               style="-fx-padding: 6 28 6 6;"/>
-                    <!-- ojito -->
-                    <ToggleButton fx:id="tbShowPwd" onAction="#onTogglePwd" focusTraversable="false">
-                        <styleClass>
-                            <String fx:value="icon-button"/>
-                        </styleClass>
-                        <graphic>
-                            <FontIcon iconLiteral="fas-eye"/>
-                        </graphic>
-                        <StackPane.alignment>
-                            <Pos fx:constant="CENTER_RIGHT"/>
-                        </StackPane.alignment>
-                    </ToggleButton>
-                </StackPane>
+                    <!-- Confirmar -->
+                    <Label text="Confirmar:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <PasswordField fx:id="txtConfirm" promptText="••••••" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                <Button text="Generar Contraseña" onAction="#onGeneratePassword"
-                        styleClass="btn-skinny"
-                        GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                    <!-- Nombre -->
+                    <Label text="Nombre(s):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtNombres" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-                <!-- Confirmar -->
-                <Label text="Confirmar contraseña:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <!-- Apellido Paterno -->
+                    <Label text="Apellido Paterno:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtApPat" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
-                <StackPane GridPane.rowIndex="2" GridPane.columnIndex="1">
-                    <PasswordField fx:id="txtConfirm" promptText="••••••" style="-fx-padding: 6 28 6 6;"/>
-                    <TextField fx:id="txtConfirmPlain" promptText="contraseña"
-                               visible="false" managed="false"
-                               style="-fx-padding: 6 28 6 6;"/>
-                    <ToggleButton fx:id="tbShowConfirm" onAction="#onToggleConfirm" focusTraversable="false">
-                        <styleClass>
-                            <String fx:value="icon-button"/>
-                        </styleClass>
-                        <graphic>
-                            <FontIcon iconLiteral="fas-eye"/>
-                        </graphic>
-                        <StackPane.alignment>
-                            <Pos fx:constant="CENTER_RIGHT"/>
-                        </StackPane.alignment>
-                    </ToggleButton>
-                </StackPane>
+                    <!-- Apellido Materno -->
+                    <Label text="Apellido Materno:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtApMat" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-                <!-- Nombres -->
-                <Label text="Nombre (s):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtNombres" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    <!-- Rol -->
+                    <Label text="Rol de Usuario:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="cbRol" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
-                <!-- Apellido Paterno -->
-                <Label text="Apellido Paterno:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtApPat" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-
-                <!-- Apellido Materno -->
-                <Label text="Apellido Materno:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtApMat" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
-
-                <!-- Rol -->
-                <Label text="Rol de Usuario:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-                <ComboBox fx:id="cbRol" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
-
-                <!-- Botón registrar centrado -->
-                <Button text="Registrar Usuario" fx:id="btnRegistrar" disable="true"
-                        onAction="#onRegistrar" styleClass="btn-skinny"
-                        GridPane.rowIndex="7" GridPane.columnIndex="1" GridPane.halignment="CENTER"/>
-            </GridPane>
-        </HBox>
+                    <!-- Botón registrar -->
+                    <Button text="Registrar Usuario" fx:id="btnRegistrar" disable="true"
+                            onAction="#onRegistrar" styleClass="btn-primary"
+                            GridPane.rowIndex="7" GridPane.columnIndex="1" GridPane.halignment="CENTER"/>
+                </GridPane>
+            </HBox>
+        </VBox>
     </center>
 
-    <!-- Botones inferiores -->
+    <!-- Barra inferior -->
     <bottom>
-        <HBox spacing="12" alignment="CENTER_RIGHT">
+        <HBox spacing="15" alignment="CENTER_RIGHT" styleClass="bottom-bar">
             <padding>
-                <Insets top="10" right="12" bottom="10" left="12"/>
+                <Insets top="10" right="20" bottom="10" left="20"/>
             </padding>
-            <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-skinny"/>
-            <Button text="Finalizar" onAction="#onFinalizar" styleClass="btn-skinny"/>
+            <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-secondary"/>
+            <Button text="Finalizar" onAction="#onFinalizar" styleClass="btn-primary"/>
         </HBox>
     </bottom>
 </BorderPane>

@@ -2,130 +2,91 @@ package cbtis239.front.ui.users;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.event.ActionEvent;
-import org.kordamp.ikonli.javafx.FontIcon;
-
-import java.security.SecureRandom;
-import java.util.List;
 
 public class RegisterUserController {
 
-    @FXML private TextField txtUsuario, txtNombres, txtApPat, txtApMat;
-    @FXML private PasswordField txtPassword, txtConfirm;
-    @FXML private TextField txtPasswordPlain, txtConfirmPlain;
-    @FXML private ToggleButton tbShowPwd, tbShowConfirm;
+    @FXML private TextField txtUsuario;
+    @FXML private PasswordField txtPassword;
+    @FXML private TextField txtPasswordPlain;
+    @FXML private PasswordField txtConfirm;
+    @FXML private TextField txtConfirmPlain;
+    @FXML private TextField txtNombres;
+    @FXML private TextField txtApPat;
+    @FXML private TextField txtApMat;
     @FXML private ComboBox<String> cbRol;
     @FXML private Button btnRegistrar;
+    @FXML private ToggleButton tbShowPwd;
+    @FXML private ToggleButton tbShowConfirm;
 
     @FXML
     private void initialize() {
-        // Roles demo
-        cbRol.getItems().setAll(List.of("Servicios Escolares", "Docente", "Administrador"));
+        // Demo roles
+        cbRol.getItems().addAll("Administrador", "Docente", "Alumno");
 
-        // Sincroniza contenido entre visibles/ocultos
-        txtPasswordPlain.textProperty().bindBidirectional(txtPassword.textProperty());
-        txtConfirmPlain.textProperty().bindBidirectional(txtConfirm.textProperty());
+        // Desactivar el botón hasta que se llenen campos
+        btnRegistrar.setDisable(true);
 
-        // Estado inicial: oculto
-        setReveal(false, txtPasswordPlain, txtPassword, tbShowPwd);
-        setReveal(false, txtConfirmPlain, txtConfirm, tbShowConfirm);
-
-        // Validación reactiva
-        txtUsuario.textProperty().addListener((o,a,b)->validateForm());
-        txtNombres.textProperty().addListener((o,a,b)->validateForm());
-        txtApPat.textProperty().addListener((o,a,b)->validateForm());
-        txtApMat.textProperty().addListener((o,a,b)->validateForm());
-        txtPassword.textProperty().addListener((o,a,b)->validateForm());
-        txtConfirm.textProperty().addListener((o,a,b)->validateForm());
-        cbRol.valueProperty().addListener((o,a,b)->validateForm());
-
-        validateForm();
+        // Listener básico
+        txtUsuario.textProperty().addListener((obs, oldVal, newVal) -> validarFormulario());
+        txtPassword.textProperty().addListener((obs, oldVal, newVal) -> validarFormulario());
+        txtConfirm.textProperty().addListener((obs, oldVal, newVal) -> validarFormulario());
     }
 
-    // Mostrar/ocultar campos (ojito)
-    private void setReveal(boolean show, TextField plain, PasswordField hidden, ToggleButton toggle) {
-        plain.setVisible(show);  plain.setManaged(show);
-        hidden.setVisible(!show); hidden.setManaged(!show);
-        toggle.setGraphic(new FontIcon(show ? "fas-eye-slash" : "fas-eye"));
-        toggle.setSelected(show);
+    private void validarFormulario() {
+        boolean completo = !txtUsuario.getText().isEmpty()
+                && !txtPassword.getText().isEmpty()
+                && txtPassword.getText().equals(txtConfirm.getText());
+        btnRegistrar.setDisable(!completo);
     }
 
     @FXML
-    private void onTogglePwd() {
-        setReveal(tbShowPwd.isSelected(), txtPasswordPlain, txtPassword, tbShowPwd);
-    }
-
-    @FXML
-    private void onToggleConfirm() {
-        setReveal(tbShowConfirm.isSelected(), txtConfirmPlain, txtConfirm, tbShowConfirm);
-    }
-
-    @FXML
-    private void onGeneratePassword() {
-        String g = generateStrongPassword(10);
-        txtPassword.setText(g);
-        txtConfirm.setText(g);
-        validateForm();
-    }
-
-    @FXML
-    private void onRegistrar(ActionEvent e) {
-        // Aquí aún NO guardamos en BD; solo demo.
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setHeaderText("Usuario registrado (demo)");
-        a.setContentText("Usuario: " + txtUsuario.getText() +
-                "\nRol: " + cbRol.getValue());
+    private void onRegistrar() {
+        Alert a = new Alert(Alert.AlertType.INFORMATION,
+                "Usuario registrado: " + txtUsuario.getText(),
+                ButtonType.OK);
         a.showAndWait();
-        clearForm();
     }
 
     @FXML
     private void onCancelar() {
-        clearForm();
+        // Aquí podrías limpiar los campos o cerrar ventana
+        txtUsuario.clear();
+        txtPassword.clear();
+        txtConfirm.clear();
+        txtNombres.clear();
+        txtApPat.clear();
+        txtApMat.clear();
+        cbRol.getSelectionModel().clearSelection();
     }
 
     @FXML
     private void onFinalizar() {
-        ((Button)btnRegistrar).getScene().getWindow().hide();
+        Alert a = new Alert(Alert.AlertType.INFORMATION,
+                "Registro finalizado.",
+                ButtonType.OK);
+        a.showAndWait();
     }
 
-    private void clearForm() {
-        txtUsuario.clear(); txtNombres.clear(); txtApPat.clear(); txtApMat.clear();
-        txtPassword.clear(); txtConfirm.clear(); cbRol.getSelectionModel().clearSelection();
-        // Vuelve a ocultar los “ojos”
-        setReveal(false, txtPasswordPlain, txtPassword, tbShowPwd);
-        setReveal(false, txtConfirmPlain, txtConfirm, tbShowConfirm);
-        validateForm();
+    @FXML
+    private void onGeneratePassword() {
+        String random = "Usr" + (int)(Math.random()*9999);
+        txtPassword.setText(random);
+        txtConfirm.setText(random);
     }
 
-    private void validateForm() {
-        boolean ok = notBlank(txtUsuario) &&
-                notBlank(txtNombres) &&
-                notBlank(txtApPat) &&
-                notBlank(txtApMat) &&
-                notBlank(txtPassword) &&
-                txtPassword.getText().equals(txtConfirm.getText()) &&
-                cbRol.getValue() != null;
-
-        // feedback visual simple para confirmación
-        if (!txtConfirm.getText().isBlank()) {
-            String style = txtPassword.getText().equals(txtConfirm.getText())
-                    ? "" : "-fx-border-color: #cc0000;";
-            txtConfirm.setStyle(style);
-            txtConfirmPlain.setStyle(style);
-        }
-        btnRegistrar.setDisable(!ok);
+    @FXML
+    private void onTogglePwd() {
+        boolean show = tbShowPwd.isSelected();
+        txtPasswordPlain.setText(txtPassword.getText());
+        txtPassword.setVisible(!show);
+        txtPasswordPlain.setVisible(show);
     }
 
-    private boolean notBlank(TextField tf) {
-        return tf.getText() != null && !tf.getText().isBlank();
-    }
-
-    private String generateStrongPassword(int len) {
-        final String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@$%*#";
-        SecureRandom r = new SecureRandom();
-        StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++) sb.append(chars.charAt(r.nextInt(chars.length())));
-        return sb.toString();
+    @FXML
+    private void onToggleConfirm() {
+        boolean show = tbShowConfirm.isSelected();
+        txtConfirmPlain.setText(txtConfirm.getText());
+        txtConfirm.setVisible(!show);
+        txtConfirmPlain.setVisible(show);
     }
 }

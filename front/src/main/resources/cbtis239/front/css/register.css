@@ -1,46 +1,94 @@
-/* Fondo general gris claro */
+/* ======== GENERAL ======== */
 .register-root {
-    -fx-background-color: #eeeeee;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-background-color: #f9f9f9;
 }
 
-/* Barra roja superior */
+/* ======== TOPBAR ======== */
 .topbar {
-    -fx-background-color: #8B0E0E;
-    -fx-padding: 10 0 10 0; /* alto parecido al mock */
+    -fx-background-color: #800000; /* Burdeos */
+    -fx-padding: 12px;
+    -fx-alignment: center;
 }
 .topbar-title {
     -fx-text-fill: white;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
-    -fx-font-size: 14px; /* tamaño del mock */
 }
 
-/* Formulario: labels y campos */
-.form-grid .label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #333333;
+/* ======== CONTENEDOR CENTRAL ======== */
+.content-box {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12px;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 4);
 }
 
-/* Mismo ancho para textfields / password / combo */
-.form-grid .text-field,
-.form-grid .password-field,
-.form-grid .combo-box-base {
-    -fx-pref-width: 360;     /* ancho de campo como en el mock */
-    -fx-background-color: white;
+/* ======== FORMULARIO ======== */
+.form-box {
+    -fx-padding: 20px;
+}
+.form-box .label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+    -fx-font-weight: bold;
+}
+.form-box .text-field,
+.form-box .password-field,
+.form-box .combo-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 6px 10px;
+}
+.form-box .text-field:focused,
+.form-box .password-field:focused,
+.form-box .combo-box:focused {
+    -fx-border-color: #800000;
+    -fx-effect: dropshadow(gaussian, rgba(128,0,0,0.2), 6, 0, 0, 2);
 }
 
-/* Botones pequeños (como en el mock) */
+/* ======== BOTONES ======== */
+.button {
+    -fx-background-radius: 8px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+/* Botón primario (Registrar, Finalizar) */
+.btn-primary {
+    -fx-background-color: #800000;
+    -fx-text-fill: white;
+    -fx-padding: 8px 16px;
+}
+.btn-primary:hover {
+    -fx-background-color: #a00000;
+}
+
+/* Botón secundario (Cancelar) */
+.btn-secondary {
+    -fx-background-color: #e0e0e0;
+    -fx-text-fill: #111;
+    -fx-padding: 8px 16px;
+}
+.btn-secondary:hover {
+    -fx-background-color: #c9c9c9;
+}
+
+/* Botón delgado (Generar) */
 .btn-skinny {
-    -fx-font-size: 10px;
-    -fx-padding: 4 10 4 10;
+    -fx-background-color: #800000;
+    -fx-text-fill: white;
+    -fx-padding: 4px 10px;
+    -fx-font-size: 12px;
+}
+.btn-skinny:hover {
+    -fx-background-color: #a00000;
 }
 
-/* Espaciado “card” central */
-.center-pad {
-    -fx-padding: 24 24 16 24; /* márgenes de la vista interna */
-}
-/* Botón de ojo sin bordes ni fondo */
-.icon-button {
+/* ======== BOTTOM BAR ======== */
+.bottom-bar {
     -fx-background-color: transparent;
-    -fx-padding: 0 6 0 6;
+    -fx-padding: 10px;
 }
-
