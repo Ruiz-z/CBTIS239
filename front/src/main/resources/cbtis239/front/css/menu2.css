@@ -8,7 +8,7 @@
 .topbar {
     -fx-background-color: #800000; /* Burdeos */
     -fx-padding: 12px;
-    -fx-alignment: center-left;
+    -fx-alignment: center;
 }
 .topbar-title {
     -fx-text-fill: white;
@@ -109,5 +109,44 @@
 }
 .button:hover {
     -fx-background-color: #ddd;
+    -fx-cursor: hand;
+}
+
+.btn-circle {
+    -fx-background-color: transparent;
+    -fx-border-color: white;
+    -fx-border-radius: 50%;
+    -fx-background-radius: 50%;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-width: 40px;
+    -fx-max-height: 40px;
+    -fx-alignment: center;
+    -fx-content-display: graphic-only; /* solo icono */
+}
+
+.btn-circle .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+
+.btn-circle:hover {
+    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-cursor: hand;
+}
+
+.btn-danger {
+    -fx-background-color: #800000; /* burdeos */
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 18px;
+    -fx-background-radius: 6px;
+    -fx-alignment: center-left;
+}
+.btn-danger .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+.btn-danger:hover {
+    -fx-background-color: #a83232;
     -fx-cursor: hand;
 }

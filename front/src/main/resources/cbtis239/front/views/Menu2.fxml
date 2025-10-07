@@ -10,14 +10,9 @@
 
     <!-- BARRA SUPERIOR -->
     <top>
-        <HBox styleClass="topbar">
+        <StackPane styleClass="topbar" prefHeight="50" alignment="CENTER">
             <Label text="Menu Servicios Escolares" styleClass="topbar-title"/>
-            <Pane HBox.hgrow="ALWAYS"/>
-            <Button onAction="#onCancelar" styleClass="ghost" contentDisplay="LEFT" graphicTextGap="8">
-                <graphic><FontIcon iconLiteral="fas-times" iconSize="16"/></graphic>
-                <text>Cancelar</text>
-            </Button>
-        </HBox>
+        </StackPane>
     </top>
 
     <!-- SIDEBAR -->
@@ -29,49 +24,42 @@
                 <ToggleGroup fx:id="menuGroup"/>
             </fx:define>
 
-            <!-- Expediente -->
             <ToggleButton text="Expediente" toggleGroup="$menuGroup"
                           onAction="#openExpediente" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-clipboard" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <!-- Docente -->
             <ToggleButton text="Docente" toggleGroup="$menuGroup"
                           onAction="#openDocente" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-chalkboard-teacher" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <!-- Cursos -->
             <ToggleButton text="Cursos" toggleGroup="$menuGroup"
                           onAction="#openCursos" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-book" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <!-- Credencial -->
             <ToggleButton text="Credencial" toggleGroup="$menuGroup"
                           onAction="#openCredencial" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-credit-card" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <!-- Grupo -->
             <ToggleButton text="Grupo" toggleGroup="$menuGroup"
                           onAction="#openGrupo" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-users" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <!-- Asignatura -->
             <ToggleButton text="Asignatura" toggleGroup="$menuGroup"
                           onAction="#openAsignatura" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-book-open" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <!-- Aulas -->
             <ToggleButton text="Aulas" toggleGroup="$menuGroup"
                           onAction="#openAulas" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
@@ -80,11 +68,18 @@
 
             <Separator/>
 
-            <Button text="Volver al Menú"
+
+            <!-- Botón Volver estilo rojo -->
+            <Button text="Volver"
                     onAction="#onVolver"
-                    styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
+                    styleClass="btn-danger"
+                    contentDisplay="LEFT" graphicTextGap="10"
+                    maxWidth="Infinity">
                 <graphic><FontIcon iconLiteral="fas-arrow-left" iconSize="18"/></graphic>
             </Button>
+
+
+
 
         </VBox>
     </left>
@@ -94,10 +89,6 @@
         <StackPane fx:id="contentArea" styleClass="content">
             <VBox alignment="TOP_CENTER" spacing="16">
                 <Label text="Bienvenido Servicios Escolares" styleClass="welcome-title"/>
-                <HBox spacing="8">
-
-                    <Button text="Cancelar" onAction="#onCancelar"/>
-                </HBox>
             </VBox>
         </StackPane>
     </center>

@@ -5,95 +5,92 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane fx:controller="cbtis239.front.ui.users.MenuController"
-            xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
             stylesheets="@/cbtis239/front/css/menu.css">
 
     <!-- BARRA SUPERIOR -->
     <top>
-        <HBox styleClass="topbar">
-            <Label text="Menu Servicios Escolares" styleClass="topbar-title"/>
-            <Pane HBox.hgrow="ALWAYS"/>
-            <Button onAction="#onCancelar" styleClass="ghost" contentDisplay="LEFT" graphicTextGap="8">
-                <graphic><FontIcon iconLiteral="fas-times" iconSize="16"/></graphic>
-                <text>Cancelar</text>
-            </Button>
-        </HBox>
+        <StackPane styleClass="topbar" prefHeight="50">
+            <Label text="Menu Servicios Escolares"
+                   styleClass="topbar-title"
+                   style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+        </StackPane>
     </top>
 
     <!-- SIDEBAR -->
     <left>
-        <VBox spacing="8" styleClass="sidebar" prefWidth="200">
-            <VBox.margin><Insets top="16" left="16" right="16" bottom="16"/></VBox.margin>
+        <StackPane>
+            <VBox spacing="8" styleClass="sidebar" prefWidth="220"
+                  AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                  AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
 
-            <fx:define>
-                <ToggleGroup fx:id="menuGroup"/>
-            </fx:define>
+                <fx:define>
+                    <ToggleGroup fx:id="menuGroup"/>
+                </fx:define>
 
-            <!-- Inscripción -->
-            <ToggleButton text="Inscripción" toggleGroup="$menuGroup"
-                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fas-clipboard" iconSize="18"/></graphic>
-            </ToggleButton>
+                <ToggleButton text="Inscripción" toggleGroup="$menuGroup"
+                              styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-clipboard" iconSize="20"/></graphic>
+                </ToggleButton>
 
-            <!-- Horario -->
-            <ToggleButton text="Horario" toggleGroup="$menuGroup"
-                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fas-clock" iconSize="18"/></graphic>
-            </ToggleButton>
+                <ToggleButton text="Horario" toggleGroup="$menuGroup"
+                              styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-clock" iconSize="20"/></graphic>
+                </ToggleButton>
 
-            <!-- Registrar Usuario -->
-            <ToggleButton text="Registrar Usuario" toggleGroup="$menuGroup"
-                          onAction="#openRegistrarUsuario"
-                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fas-user-plus" iconSize="18"/></graphic>
-            </ToggleButton>
+                <ToggleButton text="Registrar Usuario" toggleGroup="$menuGroup"
+                              onAction="#openRegistrarUsuario"
+                              styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-user-plus" iconSize="20"/></graphic>
+                </ToggleButton>
 
-            <!-- Roles -->
-            <ToggleButton text="Roles" toggleGroup="$menuGroup"
-                          onAction="#openRolesView"
-                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fas-user-shield" iconSize="18"/></graphic>
-            </ToggleButton>
+                <ToggleButton text="Roles" toggleGroup="$menuGroup"
+                              onAction="#openRolesView"
+                              styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-user-shield" iconSize="20"/></graphic>
+                </ToggleButton>
 
+                <ToggleButton text="Asistencia" toggleGroup="$menuGroup"
+                              styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-user-check" iconSize="20"/></graphic>
+                </ToggleButton>
 
+                <ToggleButton text="Alumnos" toggleGroup="$menuGroup"
+                              styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS"
+                              onAction="#openAlumnoView">
+                    <graphic><FontIcon iconLiteral="fas-users" iconSize="20"/></graphic>
+                </ToggleButton>
 
-            <!-- Asistencia -->
-            <ToggleButton text="Asistencia" toggleGroup="$menuGroup"
-                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fas-user-check" iconSize="18"/></graphic>
-            </ToggleButton>
+                <ToggleButton text="Más Opciones" toggleGroup="$menuGroup"
+                              styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS"
+                              onAction="#openMenu2">
+                    <graphic><FontIcon iconLiteral="fas-angle-right" iconSize="20"/></graphic>
+                </ToggleButton>
 
-            <!-- Alumnos -->
-            <ToggleButton text="Alumnos" toggleGroup="$menuGroup"
-                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10"
-                          onAction="#openAlumnoView">
-                <graphic><FontIcon iconLiteral="fas-users" iconSize="18"/></graphic>
-            </ToggleButton>
+                <!-- 🔥 CERRAR SESIÓN IGUAL QUE LOS DEMÁS -->
+                <ToggleButton text="Cerrar Sesión" toggleGroup="$menuGroup"
+                              styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS"
+                              onAction="#onCerrarSesion">
+                    <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="20"/></graphic>
+                </ToggleButton>
 
-            <!-- Más opciones -->
-            <ToggleButton text="Más Opciones" toggleGroup="$menuGroup"
-                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10"
-                          onAction="#openMenu2">
-                <graphic><FontIcon iconLiteral="fas-angle-right" iconSize="18"/></graphic>
-            </ToggleButton>
-
-
-        </VBox>
+            </VBox>
+        </StackPane>
     </left>
 
     <!-- CONTENIDO CENTRAL -->
     <center>
         <StackPane fx:id="contentArea" styleClass="content">
-            <VBox alignment="TOP_CENTER" spacing="20">
-                <Label text="Bienvenido Servicios Escolares" styleClass="welcome-title"/>
+            <VBox alignment="TOP_CENTER" spacing="30" style="-fx-padding: 40;" VBox.vgrow="ALWAYS">
 
-                <!-- Ícono central -->
-                <FontIcon iconLiteral="fas-user-cog" iconSize="140" style="-fx-icon-color: black;"/>
+                <!-- 🔥 Bienvenido más arriba -->
+                <Label text="Bienvenido Servicios Escolares"
+                       styleClass="welcome-title"
+                       style="-fx-font-size: 32px; -fx-font-weight: bold;"/>
 
-                <HBox spacing="12" alignment="CENTER">
-                    <Button text="Actualizar Pagado" onAction="#onActualizarPagado"/>
-                    <Button text="Cancelar" onAction="#onCancelar"/>
-                </HBox>
+                <FontIcon iconLiteral="fas-user-cog" iconSize="200" style="-fx-icon-color: black;"/>
+
             </VBox>
         </StackPane>
     </center>

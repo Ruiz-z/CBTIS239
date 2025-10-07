@@ -50,9 +50,15 @@ public class MenuController {
                     getClass().getResource("/cbtis239/front/css/menu2.css").toExternalForm()
             );
 
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
+            Stage newStage = new Stage();
+            newStage.setScene(scene);
+            newStage.setMaximized(true);
+            newStage.setTitle("Menú 2");
+            newStage.show();
+
+            // 👇 cerrar el menú actual
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -74,32 +80,47 @@ public class MenuController {
     }
 
     @FXML
-    private void openRegistrarUsuario() {
+    private void openRegistrarUsuario(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/register_user.fxml"));
             Parent root = loader.load();
 
-            Stage stage = new Stage();
-            stage.setTitle("Registrar Usuario");
-            stage.setScene(new Scene(root, 900, 550));
-            stage.show();
+            Stage newStage = new Stage();
+            newStage.setTitle("Registrar Usuario");
+            newStage.setScene(new Scene(root));
+            newStage.setMaximized(true);
+            newStage.show();
+
+            // 👇 cerrar menú actual
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
 
         } catch (Exception e) {
-            e.printStackTrace(); // 👈 muestra el error real
+            e.printStackTrace();
             showError("No se pudo abrir la ventana de Registro de Usuario\n\n" + e.getMessage());
         }
     }
-
     @FXML
-    private void openRolesView() {
+    private void onCerrarSesion(ActionEvent event) {
+        // Aquí puedes cerrar la ventana o volver al Login.fxml
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.close();
+    }
+    @FXML
+    private void openRolesView(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/RolesView.fxml"));
             Parent root = loader.load();
 
-            Stage stage = new Stage();
-            stage.setTitle("Gestión de Roles");
-            stage.setScene(new Scene(root, 800, 600));
-            stage.show();
+            Stage newStage = new Stage();
+            newStage.setTitle("Gestión de Roles");
+            newStage.setScene(new Scene(root));
+            newStage.setMaximized(true);
+            newStage.show();
+
+            // 👇 cerrar menú actual
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,15 +130,20 @@ public class MenuController {
 
     // ===== Nuevo método: abrir pantalla de Alumno =====
     @FXML
-    private void openAlumnoView() {
+    private void openAlumnoView(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Alumno.fxml"));
             Parent root = loader.load();
 
-            Stage stage = new Stage();
-            stage.setTitle("Gestión de Alumnos");
-            stage.setScene(new Scene(root, 1000, 650));
-            stage.show();
+            Stage newStage = new Stage();
+            newStage.setTitle("Gestión de Alumnos");
+            newStage.setScene(new Scene(root));
+            newStage.setMaximized(true);
+            newStage.show();
+
+            // 👇 cerrar menú actual
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
 
         } catch (Exception e) {
             e.printStackTrace();
