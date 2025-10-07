@@ -13,11 +13,10 @@
 
     <!-- Barra superior -->
     <top>
-        <HBox styleClass="topbar" alignment="CENTER_LEFT" spacing="20" >
+        <HBox styleClass="topbar" alignment="CENTER" spacing="20" >
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
-            <Button text="← Volver al Menú" fx:id="btnVolver" onAction="#onVolver" styleClass="btn-secondary"/>
             <Label text="Alumno" styleClass="topbar-title"/>
         </HBox>
     </top>
@@ -29,17 +28,17 @@
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
-            <!-- Primera fila: Foto + Firma + Datos Generales + Datos Escolares -->
+            <!-- Fila superior: Foto / Firma / Datos generales / Datos escolares -->
             <HBox spacing="40" alignment="TOP_CENTER">
 
-                <!-- Foto Alumno -->
+                <!-- Foto -->
                 <VBox spacing="10" alignment="CENTER">
                     <Label text="Fotografía" styleClass="section-title"/>
                     <ImageView fx:id="imgFoto" fitHeight="120" fitWidth="120" preserveRatio="true" style="-fx-border-color: gray;"/>
                     <Button text="Subir Fotografía" fx:id="btnFoto" onAction="#onSubirFoto" styleClass="btn-secondary"/>
                 </VBox>
 
-                <!-- Firma Alumno -->
+                <!-- Firma -->
                 <VBox spacing="10" alignment="CENTER">
                     <Label text="Firma del Alumno" styleClass="section-title"/>
                     <ImageView fx:id="imgFirma" fitHeight="80" fitWidth="200" preserveRatio="true" style="-fx-border-color: gray;"/>
@@ -63,7 +62,7 @@
                         <TextField fx:id="txtCurp" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
                         <Label text="Edo. Civil:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                        <TextField fx:id="txtEdoCivil" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                        <ComboBox fx:id="cmbEdoCivil" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
                         <Label text="Correo:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
                         <TextField fx:id="txtCorreo" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
@@ -81,16 +80,16 @@
                         <TextField fx:id="txtMatricula" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
                         <Label text="Estatus:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                        <TextField fx:id="txtEstatus" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <ComboBox fx:id="cmbEstatus" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
                         <Label text="Semestre:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                        <TextField fx:id="txtSemestre" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <ComboBox fx:id="cmbSemestre" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
                         <Label text="Carrera:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                        <TextField fx:id="txtCarrera" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        <ComboBox fx:id="cmbCarrera" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
                         <Label text="Grupo:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                        <TextField fx:id="txtGrupo" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                        <ComboBox fx:id="cmbGrupo" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
                     </GridPane>
                 </VBox>
             </HBox>
@@ -145,10 +144,10 @@
             <padding>
                 <Insets top="10" right="20" bottom="10" left="20"/>
             </padding>
+            <Button text="Volver al Menú" fx:id="btnVolver" onAction="#onVolver" styleClass="btn-danger"/>
             <Button text="Guardar" fx:id="btnGuardar" onAction="#onGuardar" styleClass="btn-primary"/>
             <Button text="Eliminar" fx:id="btnEliminar" onAction="#onEliminar" styleClass="btn-secondary"/>
             <Button text="Cancelar" fx:id="btnCancelar" onAction="#onCancelar" styleClass="btn-secondary"/>
-            <Button text="Finalizar" fx:id="btnFinalizar" onAction="#onFinalizar" styleClass="btn-primary"/>
         </HBox>
     </bottom>
 </BorderPane>

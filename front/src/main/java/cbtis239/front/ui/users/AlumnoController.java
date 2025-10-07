@@ -8,18 +8,37 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.stage.FileChooser;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
+import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+
 import java.io.File;
+import java.io.IOException;
 
 public class AlumnoController {
 
-    @FXML private TextField txtNombre, txtApPaterno, txtApMaterno, txtCurp, txtEdoCivil, txtCorreo, txtNss;
-    @FXML private TextField txtMatricula, txtEstatus, txtSemestre, txtCarrera, txtGrupo;
+    // Generales
+    @FXML private TextField txtNombre, txtApPaterno, txtApMaterno, txtCurp, txtCorreo, txtNss;
+    @FXML private ComboBox<String> cmbEdoCivil;
+
+    // Escolares
+    @FXML private TextField txtMatricula;
+    @FXML private ComboBox<String> cmbEstatus, cmbSemestre, cmbCarrera, cmbGrupo;
+
+    // Contacto
     @FXML private TextField txtCalle, txtNumero, txtColonia, txtEstado, txtMunicipio, txtLocalidad;
     @FXML private TextField txtCelPadre, txtCelMadre;
 
-    @FXML private Button btnGuardar, btnEliminar, btnCancelar, btnFinalizar, btnFoto, btnFirma, btnVolver;
+    // Imagenes
     @FXML private ImageView imgFoto, imgFirma;
 
+    // Botones
+    @FXML private Button btnGuardar, btnEliminar, btnCancelar, btnFoto, btnFirma, btnVolver;
+
+    // Tabla
     @FXML private TableView<ObservableList<String>> tablaAlumnos;
     @FXML private TableColumn<ObservableList<String>, String> colMatricula, colNombre, colApPaterno, colApMaterno, colSemestre, colCarrera;
 
@@ -27,6 +46,7 @@ public class AlumnoController {
 
     @FXML
     public void initialize() {
+        // inicializar listas
         listaAlumnos = FXCollections.observableArrayList();
 
         colMatricula.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(0)));
@@ -37,20 +57,63 @@ public class AlumnoController {
         colCarrera.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(5)));
 
         tablaAlumnos.setItems(listaAlumnos);
+
+        // Combos
+        cmbEdoCivil.setItems(FXCollections.observableArrayList("Soltero", "Casado", "Divorciado"));
+        cmbEstatus.setItems(FXCollections.observableArrayList("Activo", "Inactivo"));
+        cmbSemestre.setItems(FXCollections.observableArrayList("1","2","3","4","5","6","7","8","9"));
+        cmbCarrera.setItems(FXCollections.observableArrayList("Sistemas", "Electrónica", "Mecánica"));
+        cmbGrupo.setItems(FXCollections.observableArrayList("A","B","C","D"));
+
+        // Validaciones: NSS y Matrícula solo números
+        txtNss.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal.matches("\\d*")) txtNss.setText(newVal.replaceAll("[^\\d]", ""));
+        });
+        txtMatricula.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal.matches("\\d*")) txtMatricula.setText(newVal.replaceAll("[^\\d]", ""));
+        });
     }
 
     @FXML
     private void onGuardar() {
+        if (!validarCampos()) {
+            mostrarAlerta("Error", "Todos los campos son obligatorios.");
+            return;
+        }
+
         ObservableList<String> fila = FXCollections.observableArrayList(
                 txtMatricula.getText(),
                 txtNombre.getText(),
                 txtApPaterno.getText(),
                 txtApMaterno.getText(),
-                txtSemestre.getText(),
-                txtCarrera.getText()
+                cmbSemestre.getValue(),
+                cmbCarrera.getValue()
         );
         listaAlumnos.add(fila);
         limpiarCampos();
+    }
+
+    private boolean validarCampos() {
+        return !(txtNombre.getText().isBlank() ||
+                txtApPaterno.getText().isBlank() ||
+                txtApMaterno.getText().isBlank() ||
+                txtCurp.getText().isBlank() ||
+                cmbEdoCivil.getValue() == null ||
+                txtCorreo.getText().isBlank() ||
+                txtNss.getText().isBlank() ||
+                txtMatricula.getText().isBlank() ||
+                cmbEstatus.getValue() == null ||
+                cmbSemestre.getValue() == null ||
+                cmbCarrera.getValue() == null ||
+                cmbGrupo.getValue() == null ||
+                txtCalle.getText().isBlank() ||
+                txtNumero.getText().isBlank() ||
+                txtColonia.getText().isBlank() ||
+                txtEstado.getText().isBlank() ||
+                txtMunicipio.getText().isBlank() ||
+                txtLocalidad.getText().isBlank() ||
+                txtCelPadre.getText().isBlank() ||
+                txtCelMadre.getText().isBlank());
     }
 
     @FXML
@@ -65,14 +128,20 @@ public class AlumnoController {
     }
 
     @FXML
-    private void onFinalizar() {
-        System.out.println("Proceso finalizado.");
-    }
+    private void onVolver(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
+            Parent root = loader.load();
 
-    @FXML
-    private void onVolver() {
-        System.out.println("Volviendo al menú principal...");
-        // aquí puedes cargar otra escena o cerrar la ventana
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);
+            stage.setTitle("Menú Principal");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo volver al menú: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -96,11 +165,34 @@ public class AlumnoController {
     }
 
     private void limpiarCampos() {
-        txtMatricula.clear();
         txtNombre.clear();
         txtApPaterno.clear();
         txtApMaterno.clear();
-        txtSemestre.clear();
-        txtCarrera.clear();
+        txtCurp.clear();
+        cmbEdoCivil.getSelectionModel().clearSelection();
+        txtCorreo.clear();
+        txtNss.clear();
+        txtMatricula.clear();
+        cmbEstatus.getSelectionModel().clearSelection();
+        cmbSemestre.getSelectionModel().clearSelection();
+        cmbCarrera.getSelectionModel().clearSelection();
+        cmbGrupo.getSelectionModel().clearSelection();
+        txtCalle.clear();
+        txtNumero.clear();
+        txtColonia.clear();
+        txtEstado.clear();
+        txtMunicipio.clear();
+        txtLocalidad.clear();
+        txtCelPadre.clear();
+        txtCelMadre.clear();
+        imgFoto.setImage(null);
+        imgFirma.setImage(null);
+    }
+
+    private void mostrarAlerta(String titulo, String msg) {
+        Alert a = new Alert(Alert.AlertType.ERROR);
+        a.setHeaderText(titulo);
+        a.setContentText(msg);
+        a.showAndWait();
     }
 }
