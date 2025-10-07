@@ -24,6 +24,16 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 4);
 }
 
+.eye-btn {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 0 6 0 6;
+    -fx-text-fill: #444;
+}
+.eye-btn:hover {
+    -fx-background-color: rgba(0,0,0,0.1);
+}
+
 /* ======== FORMULARIO ======== */
 .form-box {
     -fx-padding: 20px;

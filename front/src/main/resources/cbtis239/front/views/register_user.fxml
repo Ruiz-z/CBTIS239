@@ -2,14 +2,11 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
-
-
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="cbtis239.front.ui.users.RegisterUserController"
-            prefWidth="900" prefHeight="550"
+            prefWidth="1280" prefHeight="720"
             stylesheets="@/cbtis239/front/css/register.css"
             styleClass="register-root">
 
@@ -18,15 +15,13 @@
         <StackPane styleClass="topbar">
             <Label text="Registrar Nuevo Usuario" styleClass="topbar-title"/>
         </StackPane>
-
     </top>
 
     <!-- Contenido -->
     <center>
         <VBox alignment="CENTER" spacing="20">
-            <!-- Ícono Usuario grande -->
 
-            <!-- Contenedor del formulario -->
+            <!-- Formulario -->
             <HBox spacing="40" alignment="CENTER_LEFT" styleClass="content-box">
                 <padding>
                     <Insets top="30" right="30" bottom="30" left="30"/>
@@ -45,13 +40,25 @@
 
                     <!-- Contraseña -->
                     <Label text="Contraseña:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                    <PasswordField fx:id="txtPassword" promptText="••••••" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <StackPane GridPane.rowIndex="1" GridPane.columnIndex="1">
+                        <PasswordField fx:id="txtPassword" promptText="••••••" prefWidth="250"/>
+                        <TextField fx:id="txtPasswordVisible" promptText="Contraseña visible"
+                                   visible="false" managed="false" prefWidth="250"/>
+                        <Button fx:id="btnVerPass" text="👁" onAction="#onTogglePassword"
+                                styleClass="eye-btn" StackPane.alignment="CENTER_RIGHT"/>
+                    </StackPane>
                     <Button text="Generar" onAction="#onGeneratePassword" styleClass="btn-skinny"
                             GridPane.rowIndex="1" GridPane.columnIndex="2"/>
 
                     <!-- Confirmar -->
                     <Label text="Confirmar:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                    <PasswordField fx:id="txtConfirm" promptText="••••••" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    <StackPane GridPane.rowIndex="2" GridPane.columnIndex="1">
+                        <PasswordField fx:id="txtConfirm" promptText="••••••" prefWidth="250"/>
+                        <TextField fx:id="txtConfirmVisible" promptText="Confirmar visible"
+                                   visible="false" managed="false" prefWidth="250"/>
+                        <Button fx:id="btnVerConfirm" text="👁" onAction="#onToggleConfirm"
+                                styleClass="eye-btn" StackPane.alignment="CENTER_RIGHT"/>
+                    </StackPane>
 
                     <!-- Nombre -->
                     <Label text="Nombre(s):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
@@ -70,10 +77,27 @@
                     <ComboBox fx:id="cbRol" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
                     <!-- Botón registrar -->
-                    <Button text="Registrar Usuario" fx:id="btnRegistrar" disable="true"
+                    <Button text="Registrar Usuario" fx:id="btnRegistrar"
                             onAction="#onRegistrar" styleClass="btn-primary"
                             GridPane.rowIndex="7" GridPane.columnIndex="1" GridPane.halignment="CENTER"/>
                 </GridPane>
+            </HBox>
+
+            <!-- Tabla de usuarios -->
+            <TableView fx:id="tablaUsuarios" prefHeight="200" prefWidth="1000">
+                <columns>
+                    <TableColumn fx:id="colUsuario" text="Usuario" prefWidth="150"/>
+                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="150"/>
+                    <TableColumn fx:id="colApPat" text="Apellido Paterno" prefWidth="150"/>
+                    <TableColumn fx:id="colApMat" text="Apellido Materno" prefWidth="150"/>
+                    <TableColumn fx:id="colRol" text="Rol" prefWidth="150"/>
+                </columns>
+            </TableView>
+
+            <!-- Botones acciones -->
+            <HBox spacing="15" alignment="CENTER">
+                <Button text="Modificar" fx:id="btnModificar" onAction="#onModificar" styleClass="btn-secondary"/>
+                <Button text="Eliminar" fx:id="btnEliminar" onAction="#onEliminar" styleClass="btn-danger"/>
             </HBox>
         </VBox>
     </center>
@@ -85,7 +109,7 @@
                 <Insets top="10" right="20" bottom="10" left="20"/>
             </padding>
             <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-secondary"/>
-            <Button text="Finalizar" onAction="#onFinalizar" styleClass="btn-primary"/>
+            <Button text="Volver" onAction="#onVolver" styleClass="btn-primary"/>
         </HBox>
     </bottom>
 </BorderPane>
