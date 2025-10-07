@@ -57,11 +57,17 @@
 
             <!-- Botones -->
             <HBox alignment="CENTER" spacing="18" styleClass="buttons-row">
+                <!-- Botón Volver al Menú -->
+                <Button text="Volver al Menú"
+                        onAction="#onVolverMenu"
+                        styleClass="btn-danger"/>
+
                 <Button text="Guardar"   onAction="#onGuardar"   styleClass="btn-primary"/>
                 <Button text="Actualizar" onAction="#onActualizar" styleClass="btn-secondary"/>
                 <Button text="Limpiar"   onAction="#onLimpiar"/>
                 <Button text="Eliminar"  onAction="#onEliminar"   styleClass="btn-danger"/>
             </HBox>
+
         </VBox>
     </center>
 </BorderPane>

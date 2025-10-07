@@ -4,6 +4,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+
 public class RolesController {
 
     @FXML private TextField txtIdRol;
@@ -52,6 +62,24 @@ public class RolesController {
     }
 
     @FXML
+    private void onVolverMenu(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+
+            stage.setMaximized(true); // 👈 abrir en pantalla completa
+            stage.setTitle("Menú Principal");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            alert("Error", "No se pudo volver al menú: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+    @FXML
     private void onEliminar() {
         Rol sel = tblRoles.getSelectionModel().getSelectedItem();
         if (sel != null) data.remove(sel);
@@ -64,6 +92,7 @@ public class RolesController {
         txtPermisos.clear();
         tblRoles.getSelectionModel().clearSelection();
     }
+
 
     private int nextId() {
         return data.stream().mapToInt(Rol::getId).max().orElse(0) + 1;
