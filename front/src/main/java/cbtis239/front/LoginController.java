@@ -17,20 +17,23 @@ public class LoginController {
         String u = txtUser.getText();
         String p = txtPass.getText();
 
-        // Simulación de validación (luego conectas con BD o backend real)
+        // Simulación de validación
         if ("admin".equals(u) && "1234".equals(p)) {
-            lblError.setVisible(false); // ocultar error
-            SceneNavigator.switchFromEvent(e, "/cbtis239/front/views/menu.fxml",
-                    "Registrar Nuevo Usuario"
+            lblError.setVisible(false);
+
+            // Aquí usas SceneNavigator
+            SceneNavigator.switchFromEvent(
+                    e,
+                    "/cbtis239/front/views/menu.fxml",
+                    "Menú Principal"
             );
 
-            System.out.println("Login OK");
+            System.out.println("Login OK → menú abierto en pantalla completa");
         } else {
             lblError.setText("Usuario o contraseña incorrectos");
             lblError.setVisible(true);
         }
     }
-
 
     @FXML
     private void onExit(ActionEvent e) {

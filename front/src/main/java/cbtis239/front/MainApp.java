@@ -1,6 +1,5 @@
 package cbtis239.front;
 
-import cbtis239.front.util.SceneNavigator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
