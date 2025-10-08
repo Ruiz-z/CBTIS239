@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public java.util.List<UserDto> list() {
         return userRepo.findAll().stream().map(this::toDto).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.List<com.cbtis239.escolares.web.dto.RoleDto> listRoles() {
+        return roleRepo.findAll().stream()
+                .map(role -> new com.cbtis239.escolares.web.dto.RoleDto(role.getId(), role.getName()))
+                .sorted(Comparator.comparing(com.cbtis239.escolares.web.dto.RoleDto::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
     }
 
     @Transactional

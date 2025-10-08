@@ -29,6 +29,11 @@ public class UserController {
         return ResponseEntity.ok(service.list());
     }
 
+    @GetMapping("/roles")
+    public ResponseEntity<java.util.List<RoleDto>> listRoles() {
+        return ResponseEntity.ok(service.listRoles());
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody UserUpdateRequest req) {
         return ResponseEntity.ok(service.update(id, req));

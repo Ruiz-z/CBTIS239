@@ -23,6 +23,9 @@ dependencies {
   // JavaFX (usa solo una versión coherente)
   implementation 'org.openjfx:javafx-controls:21.0.4'
   implementation 'org.openjfx:javafx-fxml:21.0.4'
+
+  // Cliente HTTP y JSON
+  implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
 }
 
 javafx {

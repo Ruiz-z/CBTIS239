@@ -1,12 +1,25 @@
 package cbtis239.front.ui.users;
 
+import cbtis239.front.api.ApiException;
+import cbtis239.front.api.UserApiClient;
+import cbtis239.front.api.dto.RoleDto;
+import cbtis239.front.api.dto.UserCreateRequest;
+import cbtis239.front.api.dto.UserDto;
+import cbtis239.front.api.dto.UserUpdateRequest;
 import cbtis239.front.util.SceneNavigator;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.beans.property.SimpleStringProperty;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 
 public class RegisterUserController {
 
@@ -16,36 +29,90 @@ public class RegisterUserController {
     @FXML private ComboBox<String> cbRol;
     @FXML private Button btnVerPass, btnVerConfirm;
 
-    @FXML private TableView<ObservableList<String>> tablaUsuarios;
-    @FXML private TableColumn<ObservableList<String>, String> colUsuario, colNombre, colApPat, colApMat, colRol;
+    @FXML private TableView<UserFxModel> tablaUsuarios;
+    @FXML private TableColumn<UserFxModel, String> colUsuario, colNombre, colApPat, colApMat, colRol;
 
-    private ObservableList<ObservableList<String>> listaUsuarios;
+    private final UserApiClient apiClient = new UserApiClient();
+    private final ObservableList<UserFxModel> listaUsuarios = FXCollections.observableArrayList();
+    private final ObservableList<String> rolesDisponibles = FXCollections.observableArrayList();
+
     private boolean mostrarPassword = false;
     private boolean mostrarConfirm = false;
 
     @FXML
     public void initialize() {
-        cbRol.setItems(FXCollections.observableArrayList("Administrador", "Empleado", "Invitado"));
+        cbRol.setItems(rolesDisponibles);
 
-        listaUsuarios = FXCollections.observableArrayList();
-        colUsuario.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(0)));
-        colNombre.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(1)));
-        colApPat.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(2)));
-        colApMat.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(3)));
-        colRol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(4)));
+        colUsuario.setCellValueFactory(data -> data.getValue().emailProperty());
+        colNombre.setCellValueFactory(data -> data.getValue().nombresProperty());
+        colApPat.setCellValueFactory(data -> data.getValue().apellidoPatProperty());
+        colApMat.setCellValueFactory(data -> data.getValue().apellidoMatProperty());
+        colRol.setCellValueFactory(data -> data.getValue().rolesProperty());
 
         tablaUsuarios.setItems(listaUsuarios);
 
-        // Rellenar campos al seleccionar
         tablaUsuarios.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
-                txtUsuario.setText(newSel.get(0));
-                txtNombres.setText(newSel.get(1));
-                txtApPat.setText(newSel.get(2));
-                txtApMat.setText(newSel.get(3));
-                cbRol.setValue(newSel.get(4));
+                txtUsuario.setText(newSel.getEmail());
+                txtNombres.setText(newSel.getNombres());
+                txtApPat.setText(newSel.getApellidoPat());
+                txtApMat.setText(newSel.getApellidoMat());
+                String role = newSel.getPrimaryRole();
+                if (role != null && !rolesDisponibles.contains(role)) {
+                    rolesDisponibles.add(role);
+                }
+                cbRol.setValue(role);
             }
         });
+
+        loadRoles();
+        loadUsers();
+    }
+
+    private void loadRoles() {
+        CompletableFuture.supplyAsync(apiClient::listRoles)
+                .thenAccept(roles -> Platform.runLater(() -> {
+                    List<String> names = roles.stream()
+                            .map(RoleDto::name)
+                            .filter(Objects::nonNull)
+                            .map(String::trim)
+                            .filter(name -> !name.isBlank())
+                            .distinct()
+                            .sorted(String::compareToIgnoreCase)
+                            .toList();
+                    rolesDisponibles.setAll(names);
+                }))
+                .exceptionally(ex -> {
+                    showAsyncError("No se pudieron cargar los roles disponibles.", ex);
+                    return null;
+                });
+    }
+
+    private void loadUsers() {
+        CompletableFuture.supplyAsync(apiClient::listUsers)
+                .thenAccept(users -> Platform.runLater(() -> {
+                    List<UserFxModel> models = users.stream()
+                            .map(UserFxModel::fromDto)
+                            .collect(Collectors.toList());
+                    models.sort((a, b) -> a.getEmail().compareToIgnoreCase(b.getEmail()));
+                    listaUsuarios.setAll(models);
+                }))
+                .exceptionally(ex -> {
+                    showAsyncError("No se pudieron cargar los usuarios.", ex);
+                    return null;
+                });
+    }
+
+    private void showAsyncError(String msg, Throwable throwable) {
+        Platform.runLater(() -> showError(msg + "\n\n" + extractErrorMessage(throwable)));
+    }
+
+    private String extractErrorMessage(Throwable throwable) {
+        Throwable cause = throwable instanceof CompletionException ? throwable.getCause() : throwable;
+        if (cause instanceof ApiException apiEx) {
+            return "Código " + apiEx.getStatusCode() + ": " + apiEx.getMessage();
+        }
+        return cause != null && cause.getMessage() != null ? cause.getMessage() : throwable.toString();
     }
 
     // ====== Botón Generar ======
@@ -108,67 +175,143 @@ public class RegisterUserController {
         String passValue = mostrarPassword ? txtPasswordVisible.getText() : txtPassword.getText();
         String confirmValue = mostrarConfirm ? txtConfirmVisible.getText() : txtConfirm.getText();
 
-        if (txtUsuario.getText().isEmpty() ||
-                passValue.isEmpty() || confirmValue.isEmpty() ||
-                txtNombres.getText().isEmpty() ||
-                txtApPat.getText().isEmpty() || txtApMat.getText().isEmpty() ||
-                cbRol.getValue() == null) {
-            showError("Debes rellenar todos los campos.");
+        if (!validateRequiredFields(true, passValue, confirmValue)) {
             return;
         }
 
-        if (!passValue.equals(confirmValue)) {
-            showError("Las contraseñas no coinciden.");
-            return;
-        }
-
-        ObservableList<String> fila = FXCollections.observableArrayList(
-                txtUsuario.getText(),
-                txtNombres.getText(),
-                txtApPat.getText(),
-                txtApMat.getText(),
-                cbRol.getValue()
+        UserCreateRequest request = new UserCreateRequest(
+                buildFullName(),
+                txtUsuario.getText().trim(),
+                passValue.trim(),
+                gatherRoles()
         );
-        listaUsuarios.add(fila);
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Usuario registrado con éxito.");
-        alert.setHeaderText(null);
-        alert.showAndWait();
-
-        limpiarCampos();
+        CompletableFuture.supplyAsync(() -> apiClient.createUser(request))
+                .thenAccept(dto -> Platform.runLater(() -> {
+                    showInfo("Usuario registrado con éxito.");
+                    limpiarCampos();
+                    tablaUsuarios.getSelectionModel().clearSelection();
+                    mergeDtoIntoTable(dto);
+                }))
+                .exceptionally(ex -> {
+                    showAsyncError("No se pudo registrar el usuario.", ex);
+                    return null;
+                });
     }
 
     @FXML
     private void onModificar() {
-        int index = tablaUsuarios.getSelectionModel().getSelectedIndex();
-        if (index >= 0) {
-            ObservableList<String> fila = FXCollections.observableArrayList(
-                    txtUsuario.getText(),
-                    txtNombres.getText(),
-                    txtApPat.getText(),
-                    txtApMat.getText(),
-                    cbRol.getValue()
-            );
-            listaUsuarios.set(index, fila);
+        UserFxModel selected = tablaUsuarios.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showError("Selecciona un usuario de la tabla para modificar.");
+            return;
         }
+
+        if (!txtUsuario.getText().trim().equalsIgnoreCase(selected.getEmail())) {
+            showError("El usuario/correo no se puede modificar desde esta pantalla.");
+            return;
+        }
+
+        if (!validateRequiredFields(false, null, null)) {
+            return;
+        }
+
+        UserUpdateRequest request = new UserUpdateRequest(
+                buildFullName(),
+                null,
+                gatherRoles()
+        );
+
+        CompletableFuture.supplyAsync(() -> apiClient.updateUser(selected.getId(), request))
+                .thenAccept(dto -> Platform.runLater(() -> {
+                    showInfo("Usuario actualizado correctamente.");
+                    mergeDtoIntoTable(dto);
+                    tablaUsuarios.refresh();
+                }))
+                .exceptionally(ex -> {
+                    showAsyncError("No se pudo actualizar el usuario.", ex);
+                    return null;
+                });
     }
 
     @FXML
     private void onEliminar() {
-        int index = tablaUsuarios.getSelectionModel().getSelectedIndex();
-        if (index >= 0) {
-            listaUsuarios.remove(index);
+        UserFxModel selected = tablaUsuarios.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showError("Selecciona un usuario para eliminar.");
+            return;
         }
+
+        CompletableFuture.runAsync(() -> apiClient.deleteUser(selected.getId()))
+                .thenRun(() -> Platform.runLater(() -> {
+                    listaUsuarios.remove(selected);
+                    limpiarCampos();
+                    showInfo("Usuario eliminado.");
+                }))
+                .exceptionally(ex -> {
+                    showAsyncError("No se pudo eliminar el usuario.", ex);
+                    return null;
+                });
     }
 
     @FXML
     private void onCancelar() {
         limpiarCampos();
+        tablaUsuarios.getSelectionModel().clearSelection();
     }
 
     @FXML
     private void onVolver(ActionEvent event) {
         SceneNavigator.switchFromEvent(event, "/cbtis239/front/views/Menu.fxml", "Menú Principal");
+    }
+
+    private boolean validateRequiredFields(boolean requirePasswords, String passValue, String confirmValue) {
+        if (txtUsuario.getText().isBlank() || txtNombres.getText().isBlank() || txtApPat.getText().isBlank()) {
+            showError("Debes rellenar al menos usuario, nombres y apellido paterno.");
+            return false;
+        }
+
+        if (cbRol.getValue() == null || cbRol.getValue().isBlank()) {
+            showError("Selecciona un rol para el usuario.");
+            return false;
+        }
+
+        if (requirePasswords) {
+            if (passValue == null || passValue.isBlank() || confirmValue == null || confirmValue.isBlank()) {
+                showError("Debes capturar y confirmar la contraseña.");
+                return false;
+            }
+            if (!passValue.equals(confirmValue)) {
+                showError("Las contraseñas no coinciden.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Set<String> gatherRoles() {
+        String selected = cbRol.getValue();
+        return selected == null || selected.isBlank() ? Set.of() : Set.of(selected);
+    }
+
+    private String buildFullName() {
+        return List.of(txtNombres.getText(), txtApPat.getText(), txtApMat.getText()).stream()
+                .filter(s -> s != null && !s.isBlank())
+                .map(String::trim)
+                .collect(Collectors.joining(" "));
+    }
+
+    private void mergeDtoIntoTable(UserDto dto) {
+        UserFxModel existing = listaUsuarios.stream()
+                .filter(model -> Objects.equals(model.getId(), dto.id()))
+                .findFirst()
+                .orElse(null);
+        if (existing == null) {
+            listaUsuarios.add(UserFxModel.fromDto(dto));
+        } else {
+            existing.updateFromDto(dto);
+        }
+        listaUsuarios.sort((a, b) -> a.getEmail().compareToIgnoreCase(b.getEmail()));
     }
 
     private void showError(String msg) {
@@ -178,8 +321,21 @@ public class RegisterUserController {
         a.show();
     }
 
+    private void showInfo(String msg) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.show();
+    }
+
     private void limpiarCampos() {
         txtUsuario.clear();
+        if (mostrarPassword) {
+            onTogglePassword();
+        }
+        if (mostrarConfirm) {
+            onToggleConfirm();
+        }
         txtPassword.clear();
         txtPasswordVisible.clear();
         txtConfirm.clear();
