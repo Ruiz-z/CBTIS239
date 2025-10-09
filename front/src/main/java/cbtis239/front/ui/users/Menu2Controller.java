@@ -30,11 +30,9 @@ public class Menu2Controller {
     // Acciones del menú
     @FXML private void openExpediente() { loadContent("home.fxml"); }
     @FXML private void openDocente()    { loadContent("home.fxml"); }
-    @FXML private void openCursos()     { loadContent("home.fxml"); }
     @FXML private void openCredencial() { loadContent("home.fxml"); }
-    @FXML private void openGrupo()      { loadContent("home.fxml"); }
+
     @FXML private void openAsignatura() { loadContent("home.fxml"); }
-    @FXML private void openAulas()      { loadContent("home.fxml"); }
 
     private void showError(String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR);
@@ -42,6 +40,78 @@ public class Menu2Controller {
         a.setContentText(msg);
         a.show();
     }
+    @FXML
+    private void openCursos(ActionEvent event) {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Curso.fxml"));
+        Parent root = loader.load();
+
+        Stage newStage = new Stage();
+        newStage.setTitle("Gestión de Curso");
+        newStage.setScene(new Scene(root));
+        newStage.setMaximized(true);
+        newStage.show();
+
+        // cerrar menú actual
+        Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        currentStage.close();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de Grupos\n\n" + e.getMessage());
+        alert.setHeaderText("Error");
+        alert.showAndWait();
+    }
+}
+
+@FXML
+    private void openGrupo(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Grupo.fxml"));
+            Parent root = loader.load();
+
+            Stage newStage = new Stage();
+            newStage.setTitle("Gestión de Grupos");
+            newStage.setScene(new Scene(root));
+            newStage.setMaximized(true);
+            newStage.show();
+
+            // cerrar menú actual
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de Grupos\n\n" + e.getMessage());
+            alert.setHeaderText("Error");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void openAulas(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/aula.fxml"));
+            Parent root = loader.load();
+
+            Stage newStage = new Stage();
+            newStage.setTitle("Gestión de Aulas");
+            newStage.setScene(new Scene(root));
+            newStage.setMaximized(true);
+            newStage.show();
+
+            // cerrar menú actual
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de Aulas\n\n" + e.getMessage());
+            alert.setHeaderText("Error");
+            alert.showAndWait();
+        }
+    }
+
 
     // Acción especial: volver al menú principal
     @FXML

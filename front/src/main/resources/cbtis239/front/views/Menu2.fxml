@@ -11,19 +11,22 @@
     <!-- BARRA SUPERIOR -->
     <top>
         <StackPane styleClass="topbar" prefHeight="50" alignment="CENTER">
-            <Label text="Menu Servicios Escolares" styleClass="topbar-title"/>
+            <Label text="Menu 2" styleClass="topbar-title"/>
         </StackPane>
     </top>
 
     <!-- SIDEBAR -->
     <left>
         <VBox spacing="8" styleClass="sidebar" prefWidth="180">
-            <VBox.margin><Insets top="16" left="16" right="16" bottom="16"/></VBox.margin>
+            <VBox.margin>
+                <Insets top="16" left="16" right="16" bottom="16"/>
+            </VBox.margin>
 
             <fx:define>
                 <ToggleGroup fx:id="menuGroup"/>
             </fx:define>
 
+            <!-- Botones de navegación -->
             <ToggleButton text="Expediente" toggleGroup="$menuGroup"
                           onAction="#openExpediente" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
@@ -63,13 +66,13 @@
             <ToggleButton text="Aulas" toggleGroup="$menuGroup"
                           onAction="#openAulas" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="18"/></graphic>
+                <graphic><FontIcon iconLiteral="fas-school" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <Separator/>
+            <!-- Empujar el botón hacia abajo -->
+            <Region VBox.vgrow="ALWAYS"/>
 
-
-            <!-- Botón Volver estilo rojo -->
+            <!-- Botón Volver -->
             <Button text="Volver"
                     onAction="#onVolver"
                     styleClass="btn-danger"
@@ -77,19 +80,12 @@
                     maxWidth="Infinity">
                 <graphic><FontIcon iconLiteral="fas-arrow-left" iconSize="18"/></graphic>
             </Button>
-
-
-
-
         </VBox>
+
     </left>
 
     <!-- CONTENIDO CENTRAL -->
     <center>
-        <StackPane fx:id="contentArea" styleClass="content">
-            <VBox alignment="TOP_CENTER" spacing="16">
-                <Label text="Bienvenido Servicios Escolares" styleClass="welcome-title"/>
-            </VBox>
-        </StackPane>
+        <StackPane fx:id="contentArea" styleClass="content"/>
     </center>
 </BorderPane>
