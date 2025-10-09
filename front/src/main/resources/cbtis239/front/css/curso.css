@@ -1,0 +1,61 @@
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-background-color: #f5f5f5;
+}
+
+/* Barra superior */
+.header-bar {
+    -fx-background-color: #800000;
+    -fx-padding: 12px;
+}
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* Formulario */
+.content {
+    -fx-padding: 20;
+}
+
+/* Botones */
+.btn-primary {
+    -fx-background-color: #800000;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+}
+.btn-primary:hover {
+    -fx-background-color: #a52a2a;
+}
+
+.btn-secondary {
+    -fx-background-color: #dcdcdc;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+}
+.btn-secondary:hover {
+    -fx-background-color: #c0c0c0;
+}
+
+.btn-warning {
+    -fx-background-color: #e6b800;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+}
+.btn-warning:hover {
+    -fx-background-color: #ffcc00;
+}
+
+.btn-danger {
+    -fx-background-color: #a83232;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16;
+}
+.btn-danger:hover {
+    -fx-background-color: #b93a3a;
+}
