@@ -158,6 +158,21 @@ public class Menu2Controller {
             a.setHeaderText("Error"); a.showAndWait();
         }
     }
+    @FXML
+    private void openGenero(javafx.event.ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/GeneroView.fxml"));
+            Stage st = new Stage();
+            st.setTitle("Géneros");
+            st.setScene(new Scene(root));
+            st.setMaximized(true);
+            st.show();
+            // ((Stage)((Node)event.getSource()).getScene().getWindow()).close(); // si quieres cerrar el menú
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de Género.\n\n" + e.getMessage()).showAndWait();
+        }
+    }
 
     // Acción especial: volver al menú principal
     @FXML

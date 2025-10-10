@@ -78,6 +78,9 @@
                     maxWidth="Infinity"
                     style="-fx-background-color:#E3E3E3; -fx-font-weight:bold;"/>
 
+            <Button text="Género" onAction="#openGenero" maxWidth="Infinity"
+                    style="-fx-background-color:#E3E3E3; -fx-font-weight:bold;"/>
+
             <!-- …botón Volver… -->
 
             <Separator/>
