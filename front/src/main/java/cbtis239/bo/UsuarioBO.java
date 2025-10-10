@@ -9,11 +9,24 @@ public class UsuarioBO {
 
     private final UsuarioDao dao = new UsuarioDao();
 
-    /* Login (ya lo usabas) */
+    /* Login (ya lo usabas, booleano simple) */
     public boolean login(String usuario, String contrasena) {
         if (isBlank(usuario) || isBlank(contrasena))
             throw new BusinessException("Debe ingresar usuario y contraseña.");
         return dao.existsByUserAndPlainPassword(usuario.trim(), contrasena.trim());
+    }
+
+    /* ✅ Nuevo método para obtener el usuario completo con su rol */
+    public Usuario validarLogin(String usuario, String contrasena) {
+        if (isBlank(usuario) || isBlank(contrasena))
+            throw new BusinessException("Debe ingresar usuario y contraseña.");
+
+        Usuario u = dao.findByUserAndPlainPassword(usuario.trim(), contrasena.trim());
+
+        if (u == null)
+            throw new BusinessException("Usuario o contraseña incorrectos.");
+
+        return u;
     }
 
     /* Crear */
@@ -54,5 +67,8 @@ public class UsuarioBO {
         // Paterno/Materno opcionales
     }
 
-    private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
+    /* Método auxiliar para verificar cadenas vacías */
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
 }
