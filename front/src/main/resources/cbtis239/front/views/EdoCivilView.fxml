@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.EdoCivilController"
+            prefWidth="900" prefHeight="560">
+
+    <!-- Barra superior -->
+    <top>
+        <StackPane style="-fx-background-color:#7A0B0B; -fx-padding:10 14;">
+            <Label text="Estado Civil"
+                   style="-fx-text-fill:white; -fx-font-size:18; -fx-font-weight:bold;"/>
+        </StackPane>
+    </top>
+
+    <!-- Cuerpo -->
+    <center>
+        <GridPane hgap="24" vgap="16">
+            <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+            <columnConstraints>
+                <ColumnConstraints minWidth="340"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <!-- Panel izquierdo (logo + formulario + botones) -->
+            <VBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <ImageView fitWidth="150" preserveRatio="true">
+                    <image>
+                        <!-- Coloca tu imagen en: resources/main/cbtis239/front/EdoCivillogo.png -->
+                        <Image url="@/cbtis239/front/EdoCivillogo.png"/>
+                    </image>
+                </ImageView>
+
+                <GridPane hgap="10" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="120" halignment="RIGHT"/>
+                        <ColumnConstraints minWidth="160"/>
+                    </columnConstraints>
+
+                    <Label text="Clave:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtClave" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                               promptText="(auto si se deja vacío)"/>
+
+                    <Label text="Nombre estado civil:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtNombre" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                </GridPane>
+
+                <HBox spacing="10">
+                    <Button text="Agregar" onAction="#onAgregar"/>
+                    <Button text="Modificar" onAction="#onModificar"/>
+                </HBox>
+                <Button text="Eliminar" onAction="#onEliminar" maxWidth="120"/>
+            </VBox>
+
+            <!-- Panel derecho (tabla) -->
+            <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <Label text="Estados Civiles :" style="-fx-font-weight:bold;"/>
+                <TableView fx:id="tabla" prefHeight="360">
+                    <columns>
+                        <TableColumn fx:id="colClave" text="Clave" prefWidth="120"/>
+                        <TableColumn fx:id="colNombre" text="Nombre" prefWidth="380"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </GridPane>
+    </center>
+
+    <!-- Inferior: volver -->
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding:10 18;">
+            <Button text="Regresar al menú" onAction="#onVolverMenu"
+                    style="-fx-background-color:#7A0B0B; -fx-text-fill:white;"/>
+        </HBox>
+    </bottom>
+</BorderPane>
