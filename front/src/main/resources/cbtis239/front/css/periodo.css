@@ -1,0 +1,37 @@
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-background-color: white;
+}
+
+/* Barra superior */
+.topbar {
+    -fx-background-color: #800000; /* Burdeos */
+    -fx-padding: 15px;
+}
+.topbar-title {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* Botones */
+.btn-primary {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+.btn-secondary {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+.btn-danger {
+    -fx-background-color: #f44336;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+.btn-cancel {
+    -fx-background-color: #9E9E9E;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
