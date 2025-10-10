@@ -30,7 +30,7 @@
 .nav-btn {
     -fx-background-color: transparent;
     -fx-text-fill: white;
-    -fx-font-size: 18px; /* 🔥 aumentado */
+    -fx-font-size: 16px; /* 🔥 aumentado */
     -fx-font-weight: bold;
     -fx-alignment: center-left;
     -fx-padding: 14px 20px;

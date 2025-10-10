@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.CursoController"
+            stylesheets="@/cbtis239/front/css/curso.css"
+            prefWidth="900" prefHeight="600">
+
+    <!-- Barra superior -->
+    <top>
+        <StackPane styleClass="header-bar">
+            <Label text="Crear Cursos" styleClass="header-title"/>
+        </StackPane>
+    </top>
+
+    <!-- Contenido central -->
+    <center>
+        <VBox spacing="20" alignment="TOP_CENTER" styleClass="content">
+
+            <!-- Formulario -->
+            <HBox spacing="20" alignment="CENTER">
+                <Label text="Clave Curso"/>
+                <TextField fx:id="txtClave" prefWidth="120"/>
+
+                <Label text="Periodo"/>
+                <TextField fx:id="txtPeriodo" prefWidth="120"/>
+
+                <Label text="Descripcion:"/>
+                <TextField fx:id="txtDescripcion" prefWidth="250"/>
+            </HBox>
+
+            <!-- Tabla -->
+            <TableView fx:id="tablaCursos" prefWidth="750" prefHeight="300">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="80"/>
+                    <TableColumn fx:id="colAlumnos" text="Alumnos" prefWidth="150"/>
+                    <TableColumn fx:id="colMateria" text="Materia" prefWidth="150"/>
+                    <TableColumn fx:id="colDocente" text="Docente" prefWidth="150"/>
+                    <TableColumn fx:id="colAula" text="Aula" prefWidth="120"/>
+                </columns>
+            </TableView>
+
+            <!-- Botones -->
+            <HBox spacing="25" alignment="CENTER">
+                <Button text="Volver" onAction="#onVolver" styleClass="btn-secondary"/>
+                <Button text="Guardar" onAction="#onGuardar" styleClass="btn-primary"/>
+                <Button text="Actualizar" onAction="#onActualizar" styleClass="btn-warning"/>
+                <Button text="Limpiar" onAction="#onLimpiar" styleClass="btn-secondary"/>
+                <Button text="Eliminar" onAction="#onEliminar" styleClass="btn-danger"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

@@ -16,18 +16,6 @@
     -fx-font-weight: bold;
 }
 
-/* Botón de cancelar en topbar */
-.button.ghost {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-}
-.button.ghost:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.15);
-    -fx-cursor: hand;
-}
-
 /* ======== SIDEBAR ======== */
 .sidebar {
     -fx-background-color: #800000; /* Burdeos */
@@ -41,10 +29,11 @@
 .nav-btn {
     -fx-background-color: transparent;
     -fx-text-fill: white;
-    -fx-font-size: 14px;
+    -fx-font-size: 16px; /* 🔥 aumentado */
     -fx-font-weight: bold;
-    -fx-padding: 10px 18px;
     -fx-alignment: center-left;
+    -fx-padding: 14px 20px;
+    -fx-max-height: Infinity;
 }
 .nav-btn:hover {
     -fx-background-color: rgba(255, 255, 255, 0.15);
@@ -54,99 +43,36 @@
     -fx-background-color: rgba(255, 255, 255, 0.25);
 }
 
-/* ======== ICONOS IKONLI ======== */
-
-/* Íconos dentro de los botones del sidebar */
+/* ======== ICONOS ======== */
 .nav-btn .ikonli-font-icon {
-    -fx-icon-color: white;   /* Color blanco por defecto */
-    -fx-opacity: 0.95;       /* Un poco translúcido */
+    -fx-icon-color: white;
+    -fx-opacity: 0.95;
 }
-
-/* Cuando el toggle está seleccionado */
 .toggle-button:selected .ikonli-font-icon {
-    -fx-icon-color: white;   /* Sigue en blanco */
-    -fx-opacity: 1.0;        /* 100% opaco (más fuerte) */
+    -fx-icon-color: white;
+    -fx-opacity: 1.0;
 }
-
-/* Cuando el mouse pasa sobre el botón */
 .nav-btn:hover .ikonli-font-icon {
-    -fx-opacity: 1.0;        /* Se ilumina más */
+    -fx-opacity: 1.0;
 }
 
-/* Íconos en el botón "ghost" de la topbar (Cancelar) */
-.button.ghost .ikonli-font-icon {
+/* ======== BOTÓN VOLVER ======== */
+
+.btn-danger .ikonli-font-icon {
     -fx-icon-color: white;
-}
-
-/* ======== CONTENIDO CENTRAL ======== */
-.content {
-    -fx-background-color: white;
-    -fx-padding: 20px;
-}
-
-.welcome-title {
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #111;
-}
-
-/* Ícono central grande */
-.content .ikonli-font-icon {
-    -fx-icon-color: black;
-    -fx-opacity: 0.9;
-}
-
-/* ======== BOTONES GENERALES ======== */
-.button {
-    -fx-background-color: #f2f2f2;
-    -fx-text-fill: #111;
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-padding: 8px 16px;
-    -fx-background-radius: 6px;
-    -fx-border-color: #aaa;
-    -fx-border-radius: 6px;
-}
-.button:hover {
-    -fx-background-color: #ddd;
-    -fx-cursor: hand;
-}
-
-.btn-circle {
-    -fx-background-color: transparent;
-    -fx-border-color: white;
-    -fx-border-radius: 50%;
-    -fx-background-radius: 50%;
-    -fx-min-width: 40px;
-    -fx-min-height: 40px;
-    -fx-max-width: 40px;
-    -fx-max-height: 40px;
-    -fx-alignment: center;
-    -fx-content-display: graphic-only; /* solo icono */
-}
-
-.btn-circle .ikonli-font-icon {
-    -fx-icon-color: white;
-}
-
-.btn-circle:hover {
-    -fx-background-color: rgba(255,255,255,0.15);
-    -fx-cursor: hand;
 }
 
 .btn-danger {
-    -fx-background-color: #800000; /* burdeos */
+    -fx-background-color: #a83232;
     -fx-text-fill: white;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-padding: 10px 18px;
-    -fx-background-radius: 6px;
+    -fx-background-radius: 0;   /* <- sin bordes redondeados */
     -fx-alignment: center-left;
-}
-.btn-danger .ikonli-font-icon {
-    -fx-icon-color: white;
+    -fx-max-width: infinity;    /* <- fuerza ancho completo */
 }
 .btn-danger:hover {
-    -fx-background-color: #a83232;
+    -fx-background-color: #b93a3a;
     -fx-cursor: hand;
 }

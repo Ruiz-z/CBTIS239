@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.AulaController"
+            prefWidth="900" prefHeight="600"
+            stylesheets="@/cbtis239/front/css/Aula.css"
+            styleClass="root-pane">
+
+    <!-- Barra superior -->
+    <top>
+        <StackPane styleClass="header-bar">
+            <Label text="Aula" styleClass="header-title"/>
+        </StackPane>
+    </top>
+
+    <!-- Contenido -->
+    <center>
+        <VBox alignment="CENTER" spacing="30">
+            <!-- Formulario -->
+            <HBox spacing="50" alignment="CENTER">
+                <GridPane hgap="20" vgap="15">
+                    <columnConstraints>
+                        <ColumnConstraints halignment="RIGHT" minWidth="120"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200" maxWidth="300"/>
+                    </columnConstraints>
+
+                    <!-- Clave -->
+                    <Label text="Clave del aula" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtClave" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <!-- Capacidad -->
+                    <Label text="Capacidad:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtCapacidad" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                </GridPane>
+            </HBox>
+
+            <!-- Tabla -->
+            <TableView fx:id="tablaAulas" prefHeight="250" prefWidth="600">
+                <columns>
+                    <TableColumn fx:id="colClave" text="Clave del aula" prefWidth="300"/>
+                    <TableColumn fx:id="colCapacidad" text="Capacidad" prefWidth="300"/>
+                </columns>
+            </TableView>
+
+            <!-- Botones -->
+            <HBox spacing="20" alignment="CENTER">
+                <Button text="Crear Aula" onAction="#onCrear" styleClass="btn-primary"/>
+                <Button text="Modificar Aula" onAction="#onModificar" styleClass="btn-secondary"/>
+                <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-secondary"/>
+                <Button text="Volver" onAction="#onVolver" styleClass="btn-primary"/>
+
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>
