@@ -61,46 +61,45 @@ public class LoginController {
 
         try {
             // ✅ Se obtiene el objeto Usuario desde UsuarioBO
+            // ✅ Se obtiene el objeto Usuario con su rol desde UsuarioBO
             Usuario usuario = usuarioBO.validarLogin(user, pass);
 
             if (usuario != null) {
-                int rolID = usuario.getRolId();
+                String rolNombre = usuario.getRolNombre();
+
                 lblEstado.setText("Acceso concedido");
 
-                // 🔹 Redirección según el RolID
-                switch (rolID) {
-                    case 1 -> { // Servicios Escolares
-                        SceneNavigator.switchFromEvent(
-                                e,
-                                "/cbtis239/front/views/menu.fxml",
-                                "Servicios Escolares"
-                        );
-                        System.out.println("✅ Acceso: Servicios Escolares");
-                    }
-
-                    case 2 -> { // Docente
-                        SceneNavigator.switchFromEvent(
-                                e,
-                                "/cbtis239/front/views/MenuDocente.fxml",
-                                "Menú Docente"
-                        );
-                        System.out.println("✅ Acceso: Docente");
-                    }
-
-                    case 3 -> { // Servicios Financieros
-                        SceneNavigator.switchFromEvent(
-                                e,
-                                "/cbtis239/front/views/MenuSF.fxml",
-                                "Servicios Financieros"
-                        );
-                        System.out.println("✅ Acceso: Servicios Financieros");
-                    }
-
-                    default -> {
-                        lblEstado.setText("Rol no reconocido");
-                        btnEntrar.setDisable(false);
-                    }
+// 🔹 Redirección según el nombre del rol (ignore case)
+                if (rolNombre.equalsIgnoreCase("Servicios Escolares")) {
+                    SceneNavigator.switchFromEvent(
+                            e,
+                            "/cbtis239/front/views/menu.fxml",
+                            "Servicios Escolares"
+                    );
+                    System.out.println("✅ Acceso: Servicios Escolares");
                 }
+                else if (rolNombre.equalsIgnoreCase("Docente")) {
+                    SceneNavigator.switchFromEvent(
+                            e,
+                            "/cbtis239/front/views/MenuDocente.fxml",
+                            "Menú Docente"
+                    );
+                    System.out.println("✅ Acceso: Docente");
+                }
+                else if (rolNombre.equalsIgnoreCase("Servicios Financieros")) {
+                    SceneNavigator.switchFromEvent(
+                            e,
+                            "/cbtis239/front/views/MenuSF.fxml",
+                            "Servicios Financieros"
+                    );
+                    System.out.println("✅ Acceso: Servicios Financieros");
+                }
+                else {
+                    lblEstado.setText("Rol no reconocido: " + rolNombre);
+                    btnEntrar.setDisable(false);
+                    System.out.println("⚠️ Rol desconocido: " + rolNombre);
+                }
+
 
             } else {
                 lblEstado.setText("Usuario o contraseña incorrectos");
