@@ -66,13 +66,19 @@
                 <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <Button text="Especialidad"
-                    onAction="#openEspecialidad"
-                    maxWidth="Infinity"
-                    styleClass="side-item"/>
+            <ToggleButton text="Especialidad" toggleGroup="$menuGroup"
+                          onAction="#openEspecialidad" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-graduation-cap" iconSize="18"/></graphic>
+            </ToggleButton>
+
+            <ToggleButton text="Periodo" toggleGroup="$menuGroup"
+                          onAction="#openPeriodo" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-calendar-alt" iconSize="18"/></graphic>
+            </ToggleButton>
 
             <Separator/>
-
 
             <!-- Botón Volver estilo rojo -->
             <Button text="Volver"
@@ -82,10 +88,6 @@
                     maxWidth="Infinity">
                 <graphic><FontIcon iconLiteral="fas-arrow-left" iconSize="18"/></graphic>
             </Button>
-
-
-
-
         </VBox>
     </left>
 
