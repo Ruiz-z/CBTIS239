@@ -71,6 +71,15 @@
                     maxWidth="Infinity"
                     styleClass="side-item"/>
 
+            <!-- …otros botones del menú… -->
+
+            <Button text="Estado Civil"
+                    onAction="#openEdoCivil"
+                    maxWidth="Infinity"
+                    style="-fx-background-color:#E3E3E3; -fx-font-weight:bold;"/>
+
+            <!-- …botón Volver… -->
+
             <Separator/>
 
 
