@@ -1,6 +1,7 @@
 plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.1.0'
+
 }
 
 repositories {
@@ -9,7 +10,7 @@ repositories {
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(17) // Usa JDK 17
+    languageVersion = JavaLanguageVersion.of(21) // Usa JDK 17
   }
 }
 
@@ -19,8 +20,8 @@ dependencies {
   implementation 'org.kordamp.ikonli:ikonli-core:12.3.1'
   implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
   implementation 'org.kordamp.ikonli:ikonli-fontawesome5-pack:12.3.1'
-
-  // JavaFX (usa solo una versión coherente)
+  implementation("com.mysql:mysql-connector-j:8.4.0")
+  implementation("com.zaxxer:HikariCP:5.1.0")
   implementation 'org.openjfx:javafx-controls:21.0.4'
   implementation 'org.openjfx:javafx-fxml:21.0.4'
 }
@@ -30,6 +31,4 @@ javafx {
   modules = ['javafx.controls', 'javafx.fxml']
 }
 
-application {
-  mainClass = 'cbtis239.front.MainApp'
-}
+application { mainClass.set("cbtis239.front.MainApp") }

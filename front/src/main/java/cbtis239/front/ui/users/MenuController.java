@@ -150,4 +150,6 @@ public class MenuController {
             showError("No se pudo abrir la ventana de Alumnos\n\n" + e.getMessage());
         }
     }
+
+
 }

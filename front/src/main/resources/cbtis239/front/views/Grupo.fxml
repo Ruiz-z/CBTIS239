@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.GrupoController"
+            stylesheets="@/cbtis239/front/css/Grupo.css"
+            prefWidth="1000" prefHeight="640">
+
+    <top>
+        <StackPane style="-fx-background-color:#7A0B0B; -fx-padding:10 14;">
+            <Label text="Crear Grupos"
+                   style="-fx-text-fill:white; -fx-font-size:18; -fx-font-weight:bold;"/>
+        </StackPane>
+    </top>
+
+    <center>
+        <VBox spacing="24" alignment="TOP_CENTER" style="-fx-padding:18;">
+            <!-- Formulario -->
+            <GridPane hgap="14" vgap="12">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="160" halignment="RIGHT"/>
+                    <ColumnConstraints minWidth="260" halignment="LEFT"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="28"/>
+                    <RowConstraints minHeight="28"/>
+                    <RowConstraints minHeight="28"/>
+                </rowConstraints>
+
+                <Label text="Nombre del grupo:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtNombreGrupo" promptText="p. ej. 5A Programación"
+                           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Capacidad:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtCapacidad" promptText="número"
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Especialidad:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="cbEspecialidad"
+                          promptText="Selecciona…" prefWidth="260"
+                          GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <!-- Ícono -->
+            <FontIcon iconLiteral="fas-users" iconSize="120"/>
+
+            <!-- Tabla -->
+            <VBox spacing="8" alignment="CENTER" style="-fx-padding:0 8 0 8;">
+                <Label text="Grupos disponibles:" style="-fx-font-weight:bold;"/>
+                <TableView fx:id="tablaGrupos" prefWidth="940" prefHeight="300">
+                    <columns>
+                        <TableColumn fx:id="colNombre" text="Nombre del Grupo" prefWidth="380"/>
+                        <TableColumn fx:id="colCapacidad" text="Capacidad" prefWidth="160"/>
+                        <TableColumn fx:id="colEspecialidad" text="Especialidad" prefWidth="380"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <!-- Botones -->
+            <HBox spacing="20" alignment="CENTER">
+                <Button text="Registrar Grupo" onAction="#onRegistrar" styleClass="btn-primary"/>
+                <Button text="Modificar" onAction="#onModificar" styleClass="btn-secondary"/>
+                <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-secondary"/>
+                <Button text="Volver a menú" onAction="#onVolver" styleClass="btn-danger"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

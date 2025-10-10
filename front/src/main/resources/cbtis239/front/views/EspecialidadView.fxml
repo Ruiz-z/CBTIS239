@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.EspecialidadController"
+            prefWidth="880" prefHeight="520">
+
+    <!-- Barra superior -->
+    <top>
+        <StackPane style="-fx-background-color:#7A0B0B; -fx-padding:10 14;">
+            <Label text="Especialidades"
+                   style="-fx-text-fill:white; -fx-font-size:18; -fx-font-weight:bold;"/>
+        </StackPane>
+    </top>
+
+    <!-- Cuerpo principal -->
+    <center>
+        <GridPane hgap="24" vgap="12">
+            <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+            <columnConstraints>
+                <ColumnConstraints minWidth="300" halignment="LEFT"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <!-- Formulario -->
+            <VBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <GridPane hgap="10" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="120" halignment="RIGHT"/>
+                        <ColumnConstraints minWidth="160" halignment="LEFT"/>
+                    </columnConstraints>
+
+                    <Label text="Clave:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtClave"
+                               promptText="(auto si se deja vacío)"
+                               GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Label text="Nombre especialidad:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtNombre"
+                               promptText="p.ej. Programación"
+                               GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                </GridPane>
+
+                <HBox spacing="10">
+                    <Button text="Agregar"   onAction="#onAgregar"/>
+                    <Button text="Modificar" onAction="#onModificar"/>
+                </HBox>
+                <Button text="Eliminar" onAction="#onEliminar" maxWidth="120"/>
+            </VBox>
+
+            <!-- Tabla -->
+            <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <Label text="Especialidades:" style="-fx-font-weight:bold;"/>
+                <TableView fx:id="tabla" prefHeight="360">
+                    <columns>
+                        <TableColumn fx:id="colClave"  text="Clave"  prefWidth="120"/>
+                        <TableColumn fx:id="colNombre" text="Nombre" prefWidth="360"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </GridPane>
+    </center>
+
+    <!-- Botón de regreso -->
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding:10 18;">
+            <Button text="Regresar al menú" onAction="#onVolverMenu"
+                    style="-fx-background-color:#7A0B0B; -fx-text-fill:white;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

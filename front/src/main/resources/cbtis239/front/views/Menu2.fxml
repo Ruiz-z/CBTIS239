@@ -66,6 +66,11 @@
                 <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="18"/></graphic>
             </ToggleButton>
 
+            <Button text="Especialidad"
+                    onAction="#openEspecialidad"
+                    maxWidth="Infinity"
+                    styleClass="side-item"/>
+
             <Separator/>
 
 

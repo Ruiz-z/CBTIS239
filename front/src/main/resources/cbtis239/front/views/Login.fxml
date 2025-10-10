@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.LoginController"
+            prefWidth="760" prefHeight="440"
+            style="-fx-background-color: #f2f3f5;">
+
+  <!-- 🔴 Encabezado -->
+  <top>
+    <HBox alignment="CENTER" style="-fx-background-color:#800000;">
+      <padding><Insets top="12" right="10" bottom="12" left="10"/></padding>
+      <Label text="CBTIS 239"
+             style="-fx-text-fill:white; -fx-font-weight:bold; -fx-font-size:16px;"/>
+    </HBox>
+  </top>
+
+  <!-- ⚪ Contenido -->
+  <center>
+    <VBox alignment="CENTER" spacing="25">
+      <padding><Insets top="20" right="40" bottom="20" left="40"/></padding>
+
+      <!-- 🦉 Logo -->
+      <ImageView fitWidth="130" preserveRatio="true" smooth="true">
+        <image>
+          <!-- Ajusta la ruta según la ubicación real de tu imagen -->
+          <Image url="@/cbtis239/front/img.png"/>
+        </image>
+      </ImageView>
+
+      <!-- 🧾 Formulario centrado -->
+      <GridPane hgap="10" vgap="18" alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints halignment="RIGHT" minWidth="100"/>
+          <ColumnConstraints halignment="LEFT" prefWidth="250"/>
+        </columnConstraints>
+
+        <children>
+          <Label text="Usuario:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+          <TextField fx:id="txtUser" prefWidth="240"
+                     GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+          <Label text="Contraseña:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+          <PasswordField fx:id="txtPass" prefWidth="240"
+                         GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+          <!-- Campo visible (compatibilidad con controlador) -->
+          <TextField fx:id="txtPassVisible" prefWidth="240"
+                     visible="false" managed="false"
+                     GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+          <CheckBox fx:id="chkMostrar" text="Mostrar contraseña"
+                    visible="false" managed="false"
+                    GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        </children>
+      </GridPane>
+
+      <!-- 🔘 Botones (centrados y separados) -->
+      <HBox spacing="25" alignment="CENTER">
+        <Button fx:id="btnEntrar" text="Iniciar Sesión" onAction="#onEntrar"
+                prefWidth="140" prefHeight="32"
+                style="-fx-background-color:#2e7d32; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:6;"/>
+        <Button fx:id="btnSalir" text="Salir" onAction="#onSalir"
+                prefWidth="100" prefHeight="32"
+                style="-fx-background-color:#b0b0b0; -fx-text-fill:#222; -fx-font-weight:bold; -fx-background-radius:6;"/>
+      </HBox>
+
+      <!-- 🔵 Estado -->
+      <Label fx:id="lblEstado" text=""
+             style="-fx-text-fill:#6b7280; -fx-font-size:12px;"/>
+    </VBox>
+  </center>
+</BorderPane>
