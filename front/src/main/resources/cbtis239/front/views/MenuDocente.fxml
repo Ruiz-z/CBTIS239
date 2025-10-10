@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane fx:controller="cbtis239.front.ui.users.MenuDocenteController"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            stylesheets="/cbtis239/front/css/MenuDocente.css">
+
+    <!-- BARRA SUPERIOR -->
+    <top>
+        <StackPane styleClass="topbar" prefHeight="50">
+            <Label text="Menú Docente" styleClass="topbar-title"/>
+        </StackPane>
+    </top>
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox spacing="12" styleClass="sidebar" prefWidth="220">
+            <fx:define>
+                <ToggleGroup fx:id="menuGroup"/>
+            </fx:define>
+
+            <!-- Calificaciones -->
+            <ToggleButton text="Calificaciones" toggleGroup="$menuGroup"
+                          onAction="#openCalificaciones"
+                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-clipboard-list" iconSize="20"/></graphic>
+            </ToggleButton>
+
+            <!-- Ver grupo -->
+            <ToggleButton text="Ver grupo" toggleGroup="$menuGroup"
+                          onAction="#openVerGrupo"
+                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-users" iconSize="20"/></graphic>
+            </ToggleButton>
+
+            <!-- Cerrar sesión -->
+            <ToggleButton text="Cerrar sesión" toggleGroup="$menuGroup"
+                          onAction="#onCerrarSesion"
+                          styleClass="nav-btn logout-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="20"/></graphic>
+            </ToggleButton>
+        </VBox>
+    </left>
+
+    <!-- CONTENIDO CENTRAL -->
+    <center>
+        <StackPane fx:id="contentArea" styleClass="content">
+            <VBox alignment="TOP_CENTER" spacing="30">
+                <Label text="Bienvenido Docente" styleClass="welcome-title"/>
+                <FontIcon iconLiteral="fas-chalkboard-teacher" iconSize="200" style="-fx-icon-color: black;"/>
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>
