@@ -1,6 +1,7 @@
 package cbtis239.front.ui.users;
 
 import cbtis239.bo.UsuarioBO;
+import cbtis239.model.Usuario;
 import cbtis239.util.SceneNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -59,23 +60,60 @@ public class LoginController {
         String pass = (chkMostrar.isSelected() ? txtPassVisible.getText() : txtPass.getText()).trim();
 
         try {
-            boolean ok = usuarioBO.login(user, pass);
-            if (ok) {
-                SceneNavigator.switchFromEvent(
-                        e,
-                        "/cbtis239/front/views/menu.fxml",
-                        "Menú Principal"
-                );
+            // ✅ Se obtiene el objeto Usuario desde UsuarioBO
+            Usuario usuario = usuarioBO.validarLogin(user, pass);
+
+            if (usuario != null) {
+                int rolID = usuario.getRolId();
+                lblEstado.setText("Acceso concedido");
+
+                // 🔹 Redirección según el RolID
+                switch (rolID) {
+                    case 1 -> { // Servicios Escolares
+                        SceneNavigator.switchFromEvent(
+                                e,
+                                "/cbtis239/front/views/menu.fxml",
+                                "Servicios Escolares"
+                        );
+                        System.out.println("✅ Acceso: Servicios Escolares");
+                    }
+
+                    case 2 -> { // Docente
+                        SceneNavigator.switchFromEvent(
+                                e,
+                                "/cbtis239/front/views/MenuDocente.fxml",
+                                "Menú Docente"
+                        );
+                        System.out.println("✅ Acceso: Docente");
+                    }
+
+                    case 3 -> { // Servicios Financieros
+                        SceneNavigator.switchFromEvent(
+                                e,
+                                "/cbtis239/front/views/MenuSF.fxml",
+                                "Servicios Financieros"
+                        );
+                        System.out.println("✅ Acceso: Servicios Financieros");
+                    }
+
+                    default -> {
+                        lblEstado.setText("Rol no reconocido");
+                        btnEntrar.setDisable(false);
+                    }
+                }
+
             } else {
                 lblEstado.setText("Usuario o contraseña incorrectos");
                 btnEntrar.setDisable(false);
             }
+
         } catch (Exception ex) {
             btnEntrar.setDisable(false);
             lblEstado.setText("Error al iniciar sesión");
             showError("Fallo en login", ex);
         }
     }
+
 
     private void showError(String title, Throwable ex) {
         ex.printStackTrace();
