@@ -88,6 +88,7 @@ public class Menu2Controller {
     }
 
 
+
     @FXML
     private void openEdoCivil(ActionEvent event) {
         try {
@@ -125,6 +126,7 @@ public class Menu2Controller {
 
 
     // Acción especial: volver al menú principal
+
     @FXML
     private void onVolver(ActionEvent event) {
         try {
