@@ -87,7 +87,7 @@ public class Menu2Controller {
         a.show();
     }
 
-    // Acción especial: volver al menú principal
+
     @FXML
     private void onVolver(ActionEvent event) {
         try {
