@@ -109,5 +109,43 @@ public class UsuarioDao {
         }
         return out;
     }
+    /** Buscar usuario + rol para login completo */
+    public Usuario findByUserAndPlainPassword(String usuario, String contrasena) {
+        final String sql = """
+        SELECT u.`Usuario`, u.`Contrasena`, u.`RolID`, u.`Nombre`, 
+               u.`Paterno`, u.`Materno`, r.`NombreRol`
+        FROM `usuario` u 
+        LEFT JOIN `rol` r ON r.`RolID` = u.`RolID`
+        WHERE u.`Usuario` = ? AND u.`Contrasena` = ?
+        LIMIT 1
+    """;
+
+        try (Connection con = DB.get();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, usuario);
+            ps.setString(2, contrasena);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Usuario u = new Usuario();
+                    u.setUsuario(rs.getString("Usuario"));
+                    u.setContrasena(rs.getString("Contrasena"));
+                    u.setRolId(rs.getInt("RolID"));
+                    u.setNombre(rs.getString("Nombre"));
+                    u.setPaterno(rs.getString("Paterno"));
+                    u.setMaterno(rs.getString("Materno"));
+                    u.setRolNombre(rs.getString("NombreRol"));
+                    return u;
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener usuario: " + e.getMessage(), e);
+        }
+
+        return null;
+    }
+
 }
 

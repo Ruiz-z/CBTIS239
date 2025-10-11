@@ -1,0 +1,82 @@
+/* ======== GENERAL ======== */
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-background-color: white;
+}
+
+/* ======== TOPBAR ======== */
+.topbar {
+    -fx-background-color: #800000; /* Burdeos */
+    -fx-padding: 12px;
+    -fx-alignment: center;
+}
+.topbar-title {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+/* ======== SIDEBAR ======== */
+.sidebar {
+    -fx-background-color: #800000;
+    -fx-padding: 20 0 20 0;
+    -fx-spacing: 15;
+    -fx-alignment: top-center;
+    -fx-background-radius: 0 15 15 0;
+}
+
+/* ======== BOTONES DEL MENÚ ======== */
+.nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-alignment: center-left;
+    -fx-padding: 12px 20px;
+    -fx-cursor: hand;
+    -fx-pref-width: 200px;
+}
+
+.nav-btn:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+}
+
+.toggle-button:selected {
+    -fx-background-color: rgba(255, 255, 255, 0.25);
+}
+
+.nav-btn .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-opacity: 0.9;
+}
+.toggle-button:selected .ikonli-font-icon {
+    -fx-opacity: 1.0;
+}
+
+/* ======== BOTÓN CERRAR SESIÓN ======== */
+.logout-btn {
+    -fx-text-fill: #ffdddd;
+}
+.logout-btn:hover {
+    -fx-background-color: #a00000;
+}
+
+/* ======== CONTENIDO CENTRAL ======== */
+.content {
+    -fx-background-color: white;
+    -fx-padding: 40px;
+    -fx-alignment: center;
+}
+
+.welcome-title {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111;
+    -fx-padding: 10 0 20 0;
+    -fx-text-alignment: center;
+}
+
+.content .ikonli-font-icon {
+    -fx-icon-color: black;
+    -fx-opacity: 1;
+}

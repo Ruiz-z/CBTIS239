@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.GeneroController"
+            prefWidth="980" prefHeight="560">
+
+    <!-- Header -->
+    <top>
+        <StackPane style="-fx-background-color:#7A0B0B; -fx-padding:12 18;">
+            <Label text="Géneros"
+                   style="-fx-text-fill:white; -fx-font-size:18; -fx-font-weight:bold;"/>
+        </StackPane>
+    </top>
+
+    <!-- Content -->
+    <center>
+        <GridPane hgap="28" vgap="0">
+            <padding><Insets top="22" right="22" bottom="22" left="22"/></padding>
+            <columnConstraints>
+                <!-- Col izquierda (form) -->
+                <ColumnConstraints minWidth="380" prefWidth="420"/>
+                <!-- Col derecha (tabla) -->
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <!-- IZQUIERDA: tarjeta con imagen + formulario -->
+            <VBox GridPane.columnIndex="0" spacing="16" alignment="TOP_CENTER"
+                  style="-fx-background-color:#FFFFFF; -fx-background-radius:12; -fx-padding:22;">
+                <!-- Imagen centrada -->
+                <StackPane alignment="CENTER">
+                    <ImageView fitWidth="140" preserveRatio="true">
+                        <image><Image url="@/cbtis239/front/Genero.png"/></image>
+                    </ImageView>
+                </StackPane>
+
+                <!-- Separador sutil -->
+                <Separator/>
+
+                <!-- Formulario alineado y con anchos consistentes -->
+                <GridPane hgap="12" vgap="14">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="130" halignment="RIGHT"/>
+                        <ColumnConstraints minWidth="220" prefWidth="260" hgrow="NEVER"/>
+                    </columnConstraints>
+
+                    <Label text="ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtId" promptText="(auto si vacío)"
+                               GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="260"/>
+
+                    <Label text="Nombre género:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtNombre" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                               prefWidth="260"/>
+                </GridPane>
+
+                <!-- Botones acciones -->
+                <HBox spacing="12" alignment="CENTER">
+                    <Button text="Agregar"    onAction="#onAgregar"   prefWidth="110"/>
+                    <Button text="Modificar"  onAction="#onModificar" prefWidth="110"/>
+                </HBox>
+                <Button text="Eliminar" onAction="#onEliminar" prefWidth="232"/>
+
+                <!-- Espacio -->
+                <Region prefHeight="6"/>
+            </VBox>
+
+            <!-- DERECHA: tabla -->
+            <VBox GridPane.columnIndex="1" spacing="10" alignment="TOP_LEFT">
+                <Label text="Géneros registrados:" style="-fx-font-weight:bold; -fx-font-size:13;"/>
+                <TableView fx:id="tabla" prefHeight="380">
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="120"/>
+                        <TableColumn fx:id="colNombre" text="Nombre género" prefWidth="420"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </GridPane>
+    </center>
+
+    <!-- Bottom -->
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding:12 22;">
+            <Button text="Cancelar" onAction="#onCancelar"/>
+            <Button text="Regresar al menú" onAction="#onVolverMenu"
+                    style="-fx-background-color:#7A0B0B; -fx-text-fill:white;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

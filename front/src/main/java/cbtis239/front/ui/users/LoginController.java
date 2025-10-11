@@ -1,6 +1,7 @@
 package cbtis239.front.ui.users;
 
 import cbtis239.bo.UsuarioBO;
+import cbtis239.model.Usuario;
 import cbtis239.util.SceneNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -59,23 +60,59 @@ public class LoginController {
         String pass = (chkMostrar.isSelected() ? txtPassVisible.getText() : txtPass.getText()).trim();
 
         try {
-            boolean ok = usuarioBO.login(user, pass);
-            if (ok) {
-                SceneNavigator.switchFromEvent(
-                        e,
-                        "/cbtis239/front/views/menu.fxml",
-                        "Menú Principal"
-                );
+            // ✅ Se obtiene el objeto Usuario desde UsuarioBO
+            // ✅ Se obtiene el objeto Usuario con su rol desde UsuarioBO
+            Usuario usuario = usuarioBO.validarLogin(user, pass);
+
+            if (usuario != null) {
+                String rolNombre = usuario.getRolNombre();
+
+                lblEstado.setText("Acceso concedido");
+
+// 🔹 Redirección según el nombre del rol (ignore case)
+                if (rolNombre.equalsIgnoreCase("Servicios Escolares")) {
+                    SceneNavigator.switchFromEvent(
+                            e,
+                            "/cbtis239/front/views/menu.fxml",
+                            "Servicios Escolares"
+                    );
+                    System.out.println("✅ Acceso: Servicios Escolares");
+                }
+                else if (rolNombre.equalsIgnoreCase("Docente")) {
+                    SceneNavigator.switchFromEvent(
+                            e,
+                            "/cbtis239/front/views/MenuDocente.fxml",
+                            "Menú Docente"
+                    );
+                    System.out.println("✅ Acceso: Docente");
+                }
+                else if (rolNombre.equalsIgnoreCase("Servicios Financieros")) {
+                    SceneNavigator.switchFromEvent(
+                            e,
+                            "/cbtis239/front/views/MenuSF.fxml",
+                            "Servicios Financieros"
+                    );
+                    System.out.println("✅ Acceso: Servicios Financieros");
+                }
+                else {
+                    lblEstado.setText("Rol no reconocido: " + rolNombre);
+                    btnEntrar.setDisable(false);
+                    System.out.println("⚠️ Rol desconocido: " + rolNombre);
+                }
+
+
             } else {
                 lblEstado.setText("Usuario o contraseña incorrectos");
                 btnEntrar.setDisable(false);
             }
+
         } catch (Exception ex) {
             btnEntrar.setDisable(false);
             lblEstado.setText("Error al iniciar sesión");
             showError("Fallo en login", ex);
         }
     }
+
 
     private void showError(String title, Throwable ex) {
         ex.printStackTrace();
