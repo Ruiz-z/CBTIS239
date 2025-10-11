@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane fx:controller="cbtis239.front.ui.users.MenuSFController"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            stylesheets="/cbtis239/front/css/MenuSF.css">
+
+    <!-- BARRA SUPERIOR -->
+    <top>
+        <StackPane styleClass="topbar" prefHeight="50">
+            <Label text="Servicios Financieros" styleClass="topbar-title"/>
+        </StackPane>
+    </top>
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox spacing="12" styleClass="sidebar" prefWidth="220">
+            <fx:define>
+                <ToggleGroup fx:id="menuGroup"/>
+            </fx:define>
+
+            <!-- Registrar Pago -->
+            <ToggleButton text="Registrar Pago" toggleGroup="$menuGroup"
+                          onAction="#openRegistrarPago"
+                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="20"/></graphic>
+            </ToggleButton>
+
+            <!-- Ver Estado de Pago -->
+            <ToggleButton text="Ver Estado de Pago" toggleGroup="$menuGroup"
+                          onAction="#openEstadoPago"
+                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-file-invoice-dollar" iconSize="20"/></graphic>
+            </ToggleButton>
+
+            <!-- Cerrar sesión -->
+            <ToggleButton text="Cerrar sesión" toggleGroup="$menuGroup"
+                          onAction="#onCerrarSesion"
+                          styleClass="nav-btn logout-btn" contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="20"/></graphic>
+            </ToggleButton>
+        </VBox>
+    </left>
+
+    <!-- CONTENIDO CENTRAL -->
+    <center>
+        <StackPane fx:id="contentArea" styleClass="content">
+            <VBox alignment="TOP_CENTER" spacing="30">
+                <Label text="Bienvenido al Módulo de Servicios Financieros" styleClass="welcome-title"/>
+                <FontIcon iconLiteral="fas-hand-holding-usd" iconSize="200" style="-fx-icon-color: black;"/>
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>
