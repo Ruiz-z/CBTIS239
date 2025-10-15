@@ -128,23 +128,28 @@ public class AlumnoController {
     }
 
     @FXML
-    private void onVolver(ActionEvent event) {
+        private void onVolver(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setMaximized(true);
-            stage.setTitle("Menú Principal");
-            stage.show();
-        } catch (IOException e) {
+            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
+            Stage st = new Stage();
+            st.setTitle("Menú");
+            st.setScene(new Scene(root));
+            st.setMaximized(true);
+            st.show();
+            ((Stage)((Node)event.getSource()).getScene().getWindow()).close();
+        } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "No se pudo volver al menú: " + e.getMessage());
+            showError("No se pudo abrir el menú:\n\n" + e.getMessage());
         }
     }
+    private void showError(String msg) {
+        Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
+        a.setHeaderText("Error"); a.showAndWait();
+    }
 
-    @FXML
+
+
+@FXML
     private void onSubirFoto() {
         FileChooser fc = new FileChooser();
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg"));

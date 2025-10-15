@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.Image?>
+
+<BorderPane fx:controller="cbtis239.front.ui.users.PeriodoController"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            stylesheets="@/cbtis239/front/css/periodo.css"
+            prefWidth="1100" prefHeight="650">
+
+    <!-- Barra superior -->
+    <top>
+        <HBox styleClass="topbar" alignment="CENTER">
+            <Label text="Periodos" styleClass="topbar-title"/>
+        </HBox>
+    </top>
+
+    <!-- Contenido central -->
+    <center>
+        <HBox spacing="60" alignment="CENTER">
+
+            <!-- Columna izquierda: Imagen + Formulario -->
+            <VBox spacing="25" alignment="TOP_CENTER" prefWidth="400">
+                <padding>
+                    <Insets top="30" right="5" bottom="0" left="5"/>
+                </padding>
+
+                <!-- Imagen -->
+                <ImageView fx:id="imgCalendario"
+                           fitHeight="120" fitWidth="120"
+                           preserveRatio="true" pickOnBounds="true">
+                    <image>
+                        <Image url="@/cbtis239/front/Calendario.png"/>
+                    </image>
+                </ImageView>
+
+                <!-- Formulario -->
+                <GridPane hgap="5" vgap="15">
+                    <columnConstraints>
+                        <!-- Etiquetas más reducidas -->
+                        <ColumnConstraints halignment="RIGHT" minWidth="60"/>
+                        <!-- Campos más compactos -->
+                        <ColumnConstraints halignment="LEFT" minWidth="240"/>
+                    </columnConstraints>
+
+                    <Label text="ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtId" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                               prefWidth="240" prefHeight="32"/>
+
+                    <Label text="Nombre periodo:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtNombre" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                               prefWidth="240" prefHeight="32"/>
+
+                    <Label text="Fecha de inicio:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <DatePicker fx:id="dpInicio" GridPane.rowIndex="2" GridPane.columnIndex="1"
+                                prefWidth="240" prefHeight="32"/>
+
+                    <Label text="Fecha de fin:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <DatePicker fx:id="dpFin" GridPane.rowIndex="3" GridPane.columnIndex="1"
+                                prefWidth="240" prefHeight="32"/>
+                </GridPane>
+            </VBox>
+
+            <!-- Columna derecha: Tabla -->
+            <VBox spacing="15" alignment="CENTER">
+                <TableView fx:id="tablaPeriodos" prefWidth="600" prefHeight="400">
+                    <columns>
+                        <TableColumn text="ID" fx:id="colId" prefWidth="80"/>
+                        <TableColumn text="Nombre periodo" fx:id="colNombre" prefWidth="180"/>
+                        <TableColumn text="Fecha Inicio" fx:id="colInicio" prefWidth="160"/>
+                        <TableColumn text="Fecha Fin" fx:id="colFin" prefWidth="160"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+        </HBox>
+    </center>
+
+    <!-- Botones hasta abajo, centrados -->
+    <bottom>
+        <HBox spacing="20" alignment="CENTER">
+            <padding>
+                <Insets top="16" right="20" bottom="16" left="20"/>
+            </padding>
+            <Button text="Agregar" fx:id="btnAgregar" onAction="#onAgregar"
+                    prefWidth="120" prefHeight="40" styleClass="btn-primary"/>
+            <Button text="Modificar" fx:id="btnModificar" onAction="#onModificar"
+                    prefWidth="120" prefHeight="40" styleClass="btn-secondary"/>
+            <Button text="Eliminar" fx:id="btnEliminar" onAction="#onEliminar"
+                    prefWidth="120" prefHeight="40" styleClass="btn-danger"/>
+            <Button text="Cancelar" fx:id="btnCancelar" onAction="#onCancelar"
+                    prefWidth="120" prefHeight="40" styleClass="btn-cancel"/>
+            <Button text="Volver al Menú" fx:id="btnVolver" onAction="#onVolver"
+                    prefWidth="150" prefHeight="40" styleClass="btn-danger"/>
+        </HBox>
+    </bottom>
+</BorderPane>
