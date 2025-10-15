@@ -102,9 +102,20 @@ public class MenuController {
     }
     @FXML
     private void onCerrarSesion(ActionEvent event) {
-        // Aquí puedes cerrar la ventana o volver al Login.fxml
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.close();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Login.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Inicio de Sesión");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
+
+        } catch (IOException e) {
+            showError("No se pudo volver al inicio de sesión.\n" + e.getMessage());
+        }
     }
     @FXML
     private void openRolesView(ActionEvent event) {
