@@ -15,15 +15,21 @@ public class UsuarioBO {
         return dao.existsByUserAndPlainPassword(usuario.trim(), contrasena.trim());
     }
 
-    /* ✅ Nuevo método: obtiene el usuario con nombre de rol (ignore case listo para comparar) */
+    /* ✅ Nuevo método: obtiene el usuario con nombre de rol (ignore case y mensajes más claros) */
     public Usuario validarLogin(String usuario, String contrasena) {
         if (isBlank(usuario) || isBlank(contrasena))
             throw new BusinessException("Debe ingresar usuario y contraseña.");
 
-        Usuario u = dao.findByUserAndPlainPassword(usuario.trim(), contrasena.trim());
+        // Verificamos si el usuario existe primero
+        if (!dao.existsByUsuario(usuario.trim())) {
+            throw new BusinessException("El usuario ingresado no existe.");
+        }
 
-        if (u == null)
-            throw new BusinessException("Usuario o contraseña incorrectos.");
+        // Verificamos usuario + contraseña
+        Usuario u = dao.findByUserAndPlainPassword(usuario.trim(), contrasena.trim());
+        if (u == null) {
+            throw new BusinessException("Contraseña incorrecta para el usuario especificado.");
+        }
 
         // Normaliza el nombre del rol
         if (u.getRolNombre() == null || u.getRolNombre().isBlank()) {
@@ -34,6 +40,7 @@ public class UsuarioBO {
 
         return u;
     }
+
 
     /* Crear */
     public void create(Usuario u) {

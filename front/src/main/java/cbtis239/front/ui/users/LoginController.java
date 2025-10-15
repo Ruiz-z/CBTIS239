@@ -108,9 +108,17 @@ public class LoginController {
 
         } catch (Exception ex) {
             btnEntrar.setDisable(false);
-            lblEstado.setText("Error al iniciar sesión");
-            showError("Fallo en login", ex);
+
+            // Si es una excepción de negocio (usuario o contraseña incorrectos)
+            if (ex instanceof cbtis239.bo.BusinessException) {
+                lblEstado.setText("❌ " + ex.getMessage());
+            } else {
+                // Cualquier otro error técnico (BD, conexión, etc.)
+                lblEstado.setText("⚠️ Error interno, contacte al administrador");
+                ex.printStackTrace();
+            }
         }
+
     }
 
 
