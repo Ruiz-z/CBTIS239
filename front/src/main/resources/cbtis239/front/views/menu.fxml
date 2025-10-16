@@ -3,6 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 
 <BorderPane fx:controller="cbtis239.front.ui.users.MenuController"
             xmlns="http://javafx.com/javafx"
@@ -12,9 +14,10 @@
     <!-- BARRA SUPERIOR -->
     <top>
         <StackPane styleClass="topbar" prefHeight="50">
+            <!-- 🔹 Movido más a la derecha con padding -->
             <Label text="Menu Servicios Escolares"
                    styleClass="topbar-title"
-                   style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 0 0 0 300;"/>
         </StackPane>
     </top>
 
@@ -68,7 +71,6 @@
                     <graphic><FontIcon iconLiteral="fas-angle-right" iconSize="20"/></graphic>
                 </ToggleButton>
 
-                <!-- 🔥 CERRAR SESIÓN IGUAL QUE LOS DEMÁS -->
                 <ToggleButton text="Cerrar Sesión" toggleGroup="$menuGroup"
                               styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS"
                               onAction="#onCerrarSesion">
@@ -84,12 +86,20 @@
         <StackPane fx:id="contentArea" styleClass="content">
             <VBox alignment="TOP_CENTER" spacing="30" style="-fx-padding: 40;" VBox.vgrow="ALWAYS">
 
-                <!-- 🔥 Bienvenido más arriba -->
-                <Label text="Bienvenido Servicios Escolares"
+                <!-- 🔹 Texto actualizado -->
+                <Label fx:id="lblBienvenida"
+                       text=""
                        styleClass="welcome-title"
                        style="-fx-font-size: 32px; -fx-font-weight: bold;"/>
 
-                <FontIcon iconLiteral="fas-user-cog" iconSize="200" style="-fx-icon-color: black;"/>
+
+                <ImageView fx:id="imgMenu"
+                           fitHeight="560" fitWidth="560"
+                           preserveRatio="true" pickOnBounds="true">
+                    <image>
+                        <Image url="@/cbtis239/front/Menu.png"/>
+                    </image>
+                </ImageView>
 
             </VBox>
         </StackPane>

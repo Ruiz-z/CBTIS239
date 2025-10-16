@@ -4,110 +4,143 @@
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <BorderPane fx:controller="cbtis239.front.ui.users.Menu2Controller"
             xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             stylesheets="@/cbtis239/front/css/menu2.css">
 
+    <!-- ===================== -->
     <!-- BARRA SUPERIOR -->
+    <!-- ===================== -->
     <top>
         <StackPane styleClass="topbar" prefHeight="50" alignment="CENTER">
             <Label text="Menu Servicios Escolares" styleClass="topbar-title"/>
         </StackPane>
     </top>
 
+    <!-- ===================== -->
     <!-- SIDEBAR -->
+    <!-- ===================== -->
     <left>
         <VBox spacing="8" styleClass="sidebar" prefWidth="180">
-            <VBox.margin><Insets top="16" left="16" right="16" bottom="16"/></VBox.margin>
+            <VBox.margin>
+                <Insets top="16" left="16" right="16" bottom="16"/>
+            </VBox.margin>
 
             <fx:define>
                 <ToggleGroup fx:id="menuGroup"/>
             </fx:define>
 
+            <!-- Expediente -->
             <ToggleButton text="Expediente" toggleGroup="$menuGroup"
                           onAction="#openExpediente" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-clipboard" iconSize="18"/></graphic>
             </ToggleButton>
 
+            <!-- Docente -->
             <ToggleButton text="Docente" toggleGroup="$menuGroup"
                           onAction="#openDocente" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-chalkboard-teacher" iconSize="18"/></graphic>
             </ToggleButton>
 
+            <!-- Cursos -->
             <ToggleButton text="Cursos" toggleGroup="$menuGroup"
                           onAction="#openCursos" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-book" iconSize="18"/></graphic>
             </ToggleButton>
 
+            <!-- Credencial -->
             <ToggleButton text="Credencial" toggleGroup="$menuGroup"
                           onAction="#openCredencial" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-credit-card" iconSize="18"/></graphic>
             </ToggleButton>
 
+            <!-- Grupo -->
             <ToggleButton text="Grupo" toggleGroup="$menuGroup"
                           onAction="#openGrupo" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-users" iconSize="18"/></graphic>
             </ToggleButton>
 
+            <!-- Asignatura -->
             <ToggleButton text="Asignatura" toggleGroup="$menuGroup"
                           onAction="#openAsignatura" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-book-open" iconSize="18"/></graphic>
             </ToggleButton>
 
+            <!-- Aulas -->
             <ToggleButton text="Aulas" toggleGroup="$menuGroup"
                           onAction="#openAulas" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="18"/></graphic>
             </ToggleButton>
 
+            <!-- Especialidad -->
             <ToggleButton text="Especialidad" toggleGroup="$menuGroup"
                           onAction="#openEspecialidad" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-graduation-cap" iconSize="18"/></graphic>
             </ToggleButton>
 
+            <!-- Periodo -->
             <ToggleButton text="Periodo" toggleGroup="$menuGroup"
                           onAction="#openPeriodo" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-calendar-alt" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <!-- …otros botones del menú… -->
+            <!-- ===================== -->
+            <!-- NUEVOS BOTONES CON EL MISMO ESTILO -->
+            <!-- ===================== -->
 
-            <Button text="Estado Civil"
-                    onAction="#openEdoCivil"
-                    maxWidth="Infinity"
-                    style="-fx-background-color:#E3E3E3; -fx-font-weight:bold;"/>
+            <!-- Estado Civil -->
+            <ToggleButton text="Estado Civil" toggleGroup="$menuGroup"
+                          onAction="#openEdoCivil" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-ring" iconSize="18"/></graphic>
+            </ToggleButton>
 
-            <Button text="Género" onAction="#openGenero" maxWidth="Infinity"
-                    style="-fx-background-color:#E3E3E3; -fx-font-weight:bold;"/>
+            <!-- Género -->
+            <ToggleButton text="Género" toggleGroup="$menuGroup"
+                          onAction="#openGenero" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-venus-mars" iconSize="18"/></graphic>
+            </ToggleButton>
 
-            <!-- …botón Volver… -->
-
+            <!-- Separador -->
             <Separator/>
 
-            <!-- Botón Volver estilo rojo -->
-            <Button text="Volver"
-                    onAction="#onVolver"
-                    styleClass="btn-danger"
-                    contentDisplay="LEFT" graphicTextGap="10"
-                    maxWidth="Infinity">
+            <!-- ===================== -->
+            <!-- BOTÓN VOLVER -->
+            <!-- ===================== -->
+            <ToggleButton text="Volver" toggleGroup="$menuGroup"
+                          onAction="#onVolver" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-arrow-left" iconSize="18"/></graphic>
-            </Button>
+            </ToggleButton>
         </VBox>
     </left>
 
+    <!-- ===================== -->
     <!-- CONTENIDO CENTRAL -->
+    <!-- ===================== -->
     <center>
         <StackPane fx:id="contentArea" styleClass="content">
             <VBox alignment="TOP_CENTER" spacing="16">
                 <Label text="Bienvenido Servicios Escolares" styleClass="welcome-title"/>
+                <ImageView fx:id="imgMenu"
+                           fitHeight="260" fitWidth="260"
+                           preserveRatio="true" pickOnBounds="true">
+                    <image>
+                        <Image url="@/cbtis239/front/Menu.png"/>
+                    </image>
+                </ImageView>
             </VBox>
         </StackPane>
     </center>
