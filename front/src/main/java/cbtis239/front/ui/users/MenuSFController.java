@@ -40,8 +40,34 @@ public class MenuSFController {
 
     @FXML
     private void openRegistrarPago(ActionEvent event) {
-        loadContent("/cbtis239/front/views/finanzas/RegistrarPago.fxml");
+        try {
+            System.out.println("Intentando cargar pagos.fxml...");
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/cbtis239/front/views/pagos.fxml")
+            );
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(
+                    getClass().getResource("/cbtis239/front/css/pagos.css").toExternalForm()
+            );
+
+            Stage newStage = new Stage();
+            newStage.setScene(scene);
+            newStage.setMaximized(true);
+            newStage.setTitle("Registrar Pagos");
+            newStage.show();
+
+            // 👇 cerrar el menú actual
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("No se pudo abrir registro de pagos: " + e.getMessage());
+        }
     }
+
 
     @FXML
     private void openEstadoPago(ActionEvent event) {

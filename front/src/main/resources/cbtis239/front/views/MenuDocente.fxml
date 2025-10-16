@@ -3,6 +3,8 @@
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <BorderPane fx:controller="cbtis239.front.ui.users.MenuDocenteController"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml"
@@ -39,7 +41,7 @@
             <!-- Cerrar sesión -->
             <ToggleButton text="Cerrar sesión" toggleGroup="$menuGroup"
                           onAction="#onCerrarSesion"
-                          styleClass="nav-btn logout-btn" contentDisplay="LEFT" graphicTextGap="10">
+                          styleClass="nav-btn " contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="20"/></graphic>
             </ToggleButton>
         </VBox>
@@ -50,8 +52,15 @@
         <StackPane fx:id="contentArea" styleClass="content">
             <VBox alignment="TOP_CENTER" spacing="30">
                 <Label text="Bienvenido Docente" styleClass="welcome-title"/>
-                <FontIcon iconLiteral="fas-chalkboard-teacher" iconSize="200" style="-fx-icon-color: black;"/>
+                <ImageView fx:id="imgMenu"
+                           fitHeight="560" fitWidth="560"
+                           preserveRatio="true" pickOnBounds="true">
+                    <image>
+                        <Image url="@/cbtis239/front/MenuD.png"/>
+                    </image>
+                </ImageView>
             </VBox>
         </StackPane>
     </center>
+
 </BorderPane>
