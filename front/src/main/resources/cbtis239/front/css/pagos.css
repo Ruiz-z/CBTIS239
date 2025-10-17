@@ -1,0 +1,55 @@
+/* --- Encabezado --- */
+.top-bar {
+    -fx-background-color: #8B0000;
+    -fx-alignment: center;
+}
+
+.title-top {
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+/* --- Contenido --- */
+.main-container {
+    -fx-padding: 30;
+    -fx-background-color: white;
+}
+
+.subtitle {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* --- Botones --- */
+.btn-menu {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: black;
+    -fx-font-weight: bold;
+    -fx-padding: 6 15 6 15;
+}
+
+.btn-menu:hover {
+    -fx-background-color: #d8d8d8;
+}
+
+.btn-cancelar {
+    -fx-background-color: #d3d3d3;
+    -fx-border-color: black;
+    -fx-font-weight: bold;
+    -fx-padding: 6 15 6 15;
+}
+
+.btn-cancelar:hover {
+    -fx-background-color: #bbbbbb;
+}
+
+/* --- Tabla --- */
+.table-view {
+    -fx-border-color: black;
+    -fx-border-width: 1;
+}
+
+.table-column {
+    -fx-alignment: center;
+}

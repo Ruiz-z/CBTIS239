@@ -7,14 +7,20 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class MenuController {
 
     @FXML private StackPane contentArea;
+    @FXML
+    private Label lblBienvenida;
+
 
     // ===== Helper para cargar vistas dentro del contentArea =====
     private void loadContent(String fxmlResource) {
@@ -27,6 +33,9 @@ public class MenuController {
             showError("No se pudo cargar la vista: " + fxmlResource + "\n" + e.getMessage());
         }
     }
+
+
+
 
     private void showError(String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR);
