@@ -11,9 +11,14 @@ public class AlumnoBO {
     private final AlumnoDAO dao = new AlumnoDAO();
 
     public void guardar(Alumno a) throws SQLException {
-        if (a.getMatricula()==null || a.getMatricula().isBlank())
+        if (a.getMatricula() == null || a.getMatricula().isBlank())
             throw new IllegalArgumentException("La matrícula es obligatoria");
-        if (dao.existe(a.getMatricula())) dao.update(a); else dao.insert(a);
+        if (a.getCurp() == null || a.getCurp().isBlank())
+            throw new IllegalArgumentException("La CURP es obligatoria");
+        if (a.getFechaInscripcion() == null)
+            throw new IllegalArgumentException("La fecha de inscripción es obligatoria");
+        if (dao.existe(a.getMatricula())) dao.update(a);
+        else dao.insert(a);
     }
 
     public void eliminar(String matricula) throws SQLException {
