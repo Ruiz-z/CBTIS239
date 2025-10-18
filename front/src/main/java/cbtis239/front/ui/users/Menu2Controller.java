@@ -56,6 +56,17 @@ public class Menu2Controller {
     private void openPeriodo(ActionEvent event) {
         openNewStage(event, "/cbtis239/front/views/Periodo.fxml", "Gestión de Periodos");
     }
+    @FXML
+    private void openEdoCivil(ActionEvent event) {
+        openNewStage(event, "/cbtis239/front/views/EdoCivilView.fxml", "Gestión de EdoCivil");
+    }
+    @FXML
+    private void openGenero(ActionEvent event) {
+        openNewStage(event, "/cbtis239/front/views/GeneroView.fxml", "Gestión de Genero");
+    }
+
+
+
 
     private void openNewStage(ActionEvent event, String fxml, String title) {
         try {
@@ -89,40 +100,6 @@ public class Menu2Controller {
 
 
 
-    @FXML
-    private void openEdoCivil(ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/EdoCivilView.fxml"));
-            Stage st = new Stage();
-            st.setTitle("Estado Civil");
-            st.setScene(new Scene(root));
-            st.setMaximized(true);
-            st.show();
-
-            // Si quieres cerrar el menú al abrir la ventana:
-            // ((Stage)((Node)event.getSource()).getScene().getWindow()).close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Alert a = new Alert(Alert.AlertType.ERROR, "No se pudo abrir Estado Civil\n\n" + e.getMessage());
-            a.setHeaderText("Error"); a.showAndWait();
-        }
-    }
-    @FXML
-    private void openGenero(javafx.event.ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/GeneroView.fxml"));
-            Stage st = new Stage();
-            st.setTitle("Géneros");
-            st.setScene(new Scene(root));
-            st.setMaximized(true);
-            st.show();
-            // ((Stage)((Node)event.getSource()).getScene().getWindow()).close(); // si quieres cerrar el menú
-        } catch (Exception e) {
-            e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de Género.\n\n" + e.getMessage()).showAndWait();
-        }
-    }
 
 
     // Acción especial: volver al menú principal
