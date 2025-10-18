@@ -25,7 +25,13 @@
                 <VBox spacing="24" alignment="TOP_CENTER">
                     <VBox spacing="8" alignment="CENTER">
                         <StackPane prefWidth="180" prefHeight="180">
-                            <ImageView fx:id="imgFoto" fitWidth="160" fitHeight="160" preserveRatio="true"/>
+                            <ImageView fx:id="imgFoto"
+                                       fitWidth="180"
+                                       fitHeight="180"
+                                       preserveRatio="true"
+                                       smooth="true"
+                                       pickOnBounds="true"
+                                       style="-fx-opacity: 0.98;"/>
                         </StackPane>
                         <Button text="Subir Fotografía" onAction="#onSubirFoto"/>
                     </VBox>
@@ -81,7 +87,7 @@
 
                     <!-- fila 5 -->
                     <Label text="Fecha inscripción:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                    <DatePicker fx:id="dpFechaInsc" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                    <DatePicker fx:id="dpFechaInscripcion" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
                     <Label text="Semestre:" GridPane.rowIndex="5" GridPane.columnIndex="2"/>
                     <ComboBox fx:id="cmbSemestre" GridPane.rowIndex="5" GridPane.columnIndex="3"/>
 
@@ -111,10 +117,15 @@
                     <TextField fx:id="txtMunicipio" GridPane.rowIndex="9" GridPane.columnIndex="3"/>
 
                     <!-- fila 10 -->
-                    <Label text="Tel. Padre:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtCelPadre" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
-                    <Label text="Tel. Madre:" GridPane.rowIndex="10" GridPane.columnIndex="2"/>
-                    <TextField fx:id="txtCelMadre" GridPane.rowIndex="10" GridPane.columnIndex="3"/>
+                    <Label text="Estado:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtEstado" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+                    <Label text="Teléfono:" GridPane.rowIndex="10" GridPane.columnIndex="2"/>
+                    <TextField fx:id="txtTelefono" GridPane.rowIndex="10" GridPane.columnIndex="3"/>
+                    <!-- fila 11 -->
+                    <Label text="Tel. Padre:" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtCelPadre" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
+                    <Label text="Tel. Madre:" GridPane.rowIndex="11" GridPane.columnIndex="2"/>
+                    <TextField fx:id="txtCelMadre" GridPane.rowIndex="11" GridPane.columnIndex="3"/>
                 </GridPane>
             </HBox>
 

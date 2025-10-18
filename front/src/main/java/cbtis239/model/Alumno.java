@@ -4,43 +4,46 @@ import java.time.LocalDate;
 
 public class Alumno {
 
-    // Clave
+    // ====== Clave primaria y CURP ======
     private String matricula;
-
-    // Datos personales
     private String curp;
+
+    // ====== Datos personales ======
     private String nombre;
     private String paterno;
     private String materno;
     private String correo;
     private String nss;
 
-    // Catálogos / académicos
+    // ====== Catálogos / académicos ======
     private String estadoInscripcion;   // "Activo", "Inactivo", "Egresado"
     private Integer semestre;           // 1..6
     private Integer periodoId;          // FK Periodo
     private Integer edoCivilId;         // FK EdoCivil
     private Integer generoId;           // FK Genero
     private Integer grupoId;            // FK Grupo
-    private String  carrera;            // nombre de especialidad (como acordamos)
+    private String carrera;             // nombre de especialidad
 
-    // Dirección / contacto
+    // ====== Dirección / contacto ======
     private String calle;
     private String numero;
     private String colonia;
+    private String estado;              // <-- nuevo campo
     private String municipio;
     private String localidad;
+    private String telefono;            // <-- nuevo campo
     private String celPadre;
     private String celMadre;
 
-    // Archivos
+    // ====== Archivos ======
     private String foto;
     private String firma;
 
-    // Fecha
+    // ====== Fecha ======
     private LocalDate fechaInscripcion;
 
-    // ======= Getters / Setters =======
+    // ====== Getters / Setters ======
+
     public String getMatricula() { return matricula; }
     public void setMatricula(String matricula) { this.matricula = matricula; }
 
@@ -92,11 +95,17 @@ public class Alumno {
     public String getColonia() { return colonia; }
     public void setColonia(String colonia) { this.colonia = colonia; }
 
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+
     public String getMunicipio() { return municipio; }
     public void setMunicipio(String municipio) { this.municipio = municipio; }
 
     public String getLocalidad() { return localidad; }
     public void setLocalidad(String localidad) { this.localidad = localidad; }
+
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
 
     public String getCelPadre() { return celPadre; }
     public void setCelPadre(String celPadre) { this.celPadre = celPadre; }

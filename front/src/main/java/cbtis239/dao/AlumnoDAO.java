@@ -13,7 +13,7 @@ public class AlumnoDAO {
     private Connection getConnection() throws SQLException {
         // Ejemplo MySQL
         // jdbc:mysql://host:puerto/bd?useSSL=false&serverTimezone=UTC
-        String url = "jdbc:mysql://localhost:3306/tu_bd?useSSL=false&serverTimezone=UTC";
+        String url = "jdbc:mysql://localhost:3306/SistemaEscolar?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
         String user = "root";
         String pass = "root";
         return DriverManager.getConnection(url, user, pass);
@@ -34,35 +34,36 @@ public class AlumnoDAO {
 
     public void insert(Alumno a) throws SQLException {
         String sql = """
-            INSERT INTO alumno
-            (Matricula, CURP, GrupoID, Semestre, EstadoInscripcion, Foto, Firma, Telefono, Correo, FechaInscripcion,
-             Nombre, Paterno, Materno, NSS, Carrera, Calle, Numero, Colonia, Localidad, Municipio,
-             CelPadre, CelMadre, EdoCivil_idEdoCivil, Generos_idGenero, Periodo_idPeriodo)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-        """;
+        INSERT INTO alumno
+        (CURP, Matricula, GrupoID, Semestre, EstadoInscripcion, Foto, Firma, Telefono, Correo, FechaInscripcion,
+         Nombre, Paterno, Materno, NSS, Carrera, Calle, Numero, Colonia, Estado, Municipio, Localidad,
+         CelPadre, CelMadre, EdoCivil_idEdoCivil, Generos_idGenero, Periodo_idPeriodo)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    """;
         try (Connection cn = getConnection();
              PreparedStatement ps = cn.prepareStatement(sql)) {
             fillPS(ps, a);
             ps.executeUpdate();
         }
+
     }
 
     public void update(Alumno a) throws SQLException {
         String sql = """
-            UPDATE alumno SET
-              CURP=?, GrupoID=?, Semestre=?, EstadoInscripcion=?, Foto=?, Firma=?, Telefono=?, Correo=?, FechaInscripcion=?,
-              Nombre=?, Paterno=?, Materno=?, NSS=?, Carrera=?, Calle=?, Numero=?, Colonia=?, Localidad=?, Municipio=?,
-              CelPadre=?, CelMadre=?, EdoCivil_idEdoCivil=?, Generos_idGenero=?, Periodo_idPeriodo=?
-            WHERE Matricula=?
-        """;
+        UPDATE alumno SET
+          CURP=?, Matricula=?, GrupoID=?, Semestre=?, EstadoInscripcion=?, Foto=?, Firma=?, Telefono=?, Correo=?, FechaInscripcion=?,
+          Nombre=?, Paterno=?, Materno=?, NSS=?, Carrera=?, Calle=?, Numero=?, Colonia=?, Estado=?, Municipio=?, Localidad=?,
+          CelPadre=?, CelMadre=?, EdoCivil_idEdoCivil=?, Generos_idGenero=?, Periodo_idPeriodo=?
+        WHERE Matricula=?
+    """;
         try (Connection cn = getConnection();
              PreparedStatement ps = cn.prepareStatement(sql)) {
-            // mismos 24 campos de fillPS, y al final la matrícula
             int i = fillPS(ps, a);
             ps.setString(i, a.getMatricula());
             ps.executeUpdate();
         }
     }
+
 
     public void deleteByMatricula(String matricula) throws SQLException {
         try (Connection cn = getConnection();
@@ -95,8 +96,10 @@ public class AlumnoDAO {
                 Alumno a = new Alumno();
                 a.setMatricula(rs.getString("Matricula"));
                 a.setNombre(rs.getString("Nombre"));
-                int sem = rs.getInt("Semestre"); a.setSemestre(rs.wasNull()? null : sem);
-                int gid = rs.getInt("GrupoID");  a.setGrupoId(rs.wasNull()? null : gid);
+                int sem = rs.getInt("Semestre");
+                a.setSemestre(rs.wasNull() ? null : sem);
+                int gid = rs.getInt("GrupoID");
+                a.setGrupoId(rs.wasNull() ? null : gid);
                 out.add(a);
             }
             return out;
@@ -108,16 +111,17 @@ public class AlumnoDAO {
     private int fillPS(PreparedStatement ps, Alumno a) throws SQLException {
         // Devuelve el siguiente índice libre (para UPDATE)
         int i = 1;
-        ps.setString(i++, a.getMatricula());
-        ps.setString(i++, a.getCurp());
 
-        if (a.getGrupoId() == null) ps.setNull(i++, Types.INTEGER); else ps.setInt(i++, a.getGrupoId());
-        if (a.getSemestre() == null) ps.setNull(i++, Types.INTEGER); else ps.setInt(i++, a.getSemestre());
+        ps.setString(i++, a.getCurp());
+        ps.setString(i++, a.getMatricula());
+        if (a.getGrupoId() == null) ps.setNull(i++, Types.INTEGER);
+        else ps.setInt(i++, a.getGrupoId());
+        if (a.getSemestre() == null) ps.setNull(i++, Types.INTEGER);
+        else ps.setInt(i++, a.getSemestre());
         ps.setString(i++, a.getEstadoInscripcion());
         ps.setString(i++, a.getFoto());
         ps.setString(i++, a.getFirma());
-        // Telefono no lo manejamos en pantalla actual (lo puedes ligar si quieres)
-        ps.setNull(i++, Types.VARCHAR);
+        ps.setString(i++, a.getTelefono());
         ps.setString(i++, a.getCorreo());
         if (a.getFechaInscripcion() == null) ps.setNull(i++, Types.DATE);
         else ps.setDate(i++, Date.valueOf(a.getFechaInscripcion()));
@@ -130,14 +134,18 @@ public class AlumnoDAO {
         ps.setString(i++, a.getCalle());
         ps.setString(i++, a.getNumero());
         ps.setString(i++, a.getColonia());
-        ps.setString(i++, a.getLocalidad());
+        ps.setString(i++, a.getEstado());
         ps.setString(i++, a.getMunicipio());
+        ps.setString(i++, a.getLocalidad());
         ps.setString(i++, a.getCelPadre());
         ps.setString(i++, a.getCelMadre());
 
-        if (a.getEdoCivilId() == null) ps.setNull(i++, Types.INTEGER); else ps.setInt(i++, a.getEdoCivilId());
-        if (a.getGeneroId() == null) ps.setNull(i++, Types.INTEGER); else ps.setInt(i++, a.getGeneroId());
-        if (a.getPeriodoId() == null) ps.setNull(i++, Types.INTEGER); else ps.setInt(i++, a.getPeriodoId());
+        if (a.getEdoCivilId() == null) ps.setNull(i++, Types.INTEGER);
+        else ps.setInt(i++, a.getEdoCivilId());
+        if (a.getGeneroId() == null) ps.setNull(i++, Types.INTEGER);
+        else ps.setInt(i++, a.getGeneroId());
+        if (a.getPeriodoId() == null) ps.setNull(i++, Types.INTEGER);
+        else ps.setInt(i++, a.getPeriodoId());
 
         return i;
     }
@@ -178,3 +186,4 @@ public class AlumnoDAO {
         return a;
     }
 }
+
