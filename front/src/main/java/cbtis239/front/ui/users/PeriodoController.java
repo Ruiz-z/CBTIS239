@@ -1,60 +1,125 @@
 package cbtis239.front.ui.users;
 
-import cbtis239.util.SceneNavigator;
+import cbtis239.bo.PeriodoBo;
+import cbtis239.model.Periodo;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.event.ActionEvent;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.event.ActionEvent;
+
+import java.time.LocalDate;
 
 public class PeriodoController {
 
-    @FXML private TextField txtId;
+    // Campos (sin ID de captura)
     @FXML private TextField txtNombre;
     @FXML private DatePicker dpInicio;
     @FXML private DatePicker dpFin;
 
-    @FXML private TableView<?> tablaPeriodos;
-    @FXML private TableColumn<?, ?> colId, colNombre, colInicio, colFin;
+    // Tabla
+    @FXML private TableView<Periodo> tablaPeriodos;
+    @FXML private TableColumn<Periodo, Integer> colId;
+    @FXML private TableColumn<Periodo, String> colNombre;
+    @FXML private TableColumn<Periodo, LocalDate> colInicio;
+    @FXML private TableColumn<Periodo, LocalDate> colFin;
 
-    @FXML private Button btnAgregar;
-    @FXML private Button btnModificar;
-    @FXML private Button btnEliminar;
-    @FXML private Button btnCancelar;
-    @FXML private Button btnVolver;
+    private final PeriodoBo bo = new PeriodoBo();
+    private final ObservableList<Periodo> data = FXCollections.observableArrayList();
+
+    // id seleccionado (para modificar/eliminar)
+    private int seleccionadoId = 0;
 
     @FXML
     private void initialize() {
-        // Aquí puedes inicializar tabla con Periodo si tienes modelo
+        colId.setCellValueFactory(new PropertyValueFactory<>("idPeriodo"));
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colInicio.setCellValueFactory(new PropertyValueFactory<>("inicio"));
+        colFin.setCellValueFactory(new PropertyValueFactory<>("fin"));
+
+        tablaPeriodos.setItems(data);
+
+        // Cargar datos
+        recargar();
+
+        // Al seleccionar, pasar a formulario
+        tablaPeriodos.getSelectionModel().selectedItemProperty().addListener((obs, a, b) -> {
+            if (b != null) {
+                seleccionadoId = b.getIdPeriodo();
+                txtNombre.setText(b.getNombre());
+                dpInicio.setValue(b.getInicio());
+                dpFin.setValue(b.getFin());
+            }
+        });
+    }
+
+    private void recargar() {
+        try {
+            data.setAll(bo.listar());
+        } catch (Exception e) {
+            showError("No se pudieron cargar periodos\n\n" + e.getMessage());
+        }
     }
 
     @FXML
     private void onAgregar() {
-        Alert a = new Alert(Alert.AlertType.INFORMATION, "Agregar periodo (TODO implementar)");
-        a.setHeaderText(null);
-        a.showAndWait();
+        try {
+            Periodo p = new Periodo(0,
+                    txtNombre.getText().trim(),
+                    dpInicio.getValue(),
+                    dpFin.getValue());
+            bo.guardar(p);
+            recargar();
+            limpiar();
+            showInfo("Periodo agregado.");
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
     }
 
     @FXML
     private void onModificar() {
-        Alert a = new Alert(Alert.AlertType.INFORMATION, "Modificar periodo (TODO implementar)");
-        a.setHeaderText(null);
-        a.showAndWait();
+        if (seleccionadoId <= 0) { showError("Seleccione un periodo de la tabla."); return; }
+        try {
+            Periodo p = new Periodo(seleccionadoId,
+                    txtNombre.getText().trim(),
+                    dpInicio.getValue(),
+                    dpFin.getValue());
+            bo.guardar(p);
+            recargar();
+            limpiar();
+            showInfo("Periodo modificado.");
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
     }
 
     @FXML
     private void onEliminar() {
-        Alert a = new Alert(Alert.AlertType.WARNING, "Eliminar periodo (TODO implementar)");
-        a.setHeaderText(null);
-        a.showAndWait();
+        if (seleccionadoId <= 0) { showError("Seleccione un periodo de la tabla."); return; }
+        if (new Alert(Alert.AlertType.CONFIRMATION, "¿Eliminar el periodo seleccionado?")
+                .showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+
+        try {
+            bo.eliminar(seleccionadoId);
+            recargar();
+            limpiar();
+            showInfo("Periodo eliminado.");
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
     }
 
-    @FXML
-    private void onCancelar() {
-        txtId.clear();
+    @FXML private void onCancelar() { limpiar(); }
+
+    private void limpiar() {
+        seleccionadoId = 0;
         txtNombre.clear();
         dpInicio.setValue(null);
         dpFin.setValue(null);
@@ -72,13 +137,19 @@ public class PeriodoController {
             st.show();
             ((Stage)((Node)event.getSource()).getScene().getWindow()).close();
         } catch (Exception e) {
-            e.printStackTrace();
             showError("No se pudo abrir el menú:\n\n" + e.getMessage());
         }
     }
+
     private void showError(String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
-        a.setHeaderText("Error"); a.showAndWait();
+        a.setHeaderText("Error");
+        a.showAndWait();
+    }
+
+    private void showInfo(String msg) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
+        a.setHeaderText(null);
+        a.showAndWait();
     }
 }
-

@@ -1,203 +1,283 @@
 package cbtis239.front.ui.users;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import cbtis239.bo.AlumnoBO;
+import cbtis239.dao.AlumnoDAO;
+import cbtis239.dao.CatalogoDAO;
+import cbtis239.dao.GrupoDao;
+import cbtis239.model.Alumno;
+import cbtis239.model.Catalogo;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.stage.FileChooser;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.event.ActionEvent;
-import javafx.scene.Node;
-import javafx.stage.Stage;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Ellipse;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.IOException;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
 
 public class AlumnoController {
 
-    // Generales
-    @FXML private TextField txtNombre, txtApPaterno, txtApMaterno, txtCurp, txtCorreo, txtNss;
-    @FXML private ComboBox<String> cmbEdoCivil;
-
-    // Escolares
-    @FXML private TextField txtMatricula;
-    @FXML private ComboBox<String> cmbEstatus, cmbSemestre, cmbCarrera, cmbGrupo;
-
-    // Contacto
-    @FXML private TextField txtCalle, txtNumero, txtColonia, txtEstado, txtMunicipio, txtLocalidad;
-    @FXML private TextField txtCelPadre, txtCelMadre;
-
-    // Imagenes
+    // Imágenes
     @FXML private ImageView imgFoto, imgFirma;
 
-    // Botones
-    @FXML private Button btnGuardar, btnEliminar, btnCancelar, btnFoto, btnFirma, btnVolver;
+    // Campos
+    @FXML private TextField txtMatricula, txtNombre, txtPaterno, txtMaterno, txtCurp, txtCorreo, txtNss;
+    @FXML private TextField txtCalle, txtNumero, txtColonia, txtMunicipio, txtLocalidad, txtCelPadre, txtCelMadre;
+    @FXML private ComboBox<String> cmbEstatus, cmbSemestre;
+    @FXML private ComboBox<Catalogo> cmbEdoCivil, cmbGenero, cmbPeriodo, cmbEspecialidad, cmbGrupo;
+    @FXML private DatePicker dpFechaInscripcion;
 
     // Tabla
-    @FXML private TableView<ObservableList<String>> tablaAlumnos;
-    @FXML private TableColumn<ObservableList<String>, String> colMatricula, colNombre, colApPaterno, colApMaterno, colSemestre, colCarrera;
+    @FXML private TableView<Alumno> tblAlumnos;
+    @FXML private TableColumn<Alumno,String> colMatricula, colNombre;
+    @FXML private TableColumn<Alumno,Integer> colSemestre, colGrupo;
 
-    private ObservableList<ObservableList<String>> listaAlumnos;
+    private final CatalogoDAO catalogoDAO = new CatalogoDAO();
+    private final GrupoDao grupoDAO = new GrupoDao();
+    private final AlumnoBO alumnoBO = new AlumnoBO();
+
+    private String pathFoto, pathFirma;
 
     @FXML
     public void initialize() {
-        // inicializar listas
-        listaAlumnos = FXCollections.observableArrayList();
-
-        colMatricula.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(0)));
-        colNombre.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(1)));
-        colApPaterno.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(2)));
-        colApMaterno.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(3)));
-        colSemestre.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(4)));
-        colCarrera.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get(5)));
-
-        tablaAlumnos.setItems(listaAlumnos);
+        // Clip redondo para foto (se recalcula al cambiar el layout)
+        imgFoto.layoutBoundsProperty().addListener((o, ov, nv) -> {
+            double cx = nv.getWidth()/2.0, cy = nv.getHeight()/2.0, r = Math.min(cx, cy);
+            imgFoto.setClip(new Circle(cx, cy, r));
+        });
+        imgFirma.layoutBoundsProperty().addListener((o, ov, nv) -> {
+            imgFirma.setClip(new Ellipse(nv.getWidth()/2.0, nv.getHeight()/2.0, nv.getWidth()/2.0, nv.getHeight()/2.5));
+        });
 
         // Combos
-        cmbEdoCivil.setItems(FXCollections.observableArrayList("Soltero", "Casado", "Divorciado"));
-        cmbEstatus.setItems(FXCollections.observableArrayList("Activo", "Inactivo"));
-        cmbSemestre.setItems(FXCollections.observableArrayList("1","2","3","4","5","6","7","8","9"));
-        cmbCarrera.setItems(FXCollections.observableArrayList("Sistemas", "Electrónica", "Mecánica"));
-        cmbGrupo.setItems(FXCollections.observableArrayList("A","B","C","D"));
+        cmbEstatus.getItems().addAll("Activo", "Inactivo", "Egresado");
+        for (int i=1; i<=6; i++) cmbSemestre.getItems().add(String.valueOf(i));
 
-        // Validaciones: NSS y Matrícula solo números
-        txtNss.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.matches("\\d*")) txtNss.setText(newVal.replaceAll("[^\\d]", ""));
-        });
-        txtMatricula.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal.matches("\\d*")) txtMatricula.setText(newVal.replaceAll("[^\\d]", ""));
-        });
-    }
-
-    @FXML
-    private void onGuardar() {
-        if (!validarCampos()) {
-            mostrarAlerta("Error", "Todos los campos son obligatorios.");
-            return;
+        try {
+            cmbEdoCivil.getItems().setAll(catalogoDAO.edoCivil());
+            cmbGenero.getItems().setAll(catalogoDAO.generos());
+            cmbPeriodo.getItems().setAll(catalogoDAO.periodos());
+            cmbEspecialidad.getItems().setAll(catalogoDAO.especialidades());
+        } catch (SQLException e) {
+            showError("No se pudieron cargar catálogos:\n" + e.getMessage());
         }
 
-        ObservableList<String> fila = FXCollections.observableArrayList(
-                txtMatricula.getText(),
-                txtNombre.getText(),
-                txtApPaterno.getText(),
-                txtApMaterno.getText(),
-                cmbSemestre.getValue(),
-                cmbCarrera.getValue()
-        );
-        listaAlumnos.add(fila);
-        limpiarCampos();
+        // Tabla
+        colMatricula.setCellValueFactory(new PropertyValueFactory<>("matricula"));
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colSemestre.setCellValueFactory(new PropertyValueFactory<>("semestre"));
+        colGrupo.setCellValueFactory(new PropertyValueFactory<>("grupoId"));
+        recargarTabla();
+
+        // Buscar al perder foco
+        txtMatricula.focusedProperty().addListener((obs, oldV, newV) -> {
+            if (!newV) onBuscarMatricula();
+        });
     }
 
-    private boolean validarCampos() {
-        return !(txtNombre.getText().isBlank() ||
-                txtApPaterno.getText().isBlank() ||
-                txtApMaterno.getText().isBlank() ||
-                txtCurp.getText().isBlank() ||
-                cmbEdoCivil.getValue() == null ||
-                txtCorreo.getText().isBlank() ||
-                txtNss.getText().isBlank() ||
-                txtMatricula.getText().isBlank() ||
-                cmbEstatus.getValue() == null ||
-                cmbSemestre.getValue() == null ||
-                cmbCarrera.getValue() == null ||
-                cmbGrupo.getValue() == null ||
-                txtCalle.getText().isBlank() ||
-                txtNumero.getText().isBlank() ||
-                txtColonia.getText().isBlank() ||
-                txtEstado.getText().isBlank() ||
-                txtMunicipio.getText().isBlank() ||
-                txtLocalidad.getText().isBlank() ||
-                txtCelPadre.getText().isBlank() ||
-                txtCelMadre.getText().isBlank());
-    }
-
-    @FXML
-    private void onEliminar() {
-        ObservableList<String> seleccionado = tablaAlumnos.getSelectionModel().getSelectedItem();
-        if (seleccionado != null) listaAlumnos.remove(seleccionado);
-    }
-
-    @FXML
-    private void onCancelar() {
-        limpiarCampos();
-    }
-
-    @FXML
-        private void onVolver(ActionEvent event) {
+    private void recargarTabla() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
+            List<Alumno> data = alumnoBO.listarBreve();
+            tblAlumnos.setItems(FXCollections.observableArrayList(data));
+        } catch (SQLException e) {
+            // no bloquear pantalla si falla
+            tblAlumnos.setItems(FXCollections.observableArrayList());
+        }
+    }
+
+    // ======== Eventos ========
+
+    @FXML
+    public void onEspecialidadChange() {
+        Catalogo esp = cmbEspecialidad.getValue();
+        if (esp == null) { cmbGrupo.getItems().clear(); return; }
+        try {
+            List<Catalogo> grupos = grupoDAO.gruposPorEspecialidad(esp.getId());
+            cmbGrupo.getItems().setAll(grupos);
+        } catch (SQLException e) {
+            showError("No se pudieron cargar grupos:\n" + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void onBuscarMatricula() {
+        String m = txtMatricula.getText();
+        if (m == null || m.isBlank()) return;
+        try {
+            Alumno a = alumnoBO.buscar(m.trim());
+            if (a == null) { limpiar(false); return; }
+            // Rellenar
+            txtCurp.setText(a.getCurp());
+            txtNombre.setText(a.getNombre());
+            txtPaterno.setText(a.getPaterno());
+            txtMaterno.setText(a.getMaterno());
+            txtCorreo.setText(a.getCorreo());
+            txtNss.setText(a.getNss());
+            cmbEstatus.setValue(a.getEstadoInscripcion());
+            cmbSemestre.setValue(a.getSemestre()==null? null : String.valueOf(a.getSemestre()));
+            cmbPeriodo.getSelectionModel().select(matchId(cmbPeriodo, a.getPeriodoId()));
+            cmbEdoCivil.getSelectionModel().select(matchId(cmbEdoCivil, a.getEdoCivilId()));
+            cmbGenero.getSelectionModel().select(matchId(cmbGenero, a.getGeneroId()));
+            dpFechaInscripcion.setValue(a.getFechaInscripcion());
+
+            // Especialidad por nombre
+            if (a.getCarrera()!=null) {
+                for (Catalogo c : cmbEspecialidad.getItems()) {
+                    if (Objects.equals(c.getNombre(), a.getCarrera())) { cmbEspecialidad.getSelectionModel().select(c); break; }
+                }
+                onEspecialidadChange();
+            }
+            cmbGrupo.getSelectionModel().select(matchId(cmbGrupo, a.getGrupoId()));
+
+            // Dirección/teléfonos
+            txtCalle.setText(a.getCalle());
+            txtNumero.setText(a.getNumero());
+            txtColonia.setText(a.getColonia());
+            txtMunicipio.setText(a.getMunicipio());
+            txtLocalidad.setText(a.getLocalidad());
+            txtCelPadre.setText(a.getCelPadre());
+            txtCelMadre.setText(a.getCelMadre());
+
+            // Imágenes
+            pathFoto = a.getFoto(); pathFirma = a.getFirma();
+            loadImage(imgFoto, pathFoto); loadImage(imgFirma, pathFirma);
+
+        } catch (SQLException e) {
+            showError("Error al buscar matrícula:\n" + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void onGuardar() {
+        try {
+            Alumno a = buildFromForm();
+            alumnoBO.guardar(a);
+            showInfo("Alumno guardado correctamente");
+            recargarTabla();
+        } catch (Exception e) {
+            showError("No se pudo guardar:\n" + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void onEliminar() {
+        String m = txtMatricula.getText();
+        if (m==null || m.isBlank()) { showError("Indica la matrícula a eliminar"); return; }
+        try {
+            alumnoBO.eliminar(m.trim());
+            showInfo("Alumno eliminado");
+            limpiar(true);
+            recargarTabla();
+        } catch (SQLException e) {
+            showError("No se pudo eliminar:\n" + e.getMessage());
+        }
+    }
+
+    @FXML public void onCancelar(){ limpiar(true); }
+
+    @FXML
+    public void onVolver() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
             Stage st = new Stage();
             st.setTitle("Menú");
             st.setScene(new Scene(root));
             st.setMaximized(true);
             st.show();
-            ((Stage)((Node)event.getSource()).getScene().getWindow()).close();
+            ((Stage) imgFoto.getScene().getWindow()).close();
         } catch (Exception e) {
-            e.printStackTrace();
-            showError("No se pudo abrir el menú:\n\n" + e.getMessage());
-        }
-    }
-    private void showError(String msg) {
-        Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
-        a.setHeaderText("Error"); a.showAndWait();
-    }
-
-
-
-@FXML
-    private void onSubirFoto() {
-        FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg"));
-        File archivo = fc.showOpenDialog(null);
-        if (archivo != null) {
-            imgFoto.setImage(new Image(archivo.toURI().toString()));
+            showError("No se pudo abrir el menú:\n" + e.getMessage());
         }
     }
 
-    @FXML
-    private void onSubirFirma() {
-        FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg"));
-        File archivo = fc.showOpenDialog(null);
-        if (archivo != null) {
-            imgFirma.setImage(new Image(archivo.toURI().toString()));
-        }
+    @FXML public void onSubirFoto()  { pathFoto  = pickImage(imgFoto); }
+    @FXML public void onSubirFirma() { pathFirma = pickImage(imgFirma); }
+
+    // ===== helpers =====
+
+    private Alumno buildFromForm() {
+        Alumno a = new Alumno();
+        a.setMatricula(txtMatricula.getText().trim());
+        a.setCurp(v(txtCurp));
+        a.setNombre(v(txtNombre));
+        a.setPaterno(v(txtPaterno));
+        a.setMaterno(v(txtMaterno));
+        a.setCorreo(v(txtCorreo));
+        a.setNss(v(txtNss));
+        a.setEstadoInscripcion(cmbEstatus.getValue());
+        a.setSemestre(cmbSemestre.getValue()==null? null : Integer.valueOf(cmbSemestre.getValue()));
+        a.setPeriodoId(getId(cmbPeriodo));
+        a.setEdoCivilId(getId(cmbEdoCivil));
+        a.setGeneroId(getId(cmbGenero));
+        a.setCarrera(cmbEspecialidad.getValue()==null? null : cmbEspecialidad.getValue().getNombre());
+        a.setGrupoId(getId(cmbGrupo));
+        a.setFechaInscripcion(dpFechaInscripcion.getValue());
+
+        a.setCalle(v(txtCalle));
+        a.setNumero(v(txtNumero));
+        a.setColonia(v(txtColonia));
+        a.setMunicipio(v(txtMunicipio));
+        a.setLocalidad(v(txtLocalidad));
+        a.setCelPadre(v(txtCelPadre));
+        a.setCelMadre(v(txtCelMadre));
+
+        a.setFoto(pathFoto);
+        a.setFirma(pathFirma);
+        return a;
     }
 
-    private void limpiarCampos() {
-        txtNombre.clear();
-        txtApPaterno.clear();
-        txtApMaterno.clear();
-        txtCurp.clear();
+    private Integer getId(ComboBox<Catalogo> cb){ return cb.getValue()==null? null : cb.getValue().getId(); }
+    private Catalogo matchId(ComboBox<Catalogo> cb, Integer id){
+        if (id==null) return null;
+        for (Catalogo c: cb.getItems()) if (c.getId()==id) return c;
+        return null;
+    }
+    private String v(TextField t){ return t.getText()==null? null : t.getText().trim(); }
+
+    private void limpiar(boolean clearMatricula){
+        if (clearMatricula) txtMatricula.clear();
+        txtCurp.clear(); txtNombre.clear(); txtPaterno.clear(); txtMaterno.clear();
+        txtCorreo.clear(); txtNss.clear();
+        cmbEstatus.setValue("Activo"); cmbSemestre.getSelectionModel().clearSelection();
+        cmbPeriodo.getSelectionModel().clearSelection();
         cmbEdoCivil.getSelectionModel().clearSelection();
-        txtCorreo.clear();
-        txtNss.clear();
-        txtMatricula.clear();
-        cmbEstatus.getSelectionModel().clearSelection();
-        cmbSemestre.getSelectionModel().clearSelection();
-        cmbCarrera.getSelectionModel().clearSelection();
-        cmbGrupo.getSelectionModel().clearSelection();
-        txtCalle.clear();
-        txtNumero.clear();
-        txtColonia.clear();
-        txtEstado.clear();
-        txtMunicipio.clear();
-        txtLocalidad.clear();
-        txtCelPadre.clear();
-        txtCelMadre.clear();
-        imgFoto.setImage(null);
-        imgFirma.setImage(null);
+        cmbGenero.getSelectionModel().clearSelection();
+        cmbEspecialidad.getSelectionModel().clearSelection(); cmbGrupo.getItems().clear();
+        dpFechaInscripcion.setValue(null);
+
+        txtCalle.clear(); txtNumero.clear(); txtColonia.clear(); txtMunicipio.clear(); txtLocalidad.clear();
+        txtCelPadre.clear(); txtCelMadre.clear();
+
+        imgFoto.setImage(null); imgFirma.setImage(null); pathFoto=null; pathFirma=null;
     }
 
-    private void mostrarAlerta(String titulo, String msg) {
-        Alert a = new Alert(Alert.AlertType.ERROR);
-        a.setHeaderText(titulo);
-        a.setContentText(msg);
-        a.showAndWait();
+    private String pickImage(ImageView target){
+        FileChooser fc = new FileChooser();
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.png","*.jpg","*.jpeg"));
+        File f = fc.showOpenDialog(target.getScene().getWindow());
+        if (f!=null) { loadImage(target, f.getAbsolutePath()); return f.getAbsolutePath(); }
+        return null;
     }
+
+    private void loadImage(ImageView iv, String path){
+        if (path==null || path.isBlank()) { iv.setImage(null); return; }
+        iv.setImage(new Image(new File(path).toURI().toString(), false));
+    }
+
+    private void showError(String m){ new Alert(Alert.AlertType.ERROR, m, ButtonType.OK).showAndWait(); }
+    private void showInfo(String m){ new Alert(Alert.AlertType.INFORMATION, m, ButtonType.OK).showAndWait(); }
 }

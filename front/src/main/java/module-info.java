@@ -1,7 +1,7 @@
 module cbtis239.front {
     requires javafx.controls;
     requires javafx.fxml;
-
+    requires java.desktop;
     requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
     requires java.sql;

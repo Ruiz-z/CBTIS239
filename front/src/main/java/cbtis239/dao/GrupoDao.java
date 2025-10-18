@@ -1,5 +1,6 @@
 package cbtis239.dao;
 
+import cbtis239.model.Catalogo;
 import cbtis239.util.DB;
 import cbtis239.model.Grupo;
 
@@ -70,6 +71,19 @@ public class GrupoDao {
             ps.setInt(1, grupoId);
             ps.executeUpdate();
         }
+    }
+    public List<Catalogo> gruposPorEspecialidad(int especialidadClave) throws SQLException {
+        String sql = "SELECT GrupoID, CONCAT(NombreGrupo,' (cap ',Capacidad,')') AS n " +
+                "FROM Grupo WHERE Especialidad_Clave=? ORDER BY NombreGrupo";
+        List<Catalogo> list = new ArrayList<>();
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, especialidadClave);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(new Catalogo(rs.getInt(1), rs.getString(2)));
+            }
+        }
+        return list;
     }
 }
 
