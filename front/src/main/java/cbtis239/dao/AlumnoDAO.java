@@ -1,6 +1,7 @@
 package cbtis239.dao;
 
 import cbtis239.model.Alumno;
+import cbtis239.util.DB;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -9,21 +10,11 @@ import java.util.List;
 
 public class AlumnoDAO {
 
-    // === Ajusta tu URL/usuario/clave ===
-    private Connection getConnection() throws SQLException {
-        // Ejemplo MySQL
-        // jdbc:mysql://host:puerto/bd?useSSL=false&serverTimezone=UTC
-        String url = "jdbc:mysql://localhost:3306/SistemaEscolar?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-        String user = "root";
-        String pass = "root";
-        return DriverManager.getConnection(url, user, pass);
-    }
-
     // ====== CRUD ======
 
     public boolean existe(String matricula) throws SQLException {
         String sql = "SELECT 1 FROM alumno WHERE Matricula=?";
-        try (Connection cn = getConnection();
+        try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setString(1, matricula);
             try (ResultSet rs = ps.executeQuery()) {
@@ -40,7 +31,7 @@ public class AlumnoDAO {
          CelPadre, CelMadre, EdoCivil_idEdoCivil, Generos_idGenero, Periodo_idPeriodo)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     """;
-        try (Connection cn = getConnection();
+        try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql)) {
             fillPS(ps, a);
             ps.executeUpdate();
@@ -56,7 +47,7 @@ public class AlumnoDAO {
           CelPadre=?, CelMadre=?, EdoCivil_idEdoCivil=?, Generos_idGenero=?, Periodo_idPeriodo=?
         WHERE Matricula=?
     """;
-        try (Connection cn = getConnection();
+        try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql)) {
             int i = fillPS(ps, a);
             ps.setString(i, a.getMatricula());
@@ -66,7 +57,7 @@ public class AlumnoDAO {
 
 
     public void deleteByMatricula(String matricula) throws SQLException {
-        try (Connection cn = getConnection();
+        try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement("DELETE FROM alumno WHERE Matricula=?")) {
             ps.setString(1, matricula);
             ps.executeUpdate();
@@ -75,7 +66,7 @@ public class AlumnoDAO {
 
     public Alumno findByMatricula(String mat) throws SQLException {
         String sql = "SELECT * FROM alumno WHERE Matricula=?";
-        try (Connection cn = getConnection();
+        try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setString(1, mat);
             try (ResultSet rs = ps.executeQuery()) {
@@ -87,7 +78,7 @@ public class AlumnoDAO {
     public List<Alumno> listBreve() throws SQLException {
         // Para llenar la tabla (matricula, nombre, semestre, grupo)
         String sql = "SELECT Matricula, Nombre, Semestre, GrupoID FROM alumno ORDER BY Matricula DESC LIMIT 100";
-        try (Connection cn = getConnection();
+        try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
