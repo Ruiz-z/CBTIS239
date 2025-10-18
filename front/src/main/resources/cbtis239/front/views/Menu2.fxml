@@ -135,7 +135,7 @@
             <VBox alignment="TOP_CENTER" spacing="16">
                 <Label text="Bienvenido Servicios Escolares" styleClass="welcome-title"/>
                 <ImageView fx:id="imgMenu"
-                           fitHeight="260" fitWidth="260"
+                           fitHeight="560" fitWidth="560"
                            preserveRatio="true" pickOnBounds="true">
                     <image>
                         <Image url="@/cbtis239/front/Menu.png"/>
