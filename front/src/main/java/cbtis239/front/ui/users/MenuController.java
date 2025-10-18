@@ -7,6 +7,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -157,8 +158,16 @@ public class MenuController {
             currentStage.close();
 
         } catch (Exception e) {
-            e.printStackTrace();
-            showError("No se pudo abrir la ventana de Alumnos\n\n" + e.getMessage());
+            // Saca la raíz del problema (lo que de verdad importa)
+            Throwable t = e;
+            while (t.getCause() != null) t = t.getCause();
+            String msg = (t.getMessage() == null) ? t.toString() : t.getMessage();
+
+            Alert a = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de Alumnos\n\n" + msg, ButtonType.OK);
+            a.setHeaderText("Error");
+            a.showAndWait();
+
+            t.printStackTrace();  // también en consola
         }
     }
 
