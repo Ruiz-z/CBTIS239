@@ -37,6 +37,7 @@ public class AlumnoController {
     // Campos
     @FXML private TextField txtMatricula, txtNombre, txtPaterno, txtMaterno, txtCurp, txtCorreo, txtNss;
     @FXML private TextField txtCalle, txtNumero, txtColonia, txtMunicipio, txtLocalidad, txtCelPadre, txtCelMadre;
+    @FXML private TextField txtEstado, txtTelefono;
     @FXML private ComboBox<String> cmbEstatus, cmbSemestre;
     @FXML private ComboBox<Catalogo> cmbEdoCivil, cmbGenero, cmbPeriodo, cmbEspecialidad, cmbGrupo;
     @FXML private DatePicker dpFechaInscripcion;
@@ -87,6 +88,20 @@ public class AlumnoController {
         txtMatricula.focusedProperty().addListener((obs, oldV, newV) -> {
             if (!newV) onBuscarMatricula();
         });
+        // Doble clic en tabla para cargar alumno
+        tblAlumnos.setRowFactory(tv -> {
+            TableRow<Alumno> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    Alumno seleccionado = row.getItem();
+                    if (seleccionado != null) {
+                        cargarAlumno(seleccionado.getMatricula());
+                    }
+                }
+            });
+            return row;
+        });
+
     }
 
     private void recargarTabla() {
@@ -149,6 +164,8 @@ public class AlumnoController {
             txtColonia.setText(a.getColonia());
             txtMunicipio.setText(a.getMunicipio());
             txtLocalidad.setText(a.getLocalidad());
+            txtEstado.setText(a.getEstado());
+            txtTelefono.setText(a.getTelefono());
             txtCelPadre.setText(a.getCelPadre());
             txtCelMadre.setText(a.getCelMadre());
 
@@ -230,6 +247,8 @@ public class AlumnoController {
         a.setCalle(v(txtCalle));
         a.setNumero(v(txtNumero));
         a.setColonia(v(txtColonia));
+        a.setEstado(v(txtEstado));
+        a.setTelefono(v(txtTelefono));
         a.setMunicipio(v(txtMunicipio));
         a.setLocalidad(v(txtLocalidad));
         a.setCelPadre(v(txtCelPadre));
@@ -259,7 +278,8 @@ public class AlumnoController {
         cmbEspecialidad.getSelectionModel().clearSelection(); cmbGrupo.getItems().clear();
         dpFechaInscripcion.setValue(null);
 
-        txtCalle.clear(); txtNumero.clear(); txtColonia.clear(); txtMunicipio.clear(); txtLocalidad.clear();
+        txtCalle.clear(); txtNumero.clear(); txtColonia.clear(); txtEstado.clear();
+        txtTelefono.clear(); txtMunicipio.clear(); txtLocalidad.clear();
         txtCelPadre.clear(); txtCelMadre.clear();
 
         imgFoto.setImage(null); imgFirma.setImage(null); pathFoto=null; pathFirma=null;
@@ -280,4 +300,63 @@ public class AlumnoController {
 
     private void showError(String m){ new Alert(Alert.AlertType.ERROR, m, ButtonType.OK).showAndWait(); }
     private void showInfo(String m){ new Alert(Alert.AlertType.INFORMATION, m, ButtonType.OK).showAndWait(); }
+
+    private void cargarAlumno(String matricula) {
+        try {
+            Alumno a = alumnoBO.buscar(matricula);
+            if (a == null) {
+                showError("No se encontró el alumno con matrícula: " + matricula);
+                return;
+            }
+
+            // 🔹 Rellenar los campos
+            txtMatricula.setText(a.getMatricula());
+            txtCurp.setText(a.getCurp());
+            txtNombre.setText(a.getNombre());
+            txtPaterno.setText(a.getPaterno());
+            txtMaterno.setText(a.getMaterno());
+            txtCorreo.setText(a.getCorreo());
+            txtNss.setText(a.getNss());
+            cmbEstatus.setValue(a.getEstadoInscripcion());
+            cmbSemestre.setValue(a.getSemestre() == null ? null : String.valueOf(a.getSemestre()));
+            cmbPeriodo.getSelectionModel().select(matchId(cmbPeriodo, a.getPeriodoId()));
+            cmbEdoCivil.getSelectionModel().select(matchId(cmbEdoCivil, a.getEdoCivilId()));
+            cmbGenero.getSelectionModel().select(matchId(cmbGenero, a.getGeneroId()));
+            dpFechaInscripcion.setValue(a.getFechaInscripcion());
+
+            // Especialidad por nombre
+            if (a.getCarrera() != null) {
+                for (Catalogo c : cmbEspecialidad.getItems()) {
+                    if (Objects.equals(c.getNombre(), a.getCarrera())) {
+                        cmbEspecialidad.getSelectionModel().select(c);
+                        break;
+                    }
+                }
+                onEspecialidadChange();
+            }
+            cmbGrupo.getSelectionModel().select(matchId(cmbGrupo, a.getGrupoId()));
+
+            // Dirección/teléfonos
+            txtCalle.setText(a.getCalle());
+            txtNumero.setText(a.getNumero());
+            txtColonia.setText(a.getColonia());
+            txtMunicipio.setText(a.getMunicipio());
+            txtLocalidad.setText(a.getLocalidad());
+            txtEstado.setText(a.getEstado());
+            txtTelefono.setText(a.getTelefono());
+            txtCelPadre.setText(a.getCelPadre());
+            txtCelMadre.setText(a.getCelMadre());
+
+            // Imágenes
+            pathFoto = a.getFoto();
+            pathFirma = a.getFirma();
+            loadImage(imgFoto, pathFoto);
+            loadImage(imgFirma, pathFirma);
+
+        } catch (SQLException e) {
+            showError("Error al cargar alumno:\n" + e.getMessage());
+        }
+    }
+
 }
+
