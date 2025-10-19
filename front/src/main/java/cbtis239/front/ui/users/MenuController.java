@@ -45,6 +45,7 @@ public class MenuController {
         a.show();
     }
 
+
     // ===== Botón "Más Opciones" → cambia a Menu2 (pantalla completa) =====
     @FXML
     private void openMenu2(ActionEvent event) {
@@ -177,6 +178,35 @@ public class MenuController {
             a.showAndWait();
 
             t.printStackTrace();  // también en consola
+        }
+    }
+
+    @FXML
+    private void openAspiranteView(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Aspirante.fxml"));
+            Parent root = loader.load();
+
+            Stage newStage = new Stage();
+            newStage.setTitle("Gestión de Aspirantes");
+            newStage.setScene(new Scene(root));
+            newStage.setMaximized(true);
+            newStage.show();
+
+            // Cierra la ventana actual
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
+
+        } catch (Exception e) {
+            Throwable t = e;
+            while (t.getCause() != null) t = t.getCause();
+            String msg = (t.getMessage() == null) ? t.toString() : t.getMessage();
+
+            Alert a = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de Aspirantes\n\n" + msg, ButtonType.OK);
+            a.setHeaderText("Error");
+            a.showAndWait();
+
+            t.printStackTrace();
         }
     }
 
