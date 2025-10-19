@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.AspiranteController">
+
+    <top>
+        <Label text="Registro de Aspirante"
+               style="-fx-background-color:#7a0a0a;-fx-text-fill:white;-fx-font-size:20px;-fx-padding:10 0 10 0;"
+               maxWidth="Infinity" BorderPane.alignment="CENTER"/>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true">
+            <content>
+                <VBox spacing="18">
+                    <padding>
+                        <Insets top="16" right="16" bottom="16" left="16"/>
+                    </padding>
+
+                    <GridPane hgap="14" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints halignment="RIGHT" minWidth="130"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                            <ColumnConstraints halignment="RIGHT" minWidth="130"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+
+                        <!-- Datos generales -->
+                        <Label text="Folio:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtFolio" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <Label text="CURP:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtCurp" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+                        <Label text="Nombre:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtNombre" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Label text="Apellido Paterno:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtPaterno" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+                        <Label text="Apellido Materno:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtMaterno" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                        <Label text="Fecha de Nacimiento:" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                        <DatePicker fx:id="dpFechaNac" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+
+                        <Label text="NSS:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtNss" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                        <Label text="Tipo de Sangre:" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtTipoSangre" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
+
+                        <Label text="Altura (m):" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtAltura" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                        <Label text="Peso (kg):" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtPeso" GridPane.rowIndex="4" GridPane.columnIndex="3"/>
+
+                        <!-- Contacto -->
+                        <Label text="Teléfono:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtTelefono" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                        <Label text="Correo:" GridPane.rowIndex="5" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtCorreo" GridPane.rowIndex="5" GridPane.columnIndex="3"/>
+
+                        <Label text="Correo Aspirante:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtCorreoAspirante" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                        <Label text="Cel. Aspirante:" GridPane.rowIndex="6" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtCelAspirante" GridPane.rowIndex="6" GridPane.columnIndex="3"/>
+
+                        <!-- Lugar / dirección -->
+                        <Label text="Estado:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtEstado" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                        <Label text="Municipio:" GridPane.rowIndex="7" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtMunicipio" GridPane.rowIndex="7" GridPane.columnIndex="3"/>
+
+                        <Label text="Localidad:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtLocalidad" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+                        <Label text="Calle:" GridPane.rowIndex="8" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtCalle" GridPane.rowIndex="8" GridPane.columnIndex="3"/>
+
+                        <Label text="Número:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtNumero" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+
+                        <Label text="Colonia:" GridPane.rowIndex="9" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtColonia" GridPane.rowIndex="9" GridPane.columnIndex="3"/>
+
+                        <!-- Padres y tutores -->
+                        <Label text="Cel. Padre:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtCelPadre" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+
+                        <Label text="Cel. Madre:" GridPane.rowIndex="10" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtCelMadre" GridPane.rowIndex="10" GridPane.columnIndex="3"/>
+
+                        <Label text="Contacto Emergencia:" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtContactoEmergencia" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
+
+                        <Label text="Tutor 1:" GridPane.rowIndex="11" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtTutor1" GridPane.rowIndex="11" GridPane.columnIndex="3"/>
+
+                        <Label text="Tutor 2:" GridPane.rowIndex="12" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtTutor2" GridPane.rowIndex="12" GridPane.columnIndex="1"/>
+
+                        <!-- Datos académicos -->
+                        <Label text="Secundaria:" GridPane.rowIndex="13" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtSecundaria" GridPane.rowIndex="13" GridPane.columnIndex="1"/>
+
+                        <Label text="Estado Sec.:" GridPane.rowIndex="13" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtEstadoSec" GridPane.rowIndex="13" GridPane.columnIndex="3"/>
+
+                        <Label text="Municipio Sec.:" GridPane.rowIndex="14" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtMunicipioSec" GridPane.rowIndex="14" GridPane.columnIndex="1"/>
+
+                        <Label text="Nombre Sec.:" GridPane.rowIndex="14" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtNombreSec" GridPane.rowIndex="14" GridPane.columnIndex="3"/>
+
+                        <Label text="Promedio Final:" GridPane.rowIndex="15" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtPromedio" GridPane.rowIndex="15" GridPane.columnIndex="1"/>
+
+                        <Label text="Calif. Examen Ingreso:" GridPane.rowIndex="15" GridPane.columnIndex="2"/>
+                        <TextField fx:id="txtCalificacion" GridPane.rowIndex="15" GridPane.columnIndex="3"/>
+
+                        <!-- Catálogos -->
+                        <Label text="Edo. Civil:" GridPane.rowIndex="16" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="cmbEdoCivil" GridPane.rowIndex="16" GridPane.columnIndex="1"/>
+
+                        <Label text="Género:" GridPane.rowIndex="16" GridPane.columnIndex="2"/>
+                        <ComboBox fx:id="cmbGenero" GridPane.rowIndex="16" GridPane.columnIndex="3"/>
+
+                        <!-- Opciones de especialidad -->
+                        <Label text="1ª Opción:" GridPane.rowIndex="17" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="cmbEsp1" GridPane.rowIndex="17" GridPane.columnIndex="1"/>
+
+                        <Label text="2ª Opción:" GridPane.rowIndex="17" GridPane.columnIndex="2"/>
+                        <ComboBox fx:id="cmbEsp2" GridPane.rowIndex="17" GridPane.columnIndex="3"/>
+
+                        <Label text="3ª Opción:" GridPane.rowIndex="18" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="cmbEsp3" GridPane.rowIndex="18" GridPane.columnIndex="1"/>
+
+                        <Label text="4ª Opción:" GridPane.rowIndex="18" GridPane.columnIndex="2"/>
+                        <ComboBox fx:id="cmbEsp4" GridPane.rowIndex="18" GridPane.columnIndex="3"/>
+
+                        <!-- Estatus -->
+                        <Label text="Estatus Pago:" GridPane.rowIndex="19" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="cmbEstatusPago" GridPane.rowIndex="19" GridPane.columnIndex="1"/>
+
+                        <Label text="Estatus Inscripción:" GridPane.rowIndex="19" GridPane.columnIndex="2"/>
+                        <ComboBox fx:id="cmbEstatusInscripcion" GridPane.rowIndex="19" GridPane.columnIndex="3"/>
+
+                        <Label text="Fecha Registro:" GridPane.rowIndex="20" GridPane.columnIndex="0"/>
+                        <DatePicker fx:id="dpFechaReg" GridPane.rowIndex="20" GridPane.columnIndex="1"/>
+                    </GridPane>
+
+                    <!-- Tabla -->
+                    <TitledPane text="Listado de Aspirantes" expanded="true">
+                        <content>
+                            <TableView fx:id="tblAspirantes" prefHeight="200">
+                                <columns>
+                                    <TableColumn fx:id="colFolio" text="Folio" prefWidth="80"/>
+                                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="200"/>
+                                    <TableColumn fx:id="colPaterno" text="Paterno" prefWidth="160"/>
+                                    <TableColumn fx:id="colEstatus" text="Estatus Inscripción" prefWidth="180"/>
+                                </columns>
+                            </TableView>
+                        </content>
+                    </TitledPane>
+
+                    <!-- Botones -->
+                    <HBox spacing="12" alignment="CENTER">
+                        <Button text="Guardar" onAction="#onGuardar"
+                                style="-fx-background-color:#8b0000;-fx-text-fill:white;"/>
+                        <Button text="Eliminar" onAction="#onEliminar"/>
+                        <Button text="Cancelar" onAction="#onCancelar"/>
+                        <Button text="Volver al Menú" onAction="#onVolver"/>
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
