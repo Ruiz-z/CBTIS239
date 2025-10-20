@@ -33,9 +33,11 @@
                 </fx:define>
 
                 <ToggleButton text="Inscripción" toggleGroup="$menuGroup"
+                              onAction="#openAspiranteView"
                               styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS">
                     <graphic><FontIcon iconLiteral="fas-clipboard" iconSize="20"/></graphic>
                 </ToggleButton>
+
 
                 <ToggleButton text="Horario" toggleGroup="$menuGroup"
                               styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS">
