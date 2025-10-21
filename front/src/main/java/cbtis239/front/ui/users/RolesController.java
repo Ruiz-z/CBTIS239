@@ -22,12 +22,12 @@ import java.util.Optional;
 public class RolesController {
 
     // --------- UI (coincidir con RolesView.fxml) ---------
-    @FXML private TextField txtId;            // solo lectura
+    //@FXML private TextField txtId;            // solo lectura <-- ELIMINADO
     @FXML private TextField txtNombre;
     @FXML private TextArea  txtDescripcion;
 
     @FXML private TableView<Rol> tblRoles;
-    @FXML private TableColumn<Rol, Number> colId;
+    //@FXML private TableColumn<Rol, Number> colId; <-- ELIMINADO
     @FXML private TableColumn<Rol, String> colNombre;
     @FXML private TableColumn<Rol, String> colDescripcion;
 
@@ -49,7 +49,7 @@ public class RolesController {
     @FXML
     private void initialize() {
         // columnas
-        colId.setCellValueFactory(c -> Bindings.createIntegerBinding(c.getValue()::getIdRol));
+        // colId.setCellValueFactory(c -> Bindings.createIntegerBinding(c.getValue()::getIdRol)); <-- ELIMINADO
         colNombre.setCellValueFactory(c -> Bindings.createStringBinding(c.getValue()::getNombre));
         colDescripcion.setCellValueFactory(c -> Bindings.createStringBinding(() -> {
             String d = c.getValue().getDescripcion();
@@ -195,13 +195,13 @@ public class RolesController {
     }
 
     private void cargarEnFormulario(Rol r) {
-        txtId.setText(String.valueOf(r.getIdRol()));
+        // txtId.setText(String.valueOf(r.getIdRol())); <-- ELIMINADO
         txtNombre.setText(r.getNombre());
         txtDescripcion.setText(r.getDescripcion() == null ? "" : r.getDescripcion());
     }
 
     private void limpiarForm() {
-        txtId.clear();
+        // txtId.clear(); <-- ELIMINADO
         txtNombre.clear();
         txtDescripcion.clear();
         tblRoles.getSelectionModel().clearSelection();
