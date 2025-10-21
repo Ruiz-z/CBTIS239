@@ -192,7 +192,7 @@ public class AlumnoController {
     @FXML
     public void onVolver() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
             Stage st = new Stage();
             st.setTitle("Menú");
             st.setScene(new Scene(root));
