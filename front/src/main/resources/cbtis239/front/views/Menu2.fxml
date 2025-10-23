@@ -133,8 +133,7 @@
     <center>
         <StackPane fx:id="contentArea" styleClass="content">
             <VBox alignment="TOP_CENTER" spacing="16">
-                <Label text="Bienvenido Servicios Escolares" styleClass="welcome-title"/>
-                <ImageView fx:id="imgMenu"
+                               <ImageView fx:id="imgMenu"
                            fitHeight="560" fitWidth="560"
                            preserveRatio="true" pickOnBounds="true">
                     <image>

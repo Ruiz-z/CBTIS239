@@ -27,7 +27,7 @@ public class Menu2Controller {
     }
 
     // Acciones del menú
-    @FXML private void openExpediente() { loadContent("home.fxml"); }
+
     @FXML private void openDocente()    { loadContent("home.fxml"); }
     @FXML private void openCredencial() { loadContent("home.fxml"); }
     @FXML private void openAsignatura() { loadContent("home.fxml"); }
@@ -35,6 +35,10 @@ public class Menu2Controller {
     @FXML
     private void openCursos(ActionEvent event) {
         openNewStage(event, "/cbtis239/front/views/Curso.fxml", "Gestión de Curso");
+    }
+    @FXML
+    private void openExpediente(ActionEvent event) {
+        openNewStage(event, "/cbtis239/front/views/Expediente.fxml", "Gestión de Expediente");
     }
 
     @FXML
@@ -109,18 +113,19 @@ public class Menu2Controller {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
             Stage st = new Stage();
-            st.setTitle("Menú");
             st.setScene(new Scene(root));
+            st.initStyle(javafx.stage.StageStyle.UNDECORATED); // 🔥 Sin barra superior
             st.setMaximized(true);
             st.show();
-            ((Stage)((Node)event.getSource()).getScene().getWindow()).close();
+            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
         } catch (Exception e) {
             e.printStackTrace();
             showError("No se pudo abrir el menú:\n\n" + e.getMessage());
         }
     }
-  
-// Botón cancelar
+
+
+    // Botón cancelar
     @FXML
     private void onCancelar() {
         contentArea.getScene().getWindow().hide();
