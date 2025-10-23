@@ -2,68 +2,81 @@ package cbtis239.front.ui.users;
 
 import cbtis239.bo.PagoBO;
 import cbtis239.model.Pago;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.event.ActionEvent;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.stage.Stage;
+
 
 public class pagosController {
 
     @FXML private TextField txtBusqueda;
+    @FXML private TextField txtMonto;
+    @FXML private TextField txtPeriodo;
     @FXML private TableView<Pago> tablaPagos;
     @FXML private TableColumn<Pago, String> colNombre;
     @FXML private TableColumn<Pago, Double> colMonto;
     @FXML private TableColumn<Pago, String> colPagado;
 
-    private final ObservableList<Pago> listaPagos = FXCollections.observableArrayList();
     private final PagoBO pagoBO = new PagoBO();
 
     @FXML
     private void initialize() {
-        // Configurar columnas contra las properties del Model
         colNombre.setCellValueFactory(data -> data.getValue().nombreProperty());
         colMonto.setCellValueFactory(data -> data.getValue().montoProperty().asObject());
         colPagado.setCellValueFactory(data -> data.getValue().pagadoProperty());
 
-        tablaPagos.setItems(listaPagos);
+        txtMonto.setText(String.format("%.2f", PagoBO.MONTO_FIJO));
+        txtMonto.setDisable(true);
 
-        // (Opcional) Enter en el TextField hace búsqueda
+        try {
+            txtPeriodo.setText(pagoBO.periodoActualNombre());
+        } catch (Exception e) {
+            txtPeriodo.setText("Sin periodo vigente");
+        }
+        txtPeriodo.setDisable(true);
+
+        // Cargar TODOS (alumnos + aspirantes) con su estado de pago actual
+        tablaPagos.setItems(pagoBO.listarTodos());
+
+        // Enter en buscar
         txtBusqueda.setOnAction(e -> onBuscar());
     }
 
-    // Botón "Registrar Pago" (usa monto fijo 250.00 y periodo 1; cambia lo que necesites)
+    @FXML
+    private void onBuscar() {
+        ObservableList<Pago> datos = pagoBO.buscar(txtBusqueda.getText());
+        tablaPagos.setItems(datos);
+    }
+
     @FXML
     private void onRegistrarPago(ActionEvent e) {
-        String folioOMat = txtBusqueda.getText().trim();
-        if (folioOMat.isEmpty()) {
-            mostrarAlerta("Campo vacío", "Ingrese una matrícula o folio para registrar un pago.");
-            return;
-        }
+        Button btn = (Button) e.getSource();
+        btn.setDisable(true);
         try {
-            Pago p = pagoBO.registrarPago(folioOMat, 250.00, 1); // <-- ajusta monto/periodo si quieres
-            listaPagos.add(p);
+            String entrada = txtBusqueda.getText().trim();
+            if (entrada.isEmpty()) { info("Ingrese una matrícula o folio."); return; }
+            pagoBO.registrarPago(entrada);
+            onBuscar();
             txtBusqueda.clear();
+            info("Pago registrado correctamente.");
         } catch (Exception ex) {
-            ex.printStackTrace();
-            showError("No se pudo registrar el pago:\n\n" + ex.getMessage());
+            error("No se pudo registrar el pago:\n" + ex.getMessage());
+        } finally {
+            btn.setDisable(false);
         }
     }
 
-    // (Opcional) Búsqueda para rellenar la tabla con pagos existentes de esa matrícula/folio
-    private void onBuscar() {
-        String q = txtBusqueda.getText().trim();
-        if (q.isEmpty()) {
-            tablaPagos.setItems(listaPagos);
-            return;
-        }
-        ObservableList<Pago> datos = pagoBO.buscarPagos(q);
-        tablaPagos.setItems(datos);
+
+    @FXML
+    private void onCancelar() {
+        txtBusqueda.clear();
+        tablaPagos.setItems(pagoBO.listarTodos());
     }
 
     @FXML
@@ -78,22 +91,21 @@ public class pagosController {
             ((Stage)((Node)event.getSource()).getScene().getWindow()).close();
         } catch (Exception e) {
             e.printStackTrace();
-            showError("No se pudo abrir el menú:\n\n" + e.getMessage());
+            error("No se pudo abrir el menú:\n" + e.getMessage());
         }
     }
 
-    private void showError(String msg) {
+    private void error(String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setHeaderText("Error");
         a.setContentText(msg);
-        a.show();
+        a.showAndWait();
     }
 
-    private void mostrarAlerta(String titulo, String mensaje) {
+    private void info(String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle(titulo);
         a.setHeaderText(null);
-        a.setContentText(mensaje);
+        a.setContentText(msg);
         a.showAndWait();
     }
 }
