@@ -3,36 +3,30 @@ package cbtis239.model;
 import javafx.beans.property.*;
 
 public class Pago {
-
     private final IntegerProperty idPago = new SimpleIntegerProperty();
-    private final IntegerProperty estatus = new SimpleIntegerProperty(); // 1=pagado, 0=pendiente
+    private final IntegerProperty estatus = new SimpleIntegerProperty(); // 1 pagado, 0 pendiente
     private final DoubleProperty monto = new SimpleDoubleProperty();
     private final StringProperty alumnoMatricula = new SimpleStringProperty();
     private final IntegerProperty aspiranteFolio = new SimpleIntegerProperty();
     private final IntegerProperty periodoId = new SimpleIntegerProperty();
 
-    private final StringProperty nombre = new SimpleStringProperty(); // "Matrícula: .." o "Folio: ..."
-    private final StringProperty pagado = new SimpleStringProperty(); // "Sí" / "No"
+    private final StringProperty nombre = new SimpleStringProperty();  // para la tabla
+    private final StringProperty pagado = new SimpleStringProperty();  // "Sí"/"No"
 
     public Pago() {}
 
     public Pago(int idPago, int estatus, double monto,
-                String alumnoMatricula, Integer aspiranteFolio, int periodoId) {
+                String alumnoMatricula, Integer aspiranteFolio, int periodoId,
+                String nombreMostrado) {
         setIdPago(idPago);
         setEstatus(estatus);
         setMonto(monto);
         setAlumnoMatricula(alumnoMatricula);
         setAspiranteFolio(aspiranteFolio != null ? aspiranteFolio : 0);
         setPeriodoId(periodoId);
-
-        if (alumnoMatricula != null && !alumnoMatricula.isBlank()) {
-            setNombre("Matrícula: " + alumnoMatricula);
-        } else {
-            setNombre("Folio: " + (aspiranteFolio != null ? aspiranteFolio : "-"));
-        }
+        setNombre(nombreMostrado);
         setPagado(estatus == 1 ? "Sí" : "No");
     }
-
 
     public StringProperty nombreProperty() { return nombre; }
     public DoubleProperty montoProperty() { return monto; }
@@ -43,7 +37,7 @@ public class Pago {
     public IntegerProperty idPagoProperty() { return idPago; }
 
     public int getEstatus() { return estatus.get(); }
-    public void setEstatus(int v) { estatus.set(v); setPagado(v==1 ? "Sí":"No"); }
+    public void setEstatus(int v) { estatus.set(v); setPagado(v==1 ? "Sí" : "No"); }
     public IntegerProperty estatusProperty() { return estatus; }
 
     public double getMonto() { return monto.get(); }
@@ -67,3 +61,4 @@ public class Pago {
     public String getPagado() { return pagado.get(); }
     public void setPagado(String v) { pagado.set(v); }
 }
+

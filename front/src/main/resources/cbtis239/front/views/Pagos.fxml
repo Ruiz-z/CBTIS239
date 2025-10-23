@@ -2,50 +2,52 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="cbtis239.front.ui.users.pagosController"
             stylesheets="@/cbtis239/front/css/pagos.css">
 
-    <!-- 🔹 Barra superior -->
     <top>
         <StackPane styleClass="top-bar" prefHeight="60">
             <Label text="Pagos" styleClass="title-top"/>
         </StackPane>
     </top>
 
-    <!-- 🔹 Contenido central -->
     <center>
-        <VBox spacing="20" alignment="TOP_CENTER" styleClass="main-container">
-
-            <!-- BUSCAR -->
-            <VBox spacing="8" alignment="CENTER">
-                <Label text="Buscar:" styleClass="subtitle"/>
-                <HBox spacing="10" alignment="CENTER">
+        <VBox spacing="16" alignment="TOP_CENTER" styleClass="main-container">
+            <VBox spacing="8" alignment="CENTER_LEFT">
+                <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label text="Matrícula o folio:"/>
-                    <TextField fx:id="txtBusqueda" prefWidth="200"/>
-                    <Button text="Registrar Pago" onAction="#onRegistrarPago"/>
+                    <TextField fx:id="txtBusqueda" prefWidth="220"/>
+                    <Button text="Buscar" onAction="#onBuscar"/>
+                </HBox>
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Monto"/>
+                        <TextField fx:id="txtMonto" prefWidth="100" editable="false"/>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Periodo"/>
+                        <TextField fx:id="txtPeriodo" prefWidth="160" editable="false"/>
+                    </HBox>
                 </HBox>
             </VBox>
 
-            <!-- TABLA -->
-            <TableView fx:id="tablaPagos" prefWidth="600" prefHeight="300">
+            <TableView fx:id="tablaPagos" prefWidth="650" prefHeight="300">
                 <columns>
-                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="200"/>
-                    <TableColumn fx:id="colMonto" text="Monto" prefWidth="200"/>
-                    <TableColumn fx:id="colPagado" text="Pagado" prefWidth="200"/>
+                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="280"/>
+                    <TableColumn fx:id="colMonto"  text="Monto"  prefWidth="180"/>
+                    <TableColumn fx:id="colPagado" text="Pagado" prefWidth="160"/>
                 </columns>
             </TableView>
 
-            <!-- BOTONES ABAJO -->
-            <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 10;">
+            <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 10;">
+                <Button text="Registrar Pago" onAction="#onRegistrarPago"/>
+                <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-cancelar"/>
                 <Button text="volver al menu" onAction="#onVolver" styleClass="btn-menu"/>
-
             </HBox>
         </VBox>
     </center>
 
 </BorderPane>
-
