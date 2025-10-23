@@ -112,21 +112,34 @@ public class AulaController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
             Parent root = loader.load();
-
             Stage newStage = new Stage();
             newStage.setTitle("Menú 2");
             newStage.setScene(new Scene(root));
-            newStage.setMaximized(true);
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            newStage.setFullScreen(true);
+            newStage.setFullScreenExitHint("");
             newStage.show();
-
-            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Stage currentStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             currentStage.close();
-
         } catch (Exception e) {
         }
     }
 
-    private void mostrarAdvertencia(String h, String c) { new Alert(Alert.AlertType.WARNING, c, ButtonType.OK).showAndWait(); }
-    private void mostrarError(String h, String c)       { new Alert(Alert.AlertType.ERROR, c, ButtonType.OK).showAndWait(); }
-    private void mostrarInfo(String h, String c)        { new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK).showAndWait(); }
+
+    private void limpiarCampos() {
+        txtClave.clear();
+        txtCapacidad.clear();
+    }
+
+    private void showError(String msg) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, msg);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
+    private void showInfo(String msg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, msg);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
 }
