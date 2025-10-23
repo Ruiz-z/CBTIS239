@@ -1,5 +1,7 @@
 package cbtis239.front.ui.users;
 
+import cbtis239.bo.PagoBO;
+import cbtis239.model.Pago;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -20,30 +22,48 @@ public class pagosController {
     @FXML private TableColumn<Pago, String> colPagado;
 
     private final ObservableList<Pago> listaPagos = FXCollections.observableArrayList();
+    private final PagoBO pagoBO = new PagoBO();
 
     @FXML
     private void initialize() {
-        // Configurar columnas
+        // Configurar columnas contra las properties del Model
         colNombre.setCellValueFactory(data -> data.getValue().nombreProperty());
         colMonto.setCellValueFactory(data -> data.getValue().montoProperty().asObject());
         colPagado.setCellValueFactory(data -> data.getValue().pagadoProperty());
 
-        // Asignar lista vacía por defecto
         tablaPagos.setItems(listaPagos);
+
+        // (Opcional) Enter en el TextField hace búsqueda
+        txtBusqueda.setOnAction(e -> onBuscar());
     }
 
+    // Botón "Registrar Pago" (usa monto fijo 250.00 y periodo 1; cambia lo que necesites)
     @FXML
     private void onRegistrarPago(ActionEvent e) {
-        String folio = txtBusqueda.getText().trim();
-
-        if (folio.isEmpty()) {
+        String folioOMat = txtBusqueda.getText().trim();
+        if (folioOMat.isEmpty()) {
             mostrarAlerta("Campo vacío", "Ingrese una matrícula o folio para registrar un pago.");
             return;
         }
+        try {
+            Pago p = pagoBO.registrarPago(folioOMat, 250.00, 1); // <-- ajusta monto/periodo si quieres
+            listaPagos.add(p);
+            txtBusqueda.clear();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            showError("No se pudo registrar el pago:\n\n" + ex.getMessage());
+        }
+    }
 
-        // Ejemplo de agregar registro simulado
-        listaPagos.add(new Pago("Alumno " + folio, 250.00, "Sí"));
-        txtBusqueda.clear();
+    // (Opcional) Búsqueda para rellenar la tabla con pagos existentes de esa matrícula/folio
+    private void onBuscar() {
+        String q = txtBusqueda.getText().trim();
+        if (q.isEmpty()) {
+            tablaPagos.setItems(listaPagos);
+            return;
+        }
+        ObservableList<Pago> datos = pagoBO.buscarPagos(q);
+        tablaPagos.setItems(datos);
     }
 
     @FXML
@@ -61,6 +81,7 @@ public class pagosController {
             showError("No se pudo abrir el menú:\n\n" + e.getMessage());
         }
     }
+
     private void showError(String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setHeaderText("Error");
@@ -68,30 +89,11 @@ public class pagosController {
         a.show();
     }
 
-
-
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setTitle(titulo);
         a.setHeaderText(null);
         a.setContentText(mensaje);
         a.showAndWait();
-    }
-
-    // 🔹 Clase interna modelo de Pago
-    public static class Pago {
-        private final javafx.beans.property.SimpleStringProperty nombre;
-        private final javafx.beans.property.SimpleDoubleProperty monto;
-        private final javafx.beans.property.SimpleStringProperty pagado;
-
-        public Pago(String nombre, double monto, String pagado) {
-            this.nombre = new javafx.beans.property.SimpleStringProperty(nombre);
-            this.monto = new javafx.beans.property.SimpleDoubleProperty(monto);
-            this.pagado = new javafx.beans.property.SimpleStringProperty(pagado);
-        }
-
-        public javafx.beans.property.StringProperty nombreProperty() { return nombre; }
-        public javafx.beans.property.DoubleProperty montoProperty() { return monto; }
-        public javafx.beans.property.StringProperty pagadoProperty() { return pagado; }
     }
 }
