@@ -213,13 +213,16 @@ public class AlumnoController {
             Stage st = new Stage();
             st.setTitle("Menú");
             st.setScene(new Scene(root));
-            st.setMaximized(true);
+            st.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            st.setFullScreen(true);
+            st.setFullScreenExitHint("");
             st.show();
             ((Stage) imgFoto.getScene().getWindow()).close();
         } catch (Exception e) {
             showError("No se pudo abrir el menú:\n" + e.getMessage());
         }
     }
+
 
     @FXML public void onSubirFoto()  { pathFoto  = pickImage(imgFoto); }
     @FXML public void onSubirFirma() { pathFirma = pickImage(imgFirma); }

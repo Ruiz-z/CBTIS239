@@ -127,19 +127,27 @@ public class PeriodoController {
     }
 
     @FXML
-    private void onVolver(ActionEvent event) {
+    private void onVolver(javafx.event.ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
-            Stage st = new Stage();
-            st.setTitle("Menú");
-            st.setScene(new Scene(root));
-            st.setMaximized(true);
-            st.show();
-            ((Stage)((Node)event.getSource()).getScene().getWindow()).close();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
+            Parent root = loader.load();
+            Stage newStage = new Stage();
+            newStage.setTitle("Menú Principal");
+            newStage.setScene(new Scene(root));
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            newStage.setFullScreen(true);
+            newStage.setFullScreenExitHint("");
+            newStage.show();
+            Stage currentStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
         } catch (Exception e) {
-            showError("No se pudo abrir el menú:\n\n" + e.getMessage());
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
+            alert.setHeaderText("Error");
+            alert.showAndWait();
         }
     }
+
 
     private void showError(String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);

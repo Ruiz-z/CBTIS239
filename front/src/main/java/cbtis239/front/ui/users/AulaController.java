@@ -83,17 +83,15 @@ public class AulaController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
             Parent root = loader.load();
-
             Stage newStage = new Stage();
             newStage.setTitle("Menú Principal");
             newStage.setScene(new Scene(root));
-            newStage.setMaximized(true);
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            newStage.setFullScreen(true);
+            newStage.setFullScreenExitHint("");
             newStage.show();
-
-            // cerrar la ventana actual
             Stage currentStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             currentStage.close();
-
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
@@ -101,6 +99,7 @@ public class AulaController {
             alert.showAndWait();
         }
     }
+
 
     private void limpiarCampos() {
         txtClave.clear();
