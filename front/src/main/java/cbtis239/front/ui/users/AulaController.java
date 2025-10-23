@@ -1,90 +1,119 @@
 package cbtis239.front.ui.users;
 
+import cbtis239.bo.AulaBO;
+import cbtis239.model.Aula;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import java.sql.SQLException;
 
 public class AulaController {
 
-    @FXML
-    private TextField txtClave;
-    @FXML
-    private TextField txtCapacidad;
+    @FXML private TextField txtClave;
+    @FXML private TextField txtCapacidad;
+    @FXML private TableView<Aula> tblAulas;
+    @FXML private TableColumn<Aula, String> colClave;
+    @FXML private TableColumn<Aula, Number> colCapacidad;
+
+    private final AulaBO bo = new AulaBO();
+    private final ObservableList<Aula> data = FXCollections.observableArrayList();
 
     @FXML
-    private TableView<ObservableList<String>> tablaAulas;
-    @FXML
-    private TableColumn<ObservableList<String>, String> colClave;
-    @FXML
-    private TableColumn<ObservableList<String>, String> colCapacidad;
+    private void initialize() {
+        colClave.setCellValueFactory(c -> c.getValue().claveProperty());
+        colCapacidad.setCellValueFactory(c -> c.getValue().capacidadProperty());
 
-    private ObservableList<ObservableList<String>> listaAulas = FXCollections.observableArrayList();
-
-    @FXML
-    public void initialize() {
-        colClave.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().get(0)));
-        colCapacidad.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().get(1)));
-        tablaAulas.setItems(listaAulas);
-
-        // Al seleccionar una fila, se rellenan los campos
-        tablaAulas.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
-            if (newSel != null) {
-                txtClave.setText(newSel.get(0));
-                txtCapacidad.setText(newSel.get(1));
+        txtCapacidad.textProperty().addListener((obs, old, val) -> {
+            if (val != null && !val.matches("\\d*")) {
+                txtCapacidad.setText(val.replaceAll("[^\\d]", ""));
             }
         });
+
+        tblAulas.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
+            if (n != null) {
+                txtClave.setText(n.getClave());
+                txtCapacidad.setText(String.valueOf(n.getCapacidad()));
+                txtClave.setDisable(true);
+            } else limpiarFormulario();
+        });
+
+        tblAulas.setItems(data);
+        recargarTabla();
     }
 
-    @FXML
-    private void onCrear() {
-        if (txtClave.getText().isEmpty() || txtCapacidad.getText().isEmpty()) {
-            showError("Debes llenar todos los campos");
-            return;
-        }
-
-        ObservableList<String> fila = FXCollections.observableArrayList(
-                txtClave.getText(),
-                txtCapacidad.getText()
-        );
-        listaAulas.add(fila);
-
-        limpiarCampos();
-        showInfo("Aula registrada correctamente.");
-    }
-
-    @FXML
-    private void onModificar() {
-        int index = tablaAulas.getSelectionModel().getSelectedIndex();
-        if (index >= 0) {
-            ObservableList<String> fila = FXCollections.observableArrayList(
-                    txtClave.getText(),
-                    txtCapacidad.getText()
-            );
-            listaAulas.set(index, fila);
-            limpiarCampos();
-            showInfo("Aula modificada.");
-        } else {
-            showError("Selecciona un aula para modificar.");
+    private void recargarTabla() {
+        try {
+            data.setAll(bo.listar());
+        } catch (SQLException ex) {
+            mostrarError("Error al cargar aulas", ex.getMessage());
         }
     }
 
-    @FXML
-    private void onCancelar() {
-        limpiarCampos();
+    private void limpiarFormulario() {
+        txtClave.clear();
+        txtCapacidad.clear();
+        txtClave.setDisable(false);
+        tblAulas.getSelectionModel().clearSelection();
+    }
+
+    @FXML private void onAgregar() {
+        try {
+            String clave = txtClave.getText();
+            int capacidad = Integer.parseInt(txtCapacidad.getText());
+            bo.agregar(new Aula(clave, capacidad));
+            recargarTabla();
+            limpiarFormulario();
+            mostrarInfo("Éxito", "Aula agregada correctamente.");
+        } catch (NumberFormatException e) {
+            mostrarAdvertencia("Validación", "La capacidad debe ser un número válido.");
+        } catch (Exception ex) {
+            mostrarError("Error", ex.getMessage());
+        }
+    }
+
+    @FXML private void onEliminar() {
+        Aula sel = tblAulas.getSelectionModel().getSelectedItem();
+        if (sel == null) { mostrarAdvertencia("Selección", "Selecciona un aula."); return; }
+        try {
+            bo.eliminar(sel.getClave());
+            recargarTabla();
+            limpiarFormulario();
+            mostrarInfo("Éxito", "Aula eliminada.");
+        } catch (Exception ex) {
+            mostrarError("Error", ex.getMessage());
+        }
+    }
+
+    @FXML private void onModificar() {
+        Aula sel = tblAulas.getSelectionModel().getSelectedItem();
+        if (sel == null) { mostrarAdvertencia("Selección", "Selecciona un aula."); return; }
+        try {
+            int capacidad = Integer.parseInt(txtCapacidad.getText());
+            bo.modificar(new Aula(sel.getClave(), capacidad));
+            recargarTabla();
+            limpiarFormulario();
+            mostrarInfo("Éxito", "Aula modificada.");
+        } catch (NumberFormatException e) {
+            mostrarAdvertencia("Validación", "Capacidad inválida.");
+        } catch (Exception ex) {
+            mostrarError("Error", ex.getMessage());
+        }
     }
 
     @FXML
-    private void onVolver(javafx.event.ActionEvent event) {
+    private void onCancelar(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
             Parent root = loader.load();
             Stage newStage = new Stage();
-            newStage.setTitle("Menú Principal");
+            newStage.setTitle("Menú 2");
             newStage.setScene(new Scene(root));
             newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
             newStage.setFullScreen(true);
@@ -93,10 +122,6 @@ public class AulaController {
             Stage currentStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             currentStage.close();
         } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
-            alert.setHeaderText("Error");
-            alert.showAndWait();
         }
     }
 

@@ -1,85 +1,152 @@
 package cbtis239.front.ui.users;
 
 import cbtis239.bo.EdoCivilBO;
+import cbtis239.bo.EdoCivilBO.BusinessException;
 import cbtis239.model.EdoCivil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.fxml.FXMLLoader; // NECESARIO
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.Parent; // NECESARIO
+import javafx.scene.Scene; // NECESARIO
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 public class EdoCivilController {
 
-    @FXML private TextField txtClave;
+    // ELIMINADA: @FXML private TextField txtClave; 
     @FXML private TextField txtNombre;
 
     @FXML private TableView<EdoCivil> tabla;
-    @FXML private TableColumn<EdoCivil, Number> colClave;
+    // ELIMINADA: @FXML private TableColumn<EdoCivil, Number> colClave; 
     @FXML private TableColumn<EdoCivil, String> colNombre;
+    
+    // Botones (Necesarios para el FXML)
+    @FXML private Button btnAgregar;
+    @FXML private Button btnModificar;
+    @FXML private Button btnEliminar;
+    @FXML private Button btnLimpiar; 
+    @FXML private Button btnVolverMenu;
 
     private final EdoCivilBO bo = new EdoCivilBO();
     private final ObservableList<EdoCivil> datos = FXCollections.observableArrayList();
+    private Integer editingId = null; 
 
     @FXML
     public void initialize() {
-        colClave.setCellValueFactory(d -> new javafx.beans.property.SimpleIntegerProperty(d.getValue().getIdEdoCivil()));
+        // Configuramos la columna Nombre.
         colNombre.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getNombre()));
 
-        tabla.setItems(datos);
+        // Listener para cargar en el formulario
         tabla.getSelectionModel().selectedItemProperty().addListener((obs,o,sel)->{
             if (sel != null) {
-                txtClave.setText(String.valueOf(sel.getIdEdoCivil()));
                 txtNombre.setText(sel.getNombre());
+                editingId = sel.getIdEdoCivil();
+                
+                btnModificar.setDisable(false);
+                btnEliminar.setDisable(false);
+                btnAgregar.setDisable(true);
+            } else {
+                // Modo "Agregar"
+                editingId = null;
+                btnModificar.setDisable(true);
+                btnEliminar.setDisable(true);
+                btnAgregar.setDisable(false);
             }
         });
-
-        cargar();
+        
+        reloadTable(); // Carga inicial
+        limpiar(); // Establece el estado inicial
     }
-
-    private void cargar() {
-        try { datos.setAll(bo.listar()); }
-        catch (Exception e) { showError("No se pudieron cargar estados civiles\n\n" + e.getMessage()); }
+    
+    private void reloadTable() {
+        try {
+            // El DAO.findAll() fue corregido para ordenar por ID (consecutivos)
+            datos.setAll(bo.findAll()); 
+            tabla.setItems(datos);
+        } catch (BusinessException e) {
+            showError("Error al cargar datos: " + e.getMessage());
+        }
     }
-
+    
     @FXML
     private void onAgregar() {
         try {
-            EdoCivil ec = bo.crear(txtClave.getText(), txtNombre.getText());
-            datos.add(0, ec);
+            EdoCivil nuevo = new EdoCivil();
+            nuevo.setNombre(txtNombre.getText());
+            
+            int newId = bo.agregar(nuevo);
+            
+            reloadTable(); 
             limpiar();
-            showInfo("Estado civil agregado.");
-        } catch (Exception e) {
-            showError(e.getMessage());
+            showInfo("Estado civil guardado con ID: " + newId);
+        } catch (BusinessException e) { 
+            showError(e.getMessage()); 
+        } catch (Exception e) { 
+            showError("Error desconocido: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     @FXML
     private void onModificar() {
-        EdoCivil sel = tabla.getSelectionModel().getSelectedItem();
-        if (sel == null) { showError("Selecciona un registro."); return; }
+        if (editingId == null || editingId <= 0) { 
+            showError("Debe seleccionar un registro de la tabla para modificar."); 
+            return; 
+        }
         try {
-            bo.modificar(sel.getIdEdoCivil(), txtNombre.getText());
-            sel.setNombre(txtNombre.getText());
-            tabla.refresh();
-            showInfo("Estado civil actualizado.");
-        } catch (Exception e) { showError(e.getMessage()); }
+            EdoCivil modificado = new EdoCivil();
+            modificado.setIdEdoCivil(editingId.intValue());
+            modificado.setNombre(txtNombre.getText());
+            
+            bo.modificar(modificado);
+            
+            reloadTable(); 
+            limpiar();
+            showInfo("Estado civil modificado.");
+        } catch (BusinessException e) { 
+            showError(e.getMessage()); 
+        } catch (Exception e) { 
+            showError("Error desconocido al modificar: " + e.getMessage());
+            e.printStackTrace(); 
+        }
     }
 
     @FXML
     private void onEliminar() {
         EdoCivil sel = tabla.getSelectionModel().getSelectedItem();
-        if (sel == null) { showError("Selecciona un registro."); return; }
-        try {
-            bo.eliminar(sel.getIdEdoCivil());
-            datos.remove(sel);
-            limpiar();
-            showInfo("Estado civil eliminado.");
-        } catch (Exception e) { showError(e.getMessage()); }
+        if (sel == null) { showError("Selecciona un registro para eliminar."); return; }
+        
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "¿Seguro que quieres eliminar el estado civil '" + sel.getNombre() + "'?", ButtonType.YES, ButtonType.NO);
+        confirmation.setHeaderText("Confirmar eliminación");
+        
+        if (confirmation.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
+            try {
+                bo.eliminar(sel.getIdEdoCivil());
+                reloadTable();
+                limpiar();
+                showInfo("Estado civil eliminado.");
+            } catch (BusinessException e) { 
+                showError(e.getMessage()); 
+            } catch (Exception e) { 
+                showError("Error desconocido al eliminar: " + e.getMessage()); 
+                e.printStackTrace();
+            }
+        }
     }
+
+    @FXML 
+    private void limpiar() { 
+        txtNombre.clear(); 
+        tabla.getSelectionModel().clearSelection(); 
+        editingId = null;
+        btnModificar.setDisable(true);
+        btnEliminar.setDisable(true);
+        btnAgregar.setDisable(false); 
+    }
+
+
 
     @FXML
     private void onVolverMenu(javafx.event.ActionEvent event) {
@@ -108,10 +175,13 @@ public class EdoCivilController {
 
     private void showError(String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
-        a.setHeaderText("Error"); a.showAndWait();
+        a.setHeaderText("Error"); 
+        a.showAndWait();
     }
+    
     private void showInfo(String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
-        a.setHeaderText(null); a.showAndWait();
+        a.setHeaderText(null); 
+        a.showAndWait();
     }
 }
