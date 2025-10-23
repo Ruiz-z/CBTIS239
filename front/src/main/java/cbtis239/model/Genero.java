@@ -4,6 +4,9 @@ public class Genero {
     private int idGenero;
     private String nombre;
 
+    // AÑADIDO: Constructor sin argumentos para uso en el Controller
+    public Genero() { } 
+
     public Genero(int idGenero, String nombre) {
         this.idGenero = idGenero;
         this.nombre = nombre;

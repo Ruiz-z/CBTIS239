@@ -9,7 +9,8 @@ import java.util.List;
 public class EdoCivilDao {
 
     public List<EdoCivil> findAll() throws SQLException {
-        String sql = "SELECT idEdoCivil, Nombre FROM EdoCivil ORDER BY Nombre";
+        // CORREGIDO: Ordenar por idEdoCivil (consecutivo) en lugar de Nombre
+        String sql = "SELECT idEdoCivil, Nombre FROM EdoCivil ORDER BY idEdoCivil"; 
         try (Connection con = DB.get();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -59,6 +60,19 @@ public class EdoCivilDao {
         try (Connection con = DB.get();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, nombre);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+    
+    // Nuevo: Necesario para validar si el nombre existe en otro ID al modificar
+    public boolean existsByNombreAndDifferentId(int id, String nombre) throws SQLException {
+        String sql = "SELECT 1 FROM EdoCivil WHERE Nombre = ? AND idEdoCivil <> ? LIMIT 1";
+        try (Connection con = DB.get();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nombre);
+            ps.setInt(2, id);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
