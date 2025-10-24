@@ -70,6 +70,10 @@ public class Menu2Controller {
        openNewStage(event, "/cbtis239/front/views/Asignatura.fxml", "Gestión de Asignaturas");
     }
 
+    @FXML
+    private void openDocente(ActionEvent event) {
+       openNewStage(event, "/cbtis239/front/views/Docente.fxml", "Gestión de Docentes");
+    }
 
     private void openNewStage(ActionEvent event, String fxml, String title) {
         try {
