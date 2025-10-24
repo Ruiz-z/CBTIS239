@@ -1,6 +1,5 @@
 package cbtis239.front.ui.users;
 
-import cbtis239.util.SceneNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,7 +7,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -16,7 +14,7 @@ public class Menu2Controller {
 
     @FXML private StackPane contentArea;
 
-    // Helpers
+    // ---- Helpers de contenido embebido en el mismo Stage ----
     private void loadContent(String fxmlResource) {
         try {
             Node view = FXMLLoader.load(getClass().getResource(fxmlResource));
@@ -26,12 +24,12 @@ public class Menu2Controller {
         }
     }
 
-    // Acciones del menú
-
+    // ---- Acciones de menú que reemplazan el centro del layout actual ----
     @FXML private void openDocente()    { loadContent("home.fxml"); }
     @FXML private void openCredencial() { loadContent("home.fxml"); }
     @FXML private void openAsignatura() { loadContent("home.fxml"); }
 
+    // ---- Acciones que abren nuevas ventanas ----
     @FXML
     private void openCursos(ActionEvent event) {
         openFullScreenStage(event, "/cbtis239/front/views/Curso.fxml", "Gestión de Curso");
@@ -74,7 +72,10 @@ public class Menu2Controller {
 
     @FXML
     private void openAsignatura(ActionEvent event) {
-       openNewStage(event, "/cbtis239/front/views/Asignatura.fxml", "Gestión de Asignaturas");
+        openNewStage(event, "/cbtis239/front/views/Asignatura.fxml", "Gestión de Asignaturas");
+    } // <-- ESTA LLAVE FALTABA
+
+    // ---- Utilidades para abrir ventanas ----
     private void openFullScreenStage(ActionEvent event, String fxml, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
@@ -86,6 +87,7 @@ public class Menu2Controller {
             newStage.setFullScreen(true);
             newStage.setFullScreenExitHint("");
             newStage.show();
+
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
         } catch (Exception e) {
@@ -95,7 +97,6 @@ public class Menu2Controller {
             alert.showAndWait();
         }
     }
-
 
     private void openNewStage(ActionEvent event, String fxml, String title) {
         try {
@@ -111,7 +112,6 @@ public class Menu2Controller {
             // cerrar menú actual
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
-
         } catch (Exception e) {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana\n\n" + e.getMessage());
@@ -127,19 +127,14 @@ public class Menu2Controller {
         a.show();
     }
 
-
-
-
-
-    // Acción especial: volver al menú principal
-
+    // ---- Acción especial: volver al menú principal ----
     @FXML
     private void onVolver(ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
             Stage st = new Stage();
             st.setScene(new Scene(root));
-            st.initStyle(javafx.stage.StageStyle.UNDECORATED); 
+            st.initStyle(javafx.stage.StageStyle.UNDECORATED);
             st.setMaximized(true);
             st.show();
             ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
@@ -149,10 +144,11 @@ public class Menu2Controller {
         }
     }
 
-
-    // Botón cancelar
+    // Botón cancelar en la vista embebida
     @FXML
     private void onCancelar() {
-        contentArea.getScene().getWindow().hide();
+        if (contentArea != null && contentArea.getScene() != null) {
+            contentArea.getScene().getWindow().hide();
+        }
     }
 }
