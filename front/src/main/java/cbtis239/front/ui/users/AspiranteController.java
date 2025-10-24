@@ -1,6 +1,7 @@
 package cbtis239.front.ui.users;
 
 import cbtis239.bo.AspiranteBO;
+import cbtis239.bo.PagoBO;
 import cbtis239.dao.AlumnoDAO;
 import cbtis239.dao.AspiranteDAO;
 import cbtis239.dao.CatalogoDAO;
@@ -197,6 +198,16 @@ public class AspiranteController {
                 // Insertar en alumno
                 AlumnoDAO alumnoDAO = new AlumnoDAO();
                 alumnoDAO.insert(nuevo);
+
+                // Registrar pago automático en la tabla de pagos
+                PagoBO pagoBO = new PagoBO();
+                try {
+                    pagoBO.registrarPago(matricula); // crea registro como “Pagado”
+                } catch (Exception pe) {
+                    // Si por alguna razón falla el pago, no cancelamos la inscripción
+                    showWarning("El alumno fue inscrito, pero no se pudo registrar su pago automático:\n" + pe.getMessage());
+                }
+
 
                 // Eliminar aspirante después de inscribir
                 AspiranteDAO aspiranteDAO = new AspiranteDAO();
