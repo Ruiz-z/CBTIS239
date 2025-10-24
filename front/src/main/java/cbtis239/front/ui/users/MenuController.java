@@ -51,29 +51,34 @@ public class MenuController {
     private void openMenu2(ActionEvent event) {
         try {
             System.out.println("Intentando cargar Menu2.fxml...");
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/cbtis239/front/views/Menu2.fxml")
-            );
+
+            // ✅ Cargar el FXML correctamente (usando la ruta absoluta dentro de resources)
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
             Parent root = loader.load();
 
+            // ✅ Crear la escena y aplicar el CSS de forma segura
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(
-                    getClass().getResource("/cbtis239/front/css/menu2.css").toExternalForm()
-            );
+            String css = getClass().getResource("/cbtis239/front/css/menu2.css").toExternalForm();
+            scene.getStylesheets().add(css);
 
+            // ✅ Crear la nueva ventana sin barra de Windows
             Stage newStage = new Stage();
             newStage.setScene(scene);
-            newStage.setMaximized(true);
             newStage.setTitle("Menú 2");
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED); // 🔥 Quita la barra superior de Windows
+            newStage.setMaximized(true);
             newStage.show();
 
-         
+            // ✅ Cerrar la ventana anterior
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
 
         } catch (IOException e) {
             e.printStackTrace();
-            showError("No se pudo abrir el Menu 2: " + e.getMessage());
+            showError("No se pudo abrir el Menú 2:\n\n" + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Error inesperado al abrir Menú 2:\n\n" + e.getMessage());
         }
     }
 
@@ -95,22 +100,19 @@ public class MenuController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/register_user.fxml"));
             Parent root = loader.load();
-
             Stage newStage = new Stage();
             newStage.setTitle("Registrar Usuario");
             newStage.setScene(new Scene(root));
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
             newStage.setMaximized(true);
             newStage.show();
-
-  
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
-
         } catch (Exception e) {
-            e.printStackTrace();
-            showError("No se pudo abrir la ventana de Registro de Usuario\n\n" + e.getMessage());
+            showError("No se pudo abrir la ventana de Registro de Usuario\n" + e.getMessage());
         }
     }
+
     @FXML
     private void onCerrarSesion(ActionEvent event) {
         try {
@@ -133,51 +135,39 @@ public class MenuController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/RolesView.fxml"));
             Parent root = loader.load();
-
             Stage newStage = new Stage();
             newStage.setTitle("Gestión de Roles");
             newStage.setScene(new Scene(root));
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
             newStage.setMaximized(true);
             newStage.show();
-
-            // 👇 cerrar menú actual
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
-
         } catch (Exception e) {
-            e.printStackTrace();
-            showError("No se pudo abrir la ventana de Roles\n\n" + e.getMessage());
+            showError("No se pudo abrir la ventana de Roles\n" + e.getMessage());
         }
     }
-
-    // ===== Nuevo método: abrir pantalla de Alumno =====
     @FXML
     private void openAlumnoView(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Alumno.fxml"));
             Parent root = loader.load();
-
             Stage newStage = new Stage();
             newStage.setTitle("Gestión de Alumnos");
             newStage.setScene(new Scene(root));
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
             newStage.setMaximized(true);
             newStage.show();
-
-        
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
-
         } catch (Exception e) {
-            // Saca la raíz del problema (lo que de verdad importa)
             Throwable t = e;
             while (t.getCause() != null) t = t.getCause();
             String msg = (t.getMessage() == null) ? t.toString() : t.getMessage();
-
             Alert a = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de Alumnos\n\n" + msg, ButtonType.OK);
             a.setHeaderText("Error");
             a.showAndWait();
-
-            t.printStackTrace();  // también en consola
+            t.printStackTrace();
         }
     }
 
@@ -186,29 +176,22 @@ public class MenuController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Aspirante.fxml"));
             Parent root = loader.load();
-
             Stage newStage = new Stage();
-            newStage.setTitle("Gestión de Aspirantes");
             newStage.setScene(new Scene(root));
+            newStage.setTitle("Gestión de Aspirantes");
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
             newStage.setMaximized(true);
             newStage.show();
-
-            // Cierra la ventana actual
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
-
         } catch (Exception e) {
             Throwable t = e;
             while (t.getCause() != null) t = t.getCause();
             String msg = (t.getMessage() == null) ? t.toString() : t.getMessage();
-
             Alert a = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de Aspirantes\n\n" + msg, ButtonType.OK);
             a.setHeaderText("Error");
             a.showAndWait();
-
             t.printStackTrace();
         }
     }
-
-
-}
+    }

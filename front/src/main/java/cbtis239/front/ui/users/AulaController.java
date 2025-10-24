@@ -7,7 +7,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -52,7 +51,7 @@ public class AulaController {
         try {
             data.setAll(bo.listar());
         } catch (SQLException ex) {
-            mostrarError("Error al cargar aulas", ex.getMessage());
+            showError("Error al cargar aulas:\n" + ex.getMessage());
         }
     }
 
@@ -70,40 +69,46 @@ public class AulaController {
             bo.agregar(new Aula(clave, capacidad));
             recargarTabla();
             limpiarFormulario();
-            mostrarInfo("Éxito", "Aula agregada correctamente.");
+            showInfo("Aula agregada correctamente.");
         } catch (NumberFormatException e) {
-            mostrarAdvertencia("Validación", "La capacidad debe ser un número válido.");
+            showError("La capacidad debe ser un número válido.");
         } catch (Exception ex) {
-            mostrarError("Error", ex.getMessage());
+            showError("Error al agregar aula:\n" + ex.getMessage());
         }
     }
 
     @FXML private void onEliminar() {
         Aula sel = tblAulas.getSelectionModel().getSelectedItem();
-        if (sel == null) { mostrarAdvertencia("Selección", "Selecciona un aula."); return; }
+        if (sel == null) {
+            showError("Selecciona un aula para eliminar.");
+            return;
+        }
         try {
             bo.eliminar(sel.getClave());
             recargarTabla();
             limpiarFormulario();
-            mostrarInfo("Éxito", "Aula eliminada.");
+            showInfo("Aula eliminada correctamente.");
         } catch (Exception ex) {
-            mostrarError("Error", ex.getMessage());
+            showError("Error al eliminar aula:\n" + ex.getMessage());
         }
     }
 
     @FXML private void onModificar() {
         Aula sel = tblAulas.getSelectionModel().getSelectedItem();
-        if (sel == null) { mostrarAdvertencia("Selección", "Selecciona un aula."); return; }
+        if (sel == null) {
+            showError("Selecciona un aula para modificar.");
+            return;
+        }
         try {
             int capacidad = Integer.parseInt(txtCapacidad.getText());
             bo.modificar(new Aula(sel.getClave(), capacidad));
             recargarTabla();
             limpiarFormulario();
-            mostrarInfo("Éxito", "Aula modificada.");
+            showInfo("Aula modificada correctamente.");
         } catch (NumberFormatException e) {
-            mostrarAdvertencia("Validación", "Capacidad inválida.");
+            showError("Capacidad inválida, debe ser un número.");
         } catch (Exception ex) {
-            mostrarError("Error", ex.getMessage());
+            showError("Error al modificar aula:\n" + ex.getMessage());
         }
     }
 
@@ -112,21 +117,29 @@ public class AulaController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
             Parent root = loader.load();
-
             Stage newStage = new Stage();
             newStage.setTitle("Menú 2");
             newStage.setScene(new Scene(root));
-            newStage.setMaximized(true);
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            newStage.setFullScreen(true);
+            newStage.setFullScreenExitHint("");
             newStage.show();
-
-            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Stage currentStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             currentStage.close();
-
         } catch (Exception e) {
+            showError("No se pudo volver al menú:\n" + e.getMessage());
         }
     }
 
-    private void mostrarAdvertencia(String h, String c) { new Alert(Alert.AlertType.WARNING, c, ButtonType.OK).showAndWait(); }
-    private void mostrarError(String h, String c)       { new Alert(Alert.AlertType.ERROR, c, ButtonType.OK).showAndWait(); }
-    private void mostrarInfo(String h, String c)        { new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK).showAndWait(); }
+    private void showError(String msg) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, msg);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
+    private void showInfo(String msg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, msg);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
 }

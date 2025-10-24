@@ -83,21 +83,21 @@ public class CursoController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
             Parent root = loader.load();
-
             Stage newStage = new Stage();
             newStage.setTitle("Menú 2");
             newStage.setScene(new Scene(root));
-            newStage.setMaximized(true);
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            newStage.setFullScreen(true);
+            newStage.setFullScreenExitHint("");
             newStage.show();
-
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
-
         } catch (Exception e) {
             e.printStackTrace();
             showError("No se pudo volver al menú\n\n" + e.getMessage());
         }
     }
+
 
     private void limpiarCampos() {
         txtClave.clear();
