@@ -33,5 +33,10 @@ public class AspiranteBO {
     public List<Aspirante> listarBreve() throws SQLException {
         return dao.listBreve();
     }
+
+    public void actualizarEstatusInscripcion(int folio, String nuevoEstatus) throws SQLException {
+        dao.actualizarEstatusInscripcion(folio, nuevoEstatus);
+    }
+
 }
 
