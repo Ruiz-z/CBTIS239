@@ -35,18 +35,20 @@ public class AspiranteController {
     // ===== Tabla =====
     @FXML private TableView<Aspirante> tblAspirantes;
     @FXML private TableColumn<Aspirante, Integer> colFolio;
-    @FXML private TableColumn<Aspirante, String> colNombre, colPaterno, colEstatus;
+    @FXML private TableColumn<Aspirante, String> colNombre, colPaterno, colMaterno, colEstatus;
 
     private final AspiranteBO aspiranteBO = new AspiranteBO();
     private final CatalogoDAO catalogoDAO = new CatalogoDAO();
 
     @FXML
     public void initialize() {
-        // Combos fijos
+
+        // === Combos fijos ===
         cmbEstatusPago.getItems().addAll("Pendiente", "Pagado");
         cmbEstatusInscripcion.getItems().addAll("Pendiente", "Aceptado", "Rechazado");
 
         try {
+            // === Carga de catálogos desde BD ===
             cmbEdoCivil.getItems().setAll(catalogoDAO.edoCivil());
             cmbGenero.getItems().setAll(catalogoDAO.generos());
             cmbEsp1.getItems().setAll(catalogoDAO.especialidades());
@@ -57,24 +59,53 @@ public class AspiranteController {
             showError("No se pudieron cargar catálogos:\n" + e.getMessage());
         }
 
-        // Tabla
+        // === Configuración de columnas ===
         colFolio.setCellValueFactory(new PropertyValueFactory<>("folio"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colPaterno.setCellValueFactory(new PropertyValueFactory<>("paterno"));
+        colMaterno.setCellValueFactory(new PropertyValueFactory<>("materno"));
         colEstatus.setCellValueFactory(new PropertyValueFactory<>("estatusInscripcion"));
+
+        // === Colores de estatus (opcional) ===
+        colEstatus.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    switch (item) {
+                        case "Aceptado" -> setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
+                        case "Pendiente" -> setStyle("-fx-text-fill: orange; -fx-font-weight: bold;");
+                        case "Rechazado" -> setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+                        default -> setStyle("");
+                    }
+                }
+            }
+        });
+
+        // === Cargar lista de aspirantes existentes ===
         recargarTabla();
 
-        // Doble clic en tabla
+        // === Doble clic en tabla ===
         tblAspirantes.setRowFactory(tv -> {
             TableRow<Aspirante> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && !row.isEmpty()) {
                     Aspirante seleccionado = row.getItem();
-                    if (seleccionado != null) cargarAspirante(seleccionado.getFolio());
+                    if (seleccionado != null) {
+                        cargarAspirante(seleccionado.getFolio());
+                    }
                 }
             });
             return row;
         });
+
+        // === Mensaje si no hay datos ===
+        tblAspirantes.setPlaceholder(new Label("No hay aspirantes registrados."));
+
     }
 
     private void recargarTabla() {
@@ -82,9 +113,12 @@ public class AspiranteController {
             List<Aspirante> data = aspiranteBO.listarBreve();
             tblAspirantes.setItems(FXCollections.observableArrayList(data));
         } catch (SQLException e) {
+            e.printStackTrace();
             tblAspirantes.setItems(FXCollections.observableArrayList());
         }
     }
+
+
 
     // ======== Eventos ========
 
@@ -92,14 +126,24 @@ public class AspiranteController {
     public void onBuscarFolio() {
         String f = txtFolio.getText();
         if (f == null || f.isBlank()) return;
+
         try {
             Aspirante a = aspiranteBO.buscar(Integer.parseInt(f.trim()));
-            if (a == null) { limpiar(false); return; }
+
+
+            if (a == null) {
+                limpiar(false);
+                showInfo("No se encontró el aspirante con folio " + f);
+                return;
+            }
             rellenarCampos(a);
         } catch (SQLException e) {
             showError("Error al buscar folio:\n" + e.getMessage());
+        } catch (NumberFormatException e) {
+            showError("El folio debe ser un número válido");
         }
     }
+
 
     @FXML
     public void onGuardar() {
@@ -112,6 +156,41 @@ public class AspiranteController {
             showError("No se pudo guardar:\n" + e.getMessage());
         }
     }
+
+    @FXML
+    private void onModificar() {
+        try {
+            // Verificar que haya un aspirante seleccionado en la tabla
+            Aspirante seleccionado = tblAspirantes.getSelectionModel().getSelectedItem();
+            if (seleccionado == null) {
+                showError("Selecciona un aspirante de la tabla antes de modificar.");
+                return;
+            }
+
+            // Construir objeto desde los campos actuales del formulario
+            Aspirante actualizado = buildFromForm();
+
+            // Validar que el folio coincida (PK)
+            if (!Objects.equals(actualizado.getFolio(), seleccionado.getFolio())) {
+                showError("No puedes cambiar el Folio (clave primaria). Debes modificar los datos del aspirante seleccionado.");
+                return;
+            }
+
+            // Ejecutar la actualización
+            aspiranteBO.guardar(actualizado); // Tu BO ya detecta si existe y hace update
+            showInfo("Aspirante modificado correctamente: " + actualizado.getNombre());
+
+            // Refrescar tabla y limpiar formulario
+            recargarTabla();
+            limpiar(true);
+
+        } catch (SQLException e) {
+            showError("Error de base de datos al modificar:\n" + e.getMessage());
+        } catch (Exception e) {
+            showError("No se pudo modificar el aspirante:\n" + e.getMessage());
+        }
+    }
+
 
     @FXML
     public void onEliminar() {
