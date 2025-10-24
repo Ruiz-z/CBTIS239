@@ -97,7 +97,7 @@
 
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding:12 22;">
-            <Button text="Cancelar" onAction="#onCancelar"
+            <Button text="volver" onAction="#onVolver"
                     style="-fx-background-color:#6c757d; -fx-text-fill:white; -fx-font-weight:bold;"/>
         </HBox>
     </bottom>
