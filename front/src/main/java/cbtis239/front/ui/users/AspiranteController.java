@@ -132,10 +132,10 @@ public class AspiranteController {
     @FXML
     public void onVolver() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/menu.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
             Stage st = new Stage();
-            st.setTitle("Menú");
             st.setScene(new Scene(root));
+            st.initStyle(javafx.stage.StageStyle.UNDECORATED);
             st.setMaximized(true);
             st.show();
             ((Stage) tblAspirantes.getScene().getWindow()).close();
@@ -143,6 +143,7 @@ public class AspiranteController {
             showError("No se pudo abrir el menú:\n" + e.getMessage());
         }
     }
+
 
     // ===== helpers =====
 

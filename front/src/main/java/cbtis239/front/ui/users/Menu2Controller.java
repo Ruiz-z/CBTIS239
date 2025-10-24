@@ -27,47 +27,73 @@ public class Menu2Controller {
     }
 
     // Acciones del menú
-    @FXML private void openExpediente() { loadContent("home.fxml"); }
+
     @FXML private void openDocente()    { loadContent("home.fxml"); }
     @FXML private void openCredencial() { loadContent("home.fxml"); }
     @FXML private void openAsignatura() { loadContent("home.fxml"); }
 
     @FXML
     private void openCursos(ActionEvent event) {
-        openNewStage(event, "/cbtis239/front/views/Curso.fxml", "Gestión de Curso");
+        openFullScreenStage(event, "/cbtis239/front/views/Curso.fxml", "Gestión de Curso");
+    }
+
+    @FXML
+    private void openExpediente(ActionEvent event) {
+        openFullScreenStage(event, "/cbtis239/front/views/Expediente.fxml", "Gestión de Expediente");
     }
 
     @FXML
     private void openGrupo(ActionEvent event) {
-        openNewStage(event, "/cbtis239/front/views/Grupo.fxml", "Gestión de Grupos");
+        openFullScreenStage(event, "/cbtis239/front/views/Grupo.fxml", "Gestión de Grupos");
     }
 
     @FXML
     private void openAulas(ActionEvent event) {
-        openNewStage(event, "/cbtis239/front/views/Aula.fxml", "Gestión de Aulas");
+        openFullScreenStage(event, "/cbtis239/front/views/Aula.fxml", "Gestión de Aulas");
     }
 
     @FXML
     private void openEspecialidad(ActionEvent event) {
-        openNewStage(event, "/cbtis239/front/views/EspecialidadView.fxml", "Gestión de Especialidades");
+        openFullScreenStage(event, "/cbtis239/front/views/EspecialidadView.fxml", "Gestión de Especialidades");
     }
 
     @FXML
     private void openPeriodo(ActionEvent event) {
-        openNewStage(event, "/cbtis239/front/views/Periodo.fxml", "Gestión de Periodos");
+        openFullScreenStage(event, "/cbtis239/front/views/Periodo.fxml", "Gestión de Periodos");
     }
+
     @FXML
     private void openEdoCivil(ActionEvent event) {
-        openNewStage(event, "/cbtis239/front/views/EdoCivilView.fxml", "Gestión de EdoCivil");
+        openFullScreenStage(event, "/cbtis239/front/views/EdoCivilView.fxml", "Gestión de EdoCivil");
     }
+
     @FXML
     private void openGenero(ActionEvent event) {
-        openNewStage(event, "/cbtis239/front/views/GeneroView.fxml", "Gestión de Genero");
+        openFullScreenStage(event, "/cbtis239/front/views/GeneroView.fxml", "Gestión de Género");
     }
 
     @FXML
     private void openAsignatura(ActionEvent event) {
        openNewStage(event, "/cbtis239/front/views/Asignatura.fxml", "Gestión de Asignaturas");
+    private void openFullScreenStage(ActionEvent event, String fxml, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            Parent root = loader.load();
+            Stage newStage = new Stage();
+            newStage.setTitle(title);
+            newStage.setScene(new Scene(root));
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            newStage.setFullScreen(true);
+            newStage.setFullScreenExitHint("");
+            newStage.show();
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana\n\n" + e.getMessage());
+            alert.setHeaderText("Error");
+            alert.showAndWait();
+        }
     }
 
 
@@ -112,18 +138,19 @@ public class Menu2Controller {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
             Stage st = new Stage();
-            st.setTitle("Menú");
             st.setScene(new Scene(root));
+            st.initStyle(javafx.stage.StageStyle.UNDECORATED); 
             st.setMaximized(true);
             st.show();
-            ((Stage)((Node)event.getSource()).getScene().getWindow()).close();
+            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
         } catch (Exception e) {
             e.printStackTrace();
             showError("No se pudo abrir el menú:\n\n" + e.getMessage());
         }
     }
-  
-// Botón cancelar
+
+
+    // Botón cancelar
     @FXML
     private void onCancelar() {
         contentArea.getScene().getWindow().hide();

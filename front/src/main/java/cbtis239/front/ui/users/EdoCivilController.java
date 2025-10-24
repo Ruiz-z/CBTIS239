@@ -150,22 +150,29 @@ public class EdoCivilController {
 
     @FXML
     private void onVolverMenu(javafx.event.ActionEvent event) {
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu2.fxml")); 
-            Stage st = new Stage();
-            st.setTitle("Menú");
-            st.setScene(new Scene(root));
-            st.setMaximized(true);
-            st.show();
-            ((Stage)((Node)event.getSource()).getScene().getWindow()).close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            showError("No se pudo abrir el menú:\n\n" + e.getMessage());
+                  try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
+                Parent root = loader.load();
+                Stage newStage = new Stage();
+                newStage.setTitle("Menú Principal");
+                newStage.setScene(new Scene(root));
+                newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+                newStage.setFullScreen(true);
+                newStage.setFullScreenExitHint("");
+                newStage.show();
+                Stage currentStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                currentStage.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
+                alert.setHeaderText("Error");
+                alert.showAndWait();
+            }
         }
-    }
 
-    
-    // --- Helpers de Alerta ---
+
+        private void limpiar() { txtClave.clear(); txtNombre.clear(); tabla.getSelectionModel().clearSelection(); }
+
     private void showError(String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
         a.setHeaderText("Error"); 

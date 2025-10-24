@@ -160,22 +160,22 @@ public class RolesController {
         try {
             Stage current = (Stage) btnVolver.getScene().getWindow();
             current.close();
-
-            var url = getClass().getResource("/cbtis239/front/views/menu.fxml");
-            if (url == null) throw new IllegalStateException("No se encontró /cbtis239/front/views/menu.fxml");
+            var url = getClass().getResource("/cbtis239/front/views/Menu.fxml");
+            if (url == null) throw new IllegalStateException("No se encontró /cbtis239/front/views/Menu.fxml");
             Parent root = FXMLLoader.load(url);
-
             Stage menu = new Stage();
             menu.setTitle("Menú Principal");
-            menu.setScene(new Scene(root, 900, 600));
-            menu.setMaximized(true);
+            menu.setScene(new Scene(root));
+            menu.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            menu.setFullScreen(true);
+            menu.setFullScreenExitHint("");
             menu.show();
-
         } catch (Exception e) {
             e.printStackTrace();
             error("Error al volver al menú", "No se pudo cargar el menú.", e);
         }
     }
+
 
     private void onTableDoubleClick(MouseEvent e) {
         if (e.getClickCount() == 2) {

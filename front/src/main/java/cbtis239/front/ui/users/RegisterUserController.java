@@ -234,17 +234,19 @@ public class RegisterUserController {
         try {
             Stage current = (Stage) txtUsuario.getScene().getWindow();
             current.close();
-
-            var url = getClass().getResource("/cbtis239/front/views/menu.fxml");
+            var url = getClass().getResource("/cbtis239/front/views/Menu.fxml");
             Parent root = FXMLLoader.load(url);
             Stage menu = new Stage();
             menu.setTitle("Menú Principal");
             menu.setScene(new Scene(root, 900, 600));
+            menu.initStyle(javafx.stage.StageStyle.UNDECORATED);
             menu.setMaximized(true);
             menu.show();
-
-        } catch (Exception e) { error("Error", "No se pudo volver al menú.", e); }
+        } catch (Exception e) {
+            error("Error", "No se pudo volver al menú.", e);
+        }
     }
+
 
     // ====== Helpers ======
     private void loadToForm(Usuario u) {
