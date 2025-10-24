@@ -133,17 +133,29 @@ public class GrupoController {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
             alert.setHeaderText("Error");
+            // === Ajuste: owner y modalidad para no cerrar/ocultar la pantalla ===
+            alert.initOwner(getStage());
+            alert.initModality(javafx.stage.Modality.WINDOW_MODAL);
             alert.showAndWait();
         }
     }
 
-
-    private void showError(String msg) {
-        Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
-        a.setHeaderText("Error"); a.showAndWait();
+    private Stage getStage() {
+        return (Stage) tablaGrupos.getScene().getWindow();
     }
-    private void showInfo(String msg) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
-        a.setHeaderText(null); a.showAndWait();
+
+    private void showError(String c) {
+        Alert a = new Alert(Alert.AlertType.ERROR, c, ButtonType.OK);
+        a.setHeaderText("Error");
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        a.showAndWait();
+    }
+
+    private void showInfo(String c) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK);
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        a.showAndWait();
     }
 }
