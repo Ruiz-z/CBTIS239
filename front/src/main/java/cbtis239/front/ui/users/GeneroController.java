@@ -119,6 +119,9 @@ public class GeneroController {
         
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "¿Seguro que quieres eliminar el género '" + sel.getNombre() + "'?", ButtonType.YES, ButtonType.NO);
         confirmation.setHeaderText("Confirmar eliminación");
+        // === Ajuste: owner y modalidad para que no cierre la pantalla ===
+        confirmation.initOwner(getStage());
+        confirmation.initModality(javafx.stage.Modality.WINDOW_MODAL);
         
         if (confirmation.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
             try {
@@ -155,6 +158,9 @@ public class GeneroController {
                 e.printStackTrace();
                 Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
                 alert.setHeaderText("Error");
+                // === Ajuste: owner y modalidad para que no cierre la pantalla ===
+                alert.initOwner(getStage());
+                alert.initModality(javafx.stage.Modality.WINDOW_MODAL);
                 alert.showAndWait();
             }
         }
@@ -171,15 +177,23 @@ public class GeneroController {
         btnAgregar.setDisable(false);
     }
 
-    private void showError(String msg) {
-        Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
+    private Stage getStage() {
+        return (Stage) tabla.getScene().getWindow();
+    }
+
+    private void showError(String c) {
+        Alert a = new Alert(Alert.AlertType.ERROR, c, ButtonType.OK);
         a.setHeaderText("Error");
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
         a.showAndWait();
     }
 
-    private void showInfo(String msg) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
-        a.setHeaderText(null);
+    private void showInfo(String c) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK);
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
         a.showAndWait();
     }
+
 }

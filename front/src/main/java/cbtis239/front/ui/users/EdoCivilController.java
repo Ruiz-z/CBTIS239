@@ -133,6 +133,9 @@ public class EdoCivilController {
                 ButtonType.YES, ButtonType.NO
         );
         confirmation.setHeaderText("Confirmar eliminación");
+        // === Ajuste: owner y modalidad para que no cierre/oculte la pantalla ===
+        confirmation.initOwner(getStage());
+        confirmation.initModality(javafx.stage.Modality.WINDOW_MODAL);
 
         if (confirmation.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
             try {
@@ -178,19 +181,29 @@ public class EdoCivilController {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
             alert.setHeaderText("Error");
+            // === Ajuste: owner y modalidad para que no cierre/oculte la pantalla ===
+            alert.initOwner(getStage());
+            alert.initModality(javafx.stage.Modality.WINDOW_MODAL);
             alert.showAndWait();
         }
     }
 
-    private void showError(String msg) {
-        Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
-        a.setHeaderText("Error");
+    private Stage getStage() {
+        return (Stage) tabla.getScene().getWindow();
+    }
+
+    private void showError(String c) {
+        Alert a = new Alert(Alert.AlertType.ERROR, c, ButtonType.OK);
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
         a.showAndWait();
     }
 
-    private void showInfo(String msg) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
-        a.setHeaderText(null);
+    private void showInfo(String c) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK);
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
         a.showAndWait();
     }
+
 }

@@ -2,6 +2,7 @@ package cbtis239.bo;
 
 import cbtis239.dao.EdoCivilDao;
 import cbtis239.model.EdoCivil;
+import javafx.scene.control.Alert;
 
 import java.sql.SQLException;
 import java.util.List;

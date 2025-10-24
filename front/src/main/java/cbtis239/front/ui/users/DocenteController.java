@@ -165,6 +165,7 @@ public class DocenteController {
         d.setGeneroNombre(gen.getNombre());
         return d;
     }
+
     @FXML
     private void onVolver(javafx.event.ActionEvent event) {
         try {
@@ -183,14 +184,39 @@ public class DocenteController {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
             alert.setHeaderText("Error");
+            // === Ajuste: owner y modalidad para no cerrar/ocultar la pantalla ===
+            alert.initOwner(getStage());
+            alert.initModality(javafx.stage.Modality.WINDOW_MODAL);
             alert.showAndWait();
         }
     }
 
+    private Stage getStage() {
+        return (Stage) tblDocentes.getScene().getWindow();
+    }
 
-    // ===== Alerts =====
-    private void mostrarAdvertencia(String h, String c) { new Alert(Alert.AlertType.WARNING, c, ButtonType.OK).showAndWait(); }
-    private void mostrarError(String h, String c)       { new Alert(Alert.AlertType.ERROR, c, ButtonType.OK).showAndWait(); }
-    private void mostrarInfo(String h, String c)        { new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK).showAndWait(); }
+    private void mostrarAdvertencia(String h, String c) {
+        Alert a = new Alert(Alert.AlertType.WARNING, c, ButtonType.OK);
+        a.setHeaderText(h);
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        a.showAndWait();
+    }
+
+    private void mostrarError(String h, String c) {
+        Alert a = new Alert(Alert.AlertType.ERROR, c, ButtonType.OK);
+        a.setHeaderText(h);
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        a.showAndWait();
+    }
+
+    private void mostrarInfo(String h, String c) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK);
+        a.setHeaderText(h);
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        a.showAndWait();
+    }
+
 }
-

@@ -131,15 +131,39 @@ public class AulaController {
         }
     }
 
-    private void showError(String msg) {
-        Alert alert = new Alert(Alert.AlertType.ERROR, msg);
-        alert.setHeaderText(null);
-        alert.showAndWait();
+    // ====== Helpers de Alert con owner y modalidad ======
+    private Stage getStage() {
+        javafx.stage.Window w = javafx.stage.Window.getWindows().stream()
+                .filter(javafx.stage.Window::isFocused)
+                .findFirst()
+                .orElseGet(() ->
+                        javafx.stage.Window.getWindows().stream()
+                                .filter(javafx.stage.Window::isShowing)
+                                .findFirst()
+                                .orElse(null));
+        return (w instanceof Stage) ? (Stage) w : null;
     }
 
-    private void showInfo(String msg) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, msg);
-        alert.setHeaderText(null);
-        alert.showAndWait();
+    private void showError(String c) {
+        Alert a = new Alert(Alert.AlertType.ERROR, c, ButtonType.OK);
+        a.setHeaderText("Error");
+        Stage owner = getStage();
+        if (owner != null) {
+            a.initOwner(owner);
+            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        }
+        a.showAndWait();
     }
+
+    private void showInfo(String c) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK);
+        a.setHeaderText(null);
+        Stage owner = getStage();
+        if (owner != null) {
+            a.initOwner(owner);
+            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        }
+        a.showAndWait();
+    }
+
 }

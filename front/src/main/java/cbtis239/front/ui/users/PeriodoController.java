@@ -173,6 +173,9 @@ public class PeriodoController {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
             alert.setHeaderText("Error");
+            // === Ajuste: owner y modalidad para no cerrar/ocultar la pantalla ===
+            alert.initOwner(getStage());
+            alert.initModality(javafx.stage.Modality.WINDOW_MODAL);
             alert.showAndWait();
         }
     }
@@ -213,13 +216,30 @@ public class PeriodoController {
         editing.set(true);
     }
 
-    // ==== Diálogo unificado ====
+    // ==== Diálogo unificado seguro (con owner y modalidad) ====
+
+    private Stage getStage() {
+        javafx.stage.Window w = javafx.stage.Window.getWindows().stream()
+                .filter(javafx.stage.Window::isFocused)
+                .findFirst()
+                .orElseGet(() ->
+                        javafx.stage.Window.getWindows().stream()
+                                .filter(javafx.stage.Window::isShowing)
+                                .findFirst()
+                                .orElse(null));
+        return (w instanceof Stage) ? (Stage) w : null;
+    }
 
     private void showError(String title, String msg, Exception ex) {
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setTitle("Error");
         a.setHeaderText(title);
         a.setContentText(msg + (ex != null ? "\n\nDetalle: " + ex.getMessage() : ""));
+        Stage owner = getStage();
+        if (owner != null) {
+            a.initOwner(owner);
+            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        }
         a.showAndWait();
     }
 
@@ -228,6 +248,11 @@ public class PeriodoController {
         a.setTitle("Advertencia");
         a.setHeaderText(title);
         a.setContentText(msg);
+        Stage owner = getStage();
+        if (owner != null) {
+            a.initOwner(owner);
+            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        }
         a.showAndWait();
     }
 
@@ -236,6 +261,11 @@ public class PeriodoController {
         a.setTitle("Información");
         a.setHeaderText(title);
         a.setContentText(msg);
+        Stage owner = getStage();
+        if (owner != null) {
+            a.initOwner(owner);
+            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        }
         a.showAndWait();
     }
 
@@ -244,6 +274,12 @@ public class PeriodoController {
         a.setTitle(title);
         a.setHeaderText(null);
         a.setContentText(msg);
+        Stage owner = getStage();
+        if (owner != null) {
+            a.initOwner(owner);
+            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        }
         return a.showAndWait();
     }
+
 }

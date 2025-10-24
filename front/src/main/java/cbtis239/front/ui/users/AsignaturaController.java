@@ -164,11 +164,55 @@ public class AsignaturaController {
             currentStage.close();
 
         } catch (Exception e) {
+            // === Ajuste: usar alerta modal con owner de la ventana actual ===
+            mostrarError("No se pudo volver al menú", e.getMessage());
         }
     }
 
-    // ===== Alerts =====
-    private void mostrarAdvertencia(String h, String c) { new Alert(Alert.AlertType.WARNING, c, ButtonType.OK).showAndWait(); }
-    private void mostrarError(String h, String c)       { new Alert(Alert.AlertType.ERROR, c, ButtonType.OK).showAndWait(); }
-    private void mostrarInfo(String h, String c)        { new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK).showAndWait(); }
+    // ====== Helpers de Alert con owner y modalidad ======
+    private Stage getStage() {
+        javafx.stage.Window w = javafx.stage.Window.getWindows().stream()
+                .filter(javafx.stage.Window::isFocused)
+                .findFirst()
+                .orElseGet(() ->
+                        javafx.stage.Window.getWindows().stream()
+                                .filter(javafx.stage.Window::isShowing)
+                                .findFirst()
+                                .orElse(null));
+        return (w instanceof Stage) ? (Stage) w : null;
+    }
+
+    private void mostrarAdvertencia(String h, String c) {
+        Alert a = new Alert(Alert.AlertType.WARNING, c, ButtonType.OK);
+        a.setHeaderText(h);
+        Stage owner = getStage();
+        if (owner != null) {
+            a.initOwner(owner);
+            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        }
+        a.showAndWait();
+    }
+
+    private void mostrarError(String h, String c) {
+        Alert a = new Alert(Alert.AlertType.ERROR, c, ButtonType.OK);
+        a.setHeaderText(h);
+        Stage owner = getStage();
+        if (owner != null) {
+            a.initOwner(owner);
+            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        }
+        a.showAndWait();
+    }
+
+    private void mostrarInfo(String h, String c) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK);
+        a.setHeaderText(h);
+        Stage owner = getStage();
+        if (owner != null) {
+            a.initOwner(owner);
+            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        }
+        a.showAndWait();
+    }
+
 }

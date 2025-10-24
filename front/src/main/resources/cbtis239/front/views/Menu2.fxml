@@ -113,8 +113,10 @@
                 <graphic><FontIcon iconLiteral="fas-venus-mars" iconSize="18"/></graphic>
             </ToggleButton>
 
-            <ToggleButton text="Asignar materia" toggleGroup="$menuGroup"
-                          onAction="#openPeriodo" styleClass="nav-btn"
+
+            <!-- DocenteMateria -->
+            <ToggleButton text="Asignar materias" toggleGroup="$menuGroup"
+                          onAction="#openDocenteMateria" styleClass="nav-btn"
                           contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-book-open" iconSize="18"/></graphic>
             </ToggleButton>

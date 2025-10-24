@@ -75,7 +75,12 @@ public class Menu2Controller {
 
     @FXML
     private void openAsignatura(ActionEvent event) {
-        openNewStage(event, "/cbtis239/front/views/Asignatura.fxml", "Gestión de Asignaturas");
+         openFullScreenStage(event, "/cbtis239/front/views/Asignatura.fxml", "Gestión de Asignaturas");
+    } 
+
+        @FXML
+    private void openDocenteMateria(ActionEvent event) {
+        openFullScreenStage(event, "/cbtis239/front/views/DocenteMateria.fxml", "Asignar Materias");
     } 
 
     // ---- Utilidades para abrir ventanas ----
