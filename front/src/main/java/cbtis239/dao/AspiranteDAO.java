@@ -4,7 +4,6 @@ import cbtis239.model.Aspirante;
 import cbtis239.util.DB;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +22,7 @@ public class AspiranteDAO {
         }
     }
 
+    // --- INSERT ---
     public void insert(Aspirante a) throws SQLException {
         String sql = """
         INSERT INTO aspirante
@@ -35,11 +35,12 @@ public class AspiranteDAO {
         """;
         try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql)) {
-            fillPS(ps, a);
+            fillPS(ps, a, true);  // ← true = incluir Folio
             ps.executeUpdate();
         }
     }
 
+    // --- UPDATE ---
     public void update(Aspirante a) throws SQLException {
         String sql = """
         UPDATE aspirante SET
@@ -52,8 +53,8 @@ public class AspiranteDAO {
         """;
         try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql)) {
-            int i = fillPS(ps, a);
-            ps.setInt(i, a.getFolio());
+            int i = fillPS(ps, a, false); // ← false = NO incluir Folio
+            ps.setInt(i, a.getFolio());   // último parámetro (WHERE)
             ps.executeUpdate();
         }
     }
@@ -78,7 +79,7 @@ public class AspiranteDAO {
     }
 
     public List<Aspirante> listBreve() throws SQLException {
-        String sql = "SELECT Folio, Nombre, Paterno, Materno, EstatusInscripcion FROM aspirante ORDER BY Folio DESC LIMIT 100";
+        String sql = "SELECT Folio, Nombre, Paterno, Materno, EstatusInscripcion FROM aspirante ORDER BY Folio DESC";
         try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -99,14 +100,17 @@ public class AspiranteDAO {
 
     // ===== helpers =====
 
-    private int fillPS(PreparedStatement ps, Aspirante a) throws SQLException {
+    private int fillPS(PreparedStatement ps, Aspirante a, boolean incluirFolio) throws SQLException {
         int i = 1;
 
         ps.setString(i++, a.getCurp());
         if (a.getFechaNacimiento() == null) ps.setNull(i++, Types.DATE);
         else ps.setDate(i++, Date.valueOf(a.getFechaNacimiento()));
         ps.setString(i++, a.getNss());
-        ps.setInt(i++, a.getFolio());
+
+        // ← Solo se incluye en INSERT
+        if (incluirFolio) ps.setInt(i++, a.getFolio());
+
         ps.setString(i++, a.getTelefono());
         ps.setString(i++, a.getCorreo());
         ps.setString(i++, a.getTipoSangre());
