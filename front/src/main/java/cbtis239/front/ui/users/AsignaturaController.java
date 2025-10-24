@@ -4,7 +4,12 @@ import cbtis239.bo.MateriaBO;
 import cbtis239.model.Materia;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
@@ -144,9 +149,22 @@ public class AsignaturaController {
     }
 
     @FXML
-    private void onCancelar() {
-        Stage st = (Stage) txtClave.getScene().getWindow();
-        if (st != null) st.close();
+    private void onCancelar(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
+            Parent root = loader.load();
+
+            Stage newStage = new Stage();
+            newStage.setTitle("Menú 2");
+            newStage.setScene(new Scene(root));
+            newStage.setMaximized(true);
+            newStage.show();
+
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
+
+        } catch (Exception e) {
+        }
     }
 
     // ===== Alerts =====

@@ -25,9 +25,12 @@ public class Menu2Controller {
     }
 
     // ---- Acciones de menú que reemplazan el centro del layout actual ----
-    @FXML private void openDocente()    { loadContent("home.fxml"); }
+    @FXML private void openDocente(ActionEvent event)    {
+        openFullScreenStage(event, "/cbtis239/front/views/Docente.fxml", "Gestión de Docentes");
+     }
+    
     @FXML private void openCredencial() { loadContent("home.fxml"); }
-    @FXML private void openAsignatura() { loadContent("home.fxml"); }
+
 
     // ---- Acciones que abren nuevas ventanas ----
     @FXML
@@ -73,7 +76,7 @@ public class Menu2Controller {
     @FXML
     private void openAsignatura(ActionEvent event) {
         openNewStage(event, "/cbtis239/front/views/Asignatura.fxml", "Gestión de Asignaturas");
-    } // <-- ESTA LLAVE FALTABA
+    } 
 
     // ---- Utilidades para abrir ventanas ----
     private void openFullScreenStage(ActionEvent event, String fxml, String title) {
