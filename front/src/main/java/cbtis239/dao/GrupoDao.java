@@ -85,5 +85,17 @@ public class GrupoDao {
         }
         return list;
     }
+    public List<cbtis239.model.Catalogo> gruposPorEspecialidadSoloNombre(int especialidadClave) throws SQLException {
+        String sql = "SELECT GrupoID, NombreGrupo AS n FROM Grupo WHERE Especialidad_Clave=? ORDER BY NombreGrupo";
+        List<cbtis239.model.Catalogo> list = new ArrayList<>();
+        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, especialidadClave);
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) list.add(new cbtis239.model.Catalogo(rs.getInt(1), rs.getString(2)));
+            }
+        }
+        return list;
+    }
+
 }
 

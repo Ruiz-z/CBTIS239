@@ -97,4 +97,27 @@ public class PeriodoDao {
         
         return p;
     }
+    public Periodo getActual() {
+        String sql = "SELECT idPeriodo, Nombre, Inicio, Fin " +
+                "FROM Periodo WHERE CURDATE() BETWEEN Inicio AND Fin " +
+                "ORDER BY Inicio DESC LIMIT 1";
+        try (var con = DB.get(); var ps = con.prepareStatement(sql); var rs = ps.executeQuery()) {
+            return rs.next() ? mapRow(rs) : null;
+        } catch (SQLException e) {
+            throw new RuntimeException("No fue posible obtener el periodo actual: " + e.getMessage(), e);
+        }
+    }
+
+    public Periodo getSiguiente() {
+        String sql = "SELECT p.idPeriodo, p.Nombre, p.Inicio, p.Fin " +
+                "FROM Periodo p " +
+                "WHERE p.Inicio > (SELECT Inicio FROM Periodo WHERE CURDATE() BETWEEN Inicio AND Fin LIMIT 1) " +
+                "ORDER BY p.Inicio ASC LIMIT 1";
+        try (var con = DB.get(); var ps = con.prepareStatement(sql); var rs = ps.executeQuery()) {
+            return rs.next() ? mapRow(rs) : null;
+        } catch (SQLException e) {
+            throw new RuntimeException("No fue posible obtener el periodo siguiente: " + e.getMessage(), e);
+        }
+    }
+
 }

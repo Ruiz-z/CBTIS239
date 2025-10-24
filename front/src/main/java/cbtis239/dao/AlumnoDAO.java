@@ -179,6 +179,19 @@ public class AlumnoDAO {
 
         return a;
     }
+    public int actualizarEstadoSemestreYPeriodo(String matricula,
+                                                String nuevoEstado,
+                                                Integer nuevoSemestre,
+                                                Integer nuevoPeriodoId) throws SQLException {
+        String sql = "UPDATE alumno SET EstadoInscripcion=?, Semestre=?, Periodo_idPeriodo=? WHERE Matricula=?";
+        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+            ps.setString(1, nuevoEstado);
+            if (nuevoSemestre == null) ps.setNull(2, Types.INTEGER); else ps.setInt(2, nuevoSemestre);
+            if (nuevoPeriodoId == null) ps.setNull(3, Types.INTEGER); else ps.setInt(3, nuevoPeriodoId);
+            ps.setString(4, matricula);
+            return ps.executeUpdate();
+        }
+    }
 
 }
 

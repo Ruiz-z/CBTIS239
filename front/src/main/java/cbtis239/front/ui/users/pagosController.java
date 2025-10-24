@@ -12,6 +12,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.sql.SQLException;
+
 
 public class pagosController {
 
@@ -55,11 +57,22 @@ public class pagosController {
     }
 
     @FXML
-    private void onRegistrarPago(ActionEvent e) {
+    private void onRegistrarPago(ActionEvent e) throws SQLException {
         Button btn = (Button) e.getSource();
         btn.setDisable(true);
+        String entrada = txtBusqueda.getText();
+        var pago = pagoBO.registrarPago(entrada);   // <- ya lo tienes
+
         try {
-            String entrada = txtBusqueda.getText().trim();
+            if (pago.getAlumnoMatricula() != null && !pago.getAlumnoMatricula().isBlank()) {
+                try {
+                    new cbtis239.bo.ReinscripcionBO().reinscribir(pago.getAlumnoMatricula());
+                } catch (Exception ex) {
+                    // No reventamos la UI si falla; solo avisamos
+                    System.err.println("Aviso reinscripción: " + ex.getMessage());
+                }
+            }
+            entrada = txtBusqueda.getText().trim();
             if (entrada.isEmpty()) { info("Ingrese una matrícula o folio."); return; }
             pagoBO.registrarPago(entrada);
             onBuscar();
