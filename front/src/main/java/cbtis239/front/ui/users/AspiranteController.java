@@ -2,6 +2,7 @@ package cbtis239.front.ui.users;
 
 import cbtis239.bo.AspiranteBO;
 import cbtis239.dao.AlumnoDAO;
+import cbtis239.dao.AspiranteDAO;
 import cbtis239.dao.CatalogoDAO;
 import cbtis239.model.Alumno;
 import cbtis239.model.Aspirante;
@@ -146,73 +147,74 @@ public class AspiranteController {
         }
     }
 
-    @FXML
-    private void onInscribir() {
-        try {
-            // Validar selección
-            Aspirante sel = tblAspirantes.getSelectionModel().getSelectedItem();
-            if (sel == null) {
-                showWarning("Selecciona un aspirante de la tabla para inscribir.");
-                return;
+        @FXML
+        private void onInscribir() {
+            try {
+                // Validar selección
+                Aspirante sel = tblAspirantes.getSelectionModel().getSelectedItem();
+                if (sel == null) {
+                    showWarning("Selecciona un aspirante de la tabla para inscribir.");
+                    return;
+                }
+    
+                // Validar pago
+                if (sel.getEstatusPago() == null || !sel.getEstatusPago().equalsIgnoreCase("Pagado")) {
+                    showWarning("El aspirante aún no ha completado el pago. Solo los aspirantes con estatus 'Pagado' pueden ser inscritos.");
+                    return;
+                }
+    
+                // Crear matrícula automática
+                String matricula = generarMatricula(sel);
+    
+                // Crear objeto Alumno con los datos del aspirante
+                Alumno nuevo = new Alumno();
+                nuevo.setMatricula(matricula);
+                nuevo.setCurp(sel.getCurp());
+                nuevo.setNombre(sel.getNombre());
+                nuevo.setPaterno(sel.getPaterno());
+                nuevo.setMaterno(sel.getMaterno());
+                nuevo.setTelefono(sel.getTelefono());
+                nuevo.setCorreo(sel.getCorreo());
+                nuevo.setNss(sel.getNss());
+                nuevo.setCalle(sel.getCalle());
+                nuevo.setNumero(sel.getNumero());
+                nuevo.setColonia(sel.getColonia());
+                nuevo.setEstado(sel.getEstado());
+                nuevo.setMunicipio(sel.getMunicipio());
+                nuevo.setLocalidad(sel.getLocalidad());
+                nuevo.setCelPadre(sel.getCelPadre());
+                nuevo.setCelMadre(sel.getCelMadre());
+                nuevo.setEdoCivilId(sel.getEdoCivilId());
+                nuevo.setGeneroId(sel.getGeneroId());
+    
+                // Campos iniciales del nuevo alumno
+                nuevo.setSemestre(1);
+                nuevo.setEstadoInscripcion("Activo");
+                nuevo.setFechaInscripcion(LocalDate.now());
+                nuevo.setPeriodoId(1);
+                nuevo.setGrupoId(1);
+    
+                // Insertar en alumno
+                AlumnoDAO alumnoDAO = new AlumnoDAO();
+                alumnoDAO.insert(nuevo);
+
+                // Eliminar aspirante después de inscribir
+                AspiranteDAO aspiranteDAO = new AspiranteDAO();
+                aspiranteDAO.deleteByFolio(sel.getFolio());
+
+                showInfo("El aspirante fue inscrito correctamente con matrícula " + matricula + ".");
+    
+                // Refrescar tabla
+                recargarTabla();
+    
+            } catch (SQLException e) {
+                showError("No se pudo inscribir al aspirante.\n" + e.getMessage());
+                e.printStackTrace();
+            } catch (Exception e) {
+                showError("Error inesperado: " + e.getMessage());
+                e.printStackTrace();
             }
-
-            // Validar pago
-            if (sel.getEstatusPago() == null || !sel.getEstatusPago().equalsIgnoreCase("Pagado")) {
-                showWarning("El aspirante aún no ha completado el pago. Solo los aspirantes con estatus 'Pagado' pueden ser inscritos.");
-                return;
-            }
-
-            // Crear matrícula automática
-            String matricula = generarMatricula(sel);
-
-            // Crear objeto Alumno con los datos del aspirante
-            Alumno nuevo = new Alumno();
-            nuevo.setMatricula(matricula);
-            nuevo.setCurp(sel.getCurp());
-            nuevo.setNombre(sel.getNombre());
-            nuevo.setPaterno(sel.getPaterno());
-            nuevo.setMaterno(sel.getMaterno());
-            nuevo.setTelefono(sel.getTelefono());
-            nuevo.setCorreo(sel.getCorreo());
-            nuevo.setNss(sel.getNss());
-            nuevo.setCalle(sel.getCalle());
-            nuevo.setNumero(sel.getNumero());
-            nuevo.setColonia(sel.getColonia());
-            nuevo.setEstado(sel.getEstado());
-            nuevo.setMunicipio(sel.getMunicipio());
-            nuevo.setLocalidad(sel.getLocalidad());
-            nuevo.setCelPadre(sel.getCelPadre());
-            nuevo.setCelMadre(sel.getCelMadre());
-            nuevo.setEdoCivilId(sel.getEdoCivilId());
-            nuevo.setGeneroId(sel.getGeneroId());
-
-            // Campos iniciales del nuevo alumno
-            nuevo.setSemestre(1);
-            nuevo.setEstadoInscripcion("Activo");
-            nuevo.setFechaInscripcion(LocalDate.now());
-            nuevo.setPeriodoId(1);
-            nuevo.setGrupoId(1);
-
-            // Insertar en alumno
-            AlumnoDAO alumnoDAO = new AlumnoDAO();
-            alumnoDAO.insert(nuevo);
-
-            // Actualizar estatus aspirante
-            aspiranteBO.actualizarEstatusInscripcion(sel.getFolio(), "Aceptado");
-
-            showInfo("El aspirante fue inscrito correctamente con matrícula " + matricula + ".");
-
-            // Refrescar tabla
-            recargarTabla();
-
-        } catch (SQLException e) {
-            showError("No se pudo inscribir al aspirante.\n" + e.getMessage());
-            e.printStackTrace();
-        } catch (Exception e) {
-            showError("Error inesperado: " + e.getMessage());
-            e.printStackTrace();
         }
-    }
 
 
     // Método auxiliar: Generar matrícula
