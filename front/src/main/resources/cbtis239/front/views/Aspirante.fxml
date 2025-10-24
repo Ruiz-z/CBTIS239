@@ -183,6 +183,7 @@
 
                     <!-- === BOTONES === -->
                     <HBox spacing="12" alignment="CENTER">
+                        <Button text="Inscribir" onAction="#onInscribir"/>
                         <Button text="Guardar" onAction="#onGuardar"/>
                         <Button text="Modificar" onAction="#onModificar"/>
                         <Button text="Eliminar" onAction="#onEliminar"/>

@@ -152,6 +152,8 @@ public class AlumnoDAO {
         a.setEstadoInscripcion(rs.getString("EstadoInscripcion"));
         a.setFoto(rs.getString("Foto"));
         a.setFirma(rs.getString("Firma"));
+        a.setTelefono(rs.getString("Telefono"));
+        a.setEstado(rs.getString("Estado"));
         a.setCorreo(rs.getString("Correo"));
 
         Date d = rs.getDate("FechaInscripcion");
@@ -169,6 +171,7 @@ public class AlumnoDAO {
         a.setMunicipio(rs.getString("Municipio"));
         a.setCelPadre(rs.getString("CelPadre"));
         a.setCelMadre(rs.getString("CelMadre"));
+
 
         int ec = rs.getInt("EdoCivil_idEdoCivil"); a.setEdoCivilId(rs.wasNull()? null : ec);
         int ge = rs.getInt("Generos_idGenero");    a.setGeneroId(rs.wasNull()? null : ge);
