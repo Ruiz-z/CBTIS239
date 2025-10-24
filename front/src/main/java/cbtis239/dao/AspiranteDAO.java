@@ -79,7 +79,16 @@ public class AspiranteDAO {
     }
 
     public List<Aspirante> listBreve() throws SQLException {
-        String sql = "SELECT Folio, Nombre, Paterno, Materno, EstatusInscripcion FROM aspirante ORDER BY Folio DESC";
+        String sql = """
+        SELECT Folio, CURP, Nombre, Paterno, Materno,
+               EstatusInscripcion, EstatusPago,
+               Telefono, Estado, Municipio, Localidad,
+               NSS, Calle, Numero, Colonia,
+               CelPadre, CelMadre, EdoCivil_idEdoCivil, Generos_idGenero
+        FROM aspirante
+        ORDER BY Folio DESC
+    """;
+
         try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -88,10 +97,24 @@ public class AspiranteDAO {
             while (rs.next()) {
                 Aspirante a = new Aspirante();
                 a.setFolio(rs.getInt("Folio"));
+                a.setCurp(rs.getString("CURP"));
                 a.setNombre(rs.getString("Nombre"));
                 a.setPaterno(rs.getString("Paterno"));
                 a.setMaterno(rs.getString("Materno"));
                 a.setEstatusInscripcion(rs.getString("EstatusInscripcion"));
+                a.setEstatusPago(rs.getString("EstatusPago"));
+                a.setTelefono(rs.getString("Telefono"));
+                a.setEstado(rs.getString("Estado"));
+                a.setMunicipio(rs.getString("Municipio"));
+                a.setLocalidad(rs.getString("Localidad"));
+                a.setNss(rs.getString("NSS"));
+                a.setCalle(rs.getString("Calle"));
+                a.setNumero(rs.getString("Numero"));
+                a.setColonia(rs.getString("Colonia"));
+                a.setCelPadre(rs.getString("CelPadre"));
+                a.setCelMadre(rs.getString("CelMadre"));
+                a.setEdoCivilId(rs.getInt("EdoCivil_idEdoCivil"));
+                a.setGeneroId(rs.getInt("Generos_idGenero"));
                 out.add(a);
             }
             return out;
@@ -210,4 +233,14 @@ public class AspiranteDAO {
 
         return a;
     }
+    public void actualizarEstatusInscripcion(int folio, String nuevoEstatus) throws SQLException {
+        String sql = "UPDATE aspirante SET EstatusInscripcion=? WHERE Folio=?";
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, nuevoEstatus);
+            ps.setInt(2, folio);
+            ps.executeUpdate();
+        }
+    }
+
 }
