@@ -72,6 +72,9 @@ public class Menu2Controller {
         openFullScreenStage(event, "/cbtis239/front/views/GeneroView.fxml", "Gestión de Género");
     }
 
+    @FXML
+    private void openAsignatura(ActionEvent event) {
+       openNewStage(event, "/cbtis239/front/views/Asignatura.fxml", "Gestión de Asignaturas");
     private void openFullScreenStage(ActionEvent event, String fxml, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
@@ -136,7 +139,7 @@ public class Menu2Controller {
             Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
             Stage st = new Stage();
             st.setScene(new Scene(root));
-            st.initStyle(javafx.stage.StageStyle.UNDECORATED); // 🔥 Sin barra superior
+            st.initStyle(javafx.stage.StageStyle.UNDECORATED); 
             st.setMaximized(true);
             st.show();
             ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
