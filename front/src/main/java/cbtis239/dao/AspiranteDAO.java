@@ -58,12 +58,19 @@ public class AspiranteDAO {
             ps.executeUpdate();
         }
     }
-
-    public void deleteByFolio(int folio) throws SQLException {
-        try (Connection cn = DB.get();
-             PreparedStatement ps = cn.prepareStatement("DELETE FROM aspirante WHERE Folio=?")) {
+    /** 🔹 Elimina un aspirante dentro de una transacción abierta. */
+    public int deleteByFolio(Connection cn, int folio) throws SQLException {
+        String sql = "DELETE FROM sistemaescolar.aspirante WHERE Folio = ?";
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, folio);
-            ps.executeUpdate();
+            return ps.executeUpdate();  // devuelve 1 si lo borró, 0 si no existía
+        }
+    }
+
+    /** 🔹 Versión cómoda con conexión propia (por compatibilidad). */
+    public int deleteByFolio(int folio) throws SQLException {
+        try (Connection cn = DB.get()) {
+            return deleteByFolio(cn, folio);
         }
     }
 

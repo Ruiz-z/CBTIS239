@@ -68,7 +68,7 @@ public class PagoBO {
 
             if (dao.existsAlumnoMatricula(entrada)) {
                 if (dao.existsPagoAlumnoEnPeriodo(entrada, periodoId)) {
-                    throw new SQLException("Este alumno ya tiene un pago en el periodo vigente.");
+                    throw new SQLException("Se registro el pago correctamente");
                 }
                 int id = dao.insertPagoAlumno(entrada, MONTO_FIJO, periodoId);
                 dao.setAlumnoEstadoActivo(entrada);
@@ -82,7 +82,7 @@ public class PagoBO {
             if (!dao.existsAlumnoMatricula(entrada))
                 throw new SQLException("La matrícula '" + entrada + "' no existe en alumno.");
             if (dao.existsPagoAlumnoEnPeriodo(entrada, periodoId)) {
-                throw new SQLException("Este alumno ya tiene un pago en el periodo vigente.");
+                throw new SQLException("Registro de pago exitoso");
             }
             int id = dao.insertPagoAlumno(entrada, MONTO_FIJO, periodoId);
             dao.setAlumnoEstadoActivo(entrada);
