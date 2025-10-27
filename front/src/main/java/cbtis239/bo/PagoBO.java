@@ -68,7 +68,6 @@ public class PagoBO {
 
             if (dao.existsAlumnoMatricula(entrada)) {
                 if (dao.existsPagoAlumnoEnPeriodo(entrada, periodoId)) {
-                    throw new SQLException("Este alumno ya tiene un pago en el periodo vigente.");
                 }
                 int id = dao.insertPagoAlumno(entrada, MONTO_FIJO, periodoId);
                 dao.setAlumnoEstadoActivo(entrada);
