@@ -5,6 +5,7 @@ import cbtis239.bo.PagoBO;
 import cbtis239.dao.AlumnoDAO;
 import cbtis239.dao.AspiranteDAO;
 import cbtis239.dao.CatalogoDAO;
+import cbtis239.dao.PagoDAO;                 // <-- añadido
 import cbtis239.model.Alumno;
 import cbtis239.model.Aspirante;
 import cbtis239.model.Catalogo;
@@ -109,7 +110,6 @@ public class AspiranteController {
 
         // === Mensaje si no hay datos ===
         tblAspirantes.setPlaceholder(new Label("No hay aspirantes registrados."));
-
     }
 
     private void recargarTabla() {
@@ -122,8 +122,6 @@ public class AspiranteController {
         }
     }
 
-
-
     // ======== Eventos ========
 
     @FXML
@@ -133,8 +131,6 @@ public class AspiranteController {
 
         try {
             Aspirante a = aspiranteBO.buscar(Integer.parseInt(f.trim()));
-
-
             if (a == null) {
                 limpiar(false);
                 showInfo("No se encontró el aspirante con folio " + f);
@@ -148,85 +144,100 @@ public class AspiranteController {
         }
     }
 
-        @FXML
-        private void onInscribir() {
-            try {
-                // Validar selección
-                Aspirante sel = tblAspirantes.getSelectionModel().getSelectedItem();
-                if (sel == null) {
-                    showWarning("Selecciona un aspirante de la tabla para inscribir.");
-                    return;
-                }
-    
-                // Validar pago
-                if (sel.getEstatusPago() == null || !sel.getEstatusPago().equalsIgnoreCase("Pagado")) {
-                    showWarning("El aspirante aún no ha completado el pago. Solo los aspirantes con estatus 'Pagado' pueden ser inscritos.");
-                    return;
-                }
-    
-                // Crear matrícula automática
-                String matricula = generarMatricula(sel);
-    
-                // Crear objeto Alumno con los datos del aspirante
-                Alumno nuevo = new Alumno();
-                nuevo.setMatricula(matricula);
-                nuevo.setCurp(sel.getCurp());
-                nuevo.setNombre(sel.getNombre());
-                nuevo.setPaterno(sel.getPaterno());
-                nuevo.setMaterno(sel.getMaterno());
-                nuevo.setTelefono(sel.getTelefono());
-                nuevo.setCorreo(sel.getCorreo());
-                nuevo.setNss(sel.getNss());
-                nuevo.setCalle(sel.getCalle());
-                nuevo.setNumero(sel.getNumero());
-                nuevo.setColonia(sel.getColonia());
-                nuevo.setEstado(sel.getEstado());
-                nuevo.setMunicipio(sel.getMunicipio());
-                nuevo.setLocalidad(sel.getLocalidad());
-                nuevo.setCelPadre(sel.getCelPadre());
-                nuevo.setCelMadre(sel.getCelMadre());
-                nuevo.setEdoCivilId(sel.getEdoCivilId());
-                nuevo.setGeneroId(sel.getGeneroId());
-    
-                // Campos iniciales del nuevo alumno
-                nuevo.setSemestre(1);
-                nuevo.setEstadoInscripcion("Activo");
-                nuevo.setFechaInscripcion(LocalDate.now());
-                nuevo.setPeriodoId(1);
-                nuevo.setGrupoId(1);
-    
-                // Insertar en alumno
-                AlumnoDAO alumnoDAO = new AlumnoDAO();
-                alumnoDAO.insert(nuevo);
-
-                // Registrar pago automático en la tabla de pagos
-                PagoBO pagoBO = new PagoBO();
-                try {
-                    pagoBO.registrarPago(matricula); // crea registro como “Pagado”
-                } catch (Exception pe) {
-                    // Si por alguna razón falla el pago, no cancelamos la inscripción
-                    showWarning("El alumno fue inscrito, pero no se pudo registrar su pago automático:\n" + pe.getMessage());
-                }
-
-
-                // Eliminar aspirante después de inscribir
-                AspiranteDAO aspiranteDAO = new AspiranteDAO();
-                aspiranteDAO.deleteByFolio(sel.getFolio());
-
-                showInfo("El aspirante fue inscrito correctamente con matrícula " + matricula + ".");
-    
-                // Refrescar tabla
-                recargarTabla();
-    
-            } catch (SQLException e) {
-                showError("No se pudo inscribir al aspirante.\n" + e.getMessage());
-                e.printStackTrace();
-            } catch (Exception e) {
-                showError("Error inesperado: " + e.getMessage());
-                e.printStackTrace();
+    @FXML
+    private void onInscribir() {
+        try {
+            // Validar selección
+            Aspirante sel = tblAspirantes.getSelectionModel().getSelectedItem();
+            if (sel == null) {
+                showWarning("Selecciona un aspirante de la tabla para inscribir.");
+                return;
             }
-        }
 
+            // Validar pago
+            if (sel.getEstatusPago() == null || !sel.getEstatusPago().equalsIgnoreCase("Pagado")) {
+                showWarning("El aspirante aún no ha completado el pago. Solo los aspirantes con estatus 'Pagado' pueden ser inscritos.");
+                return;
+            }
+
+            // Crear matrícula automática
+            String matricula = generarMatricula(sel);
+
+            // Construir Alumno desde el aspirante
+            Alumno nuevo = new Alumno();
+            nuevo.setMatricula(matricula);
+            nuevo.setCurp(sel.getCurp());
+            nuevo.setNombre(sel.getNombre());
+            nuevo.setPaterno(sel.getPaterno());
+            nuevo.setMaterno(sel.getMaterno());
+            nuevo.setTelefono(sel.getTelefono());
+            nuevo.setCorreo(sel.getCorreo());
+            nuevo.setNss(sel.getNss());
+            nuevo.setCalle(sel.getCalle());
+            nuevo.setNumero(sel.getNumero());
+            nuevo.setColonia(sel.getColonia());
+            nuevo.setEstado(sel.getEstado());
+            nuevo.setMunicipio(sel.getMunicipio());
+            nuevo.setLocalidad(sel.getLocalidad());
+            nuevo.setCelPadre(sel.getCelPadre());
+            nuevo.setCelMadre(sel.getCelMadre());
+            nuevo.setEdoCivilId(sel.getEdoCivilId());
+            nuevo.setGeneroId(sel.getGeneroId());
+
+            // Iniciales del nuevo alumno (ajusta si necesitas)
+            nuevo.setSemestre(1);
+            nuevo.setEstadoInscripcion("Activo");
+            nuevo.setFechaInscripcion(LocalDate.now());
+            nuevo.setPeriodoId(1);
+            nuevo.setGrupoId(1);
+
+            // 1) Insertar alumno
+            new AlumnoDAO().insert(nuevo);
+
+            // 2 + 3) Borrar pagos del aspirante y luego eliminar aspirante EN UNA TRANSACCIÓN
+            try (var cn = cbtis239.util.DB.get()) {
+                cn.setAutoCommit(false);
+                try {
+                    int folio = sel.getFolio();
+
+                    // 2) borrar pagos del aspirante
+                    int borrados = new cbtis239.dao.PagoDAO().deleteByAspiranteFolio(cn, folio);
+                    System.out.println("Pagos borrados para aspirante " + folio + ": " + borrados);
+
+                    // 3) eliminar aspirante
+                    int rows = new cbtis239.dao.AspiranteDAO().deleteByFolio(cn, folio);
+                    if (rows == 0) throw new SQLException("No existe aspirante con folio " + folio);
+
+                    cn.commit();
+                } catch (SQLException ex) {
+                    cn.rollback();
+                    throw ex;
+                } finally {
+                    cn.setAutoCommit(true);
+                }
+            } catch (SQLException de) {
+                // Si falla esta limpieza no deshacemos la inscripción del alumno
+                showWarning("El alumno fue inscrito, pero no se pudo eliminar al aspirante:\n" + de.getMessage());
+            }
+
+            // 4) (Opcional) Registrar pago ya como alumno
+            try {
+                new PagoBO().registrarPago(matricula);
+            } catch (Exception pe) {
+                showWarning("El alumno fue inscrito, pero no se pudo registrar su pago automático:\n" + pe.getMessage());
+            }
+
+            showInfo("El aspirante fue inscrito correctamente con matrícula " + matricula + ".");
+            recargarTabla();
+
+        } catch (SQLException e) {
+            showError("No se pudo inscribir al aspirante.\n" + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            showError("Error inesperado: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     // Método auxiliar: Generar matrícula
     private String generarMatricula(Aspirante a) {
@@ -237,7 +248,6 @@ public class AspiranteController {
                 + a.getMaterno().substring(0, 1)).toUpperCase();
         return año + iniciales + a.getFolio();
     }
-
 
     @FXML
     public void onGuardar() {
@@ -254,27 +264,21 @@ public class AspiranteController {
     @FXML
     private void onModificar() {
         try {
-            // Verificar que haya un aspirante seleccionado en la tabla
             Aspirante seleccionado = tblAspirantes.getSelectionModel().getSelectedItem();
             if (seleccionado == null) {
                 showError("Selecciona un aspirante de la tabla antes de modificar.");
                 return;
             }
 
-            // Construir objeto desde los campos actuales del formulario
             Aspirante actualizado = buildFromForm();
 
-            // Validar que el folio coincida (PK)
             if (!Objects.equals(actualizado.getFolio(), seleccionado.getFolio())) {
                 showError("No puedes cambiar el Folio (clave primaria). Debes modificar los datos del aspirante seleccionado.");
                 return;
             }
 
-            // Ejecutar la actualización
-            aspiranteBO.guardar(actualizado); // Tu BO ya detecta si existe y hace update
+            aspiranteBO.guardar(actualizado);
             showInfo("Aspirante modificado correctamente: " + actualizado.getNombre());
-
-            // Refrescar tabla y limpiar formulario
             recargarTabla();
             limpiar(true);
 
@@ -284,7 +288,6 @@ public class AspiranteController {
             showError("No se pudo modificar el aspirante:\n" + e.getMessage());
         }
     }
-
 
     @FXML
     public void onEliminar() {
@@ -316,7 +319,6 @@ public class AspiranteController {
             showError("No se pudo abrir el menú:\n" + e.getMessage());
         }
     }
-
 
     // ===== helpers =====
 
@@ -447,8 +449,7 @@ public class AspiranteController {
 
     private void showError(String m) { new Alert(Alert.AlertType.ERROR, m, ButtonType.OK).showAndWait(); }
     private void showInfo(String m) { new Alert(Alert.AlertType.INFORMATION, m, ButtonType.OK).showAndWait(); }
-    private void showWarning(String mensaje) { new Alert(Alert.AlertType.WARNING, mensaje, ButtonType.OK).showAndWait();
-    }
+    private void showWarning(String m) { new Alert(Alert.AlertType.WARNING, m, ButtonType.OK).showAndWait(); }
 
     private void cargarAspirante(int folio) {
         try {

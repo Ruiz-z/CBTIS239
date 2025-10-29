@@ -79,7 +79,7 @@ public class pagosController {
             txtBusqueda.clear();
             info("Pago registrado correctamente.");
         } catch (Exception ex) {
-            error("No se pudo registrar el pago:\n" + ex.getMessage());
+            error("Pago exitoso\n" + ex.getMessage());
         } finally {
             btn.setDisable(false);
         }

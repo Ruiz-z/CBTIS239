@@ -261,5 +261,21 @@ public class PagoDAO {
             try (var rs = ps.executeQuery()) { return rs.next(); }
         }
     }
+    /** Elimina todos los pagos ligados al aspirante (para liberar la FK). */
+    public int deleteByAspiranteFolio(Connection cn, int folio) throws SQLException {
+        String sql = "DELETE FROM sistemaescolar.pago WHERE Aspirante_Folio = ?";
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, folio);
+            return ps.executeUpdate(); // número de pagos borrados
+        }
+    }
+
+    /** Versión cómoda sin transacción externa. */
+    public int deleteByAspiranteFolio(int folio) throws SQLException {
+        try (Connection cn = DB.get()) {
+            return deleteByAspiranteFolio(cn, folio);
+        }
+    }
+
 
 }
