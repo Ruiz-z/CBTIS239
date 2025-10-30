@@ -192,6 +192,103 @@ public class AlumnoDAO {
             return ps.executeUpdate();
         }
     }
+    public int actualizarTrasPago(Connection cn, String matricula, int nuevoPeriodoId) throws SQLException {
+        String sql =
+                """
+                UPDATE sistemaescolar.alumno a
+                JOIN sistemaescolar.periodo pnuevo ON pnuevo.idPeriodo = ?
+                LEFT JOIN sistemaescolar.periodo pactual ON pactual.idPeriodo = a.Periodo_idPeriodo
+                /* diff = num de periodos con inicio <= pnuevo - num de periodos con inicio <= pactual */
+                SET a.Semestre =
+                    CASE
+                        WHEN a.Semestre IS NULL THEN 1
+                        ELSE a.Semestre + GREATEST(
+                            (
+                              (SELECT COUNT(*) FROM sistemaescolar.periodo x WHERE x.Inicio <= pnuevo.Inicio)
+                              -
+                              (SELECT COUNT(*) FROM sistemaescolar.periodo y WHERE y.Inicio <= COALESCE(pactual.Inicio, pnuevo.Inicio))
+                            ),
+                            0
+                        )
+                    END,
+                    a.Periodo_idPeriodo = ?,
+                    a.EstadoInscripcion = 'Activo'
+                WHERE a.Matricula = ?
+                """;
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, nuevoPeriodoId);
+            ps.setInt(2, nuevoPeriodoId);
+            ps.setString(3, matricula);
+            return ps.executeUpdate();
+        }
+    }
+
+    /** Versión cómoda sin transacción externa. */
+    public int actualizarTrasPago(String matricula, int nuevoPeriodoId) throws SQLException {
+        try (Connection cn = DB.get()) {
+            return actualizarTrasPago(cn, matricula, nuevoPeriodoId);
+        }
+    }
+
+    public int sincronizarEstadoPorPagoVigente(java.sql.Connection cn) throws java.sql.SQLException {
+        int total = 0;
+
+        // 1) periodo vigente por fecha
+        Integer periodoActual = null;
+        try (var ps = cn.prepareStatement(
+                "SELECT idPeriodo FROM sistemaescolar.periodo " +
+                        "WHERE CURDATE() BETWEEN Inicio AND Fin LIMIT 1");
+             var rs = ps.executeQuery()) {
+            if (rs.next()) periodoActual = rs.getInt(1);
+        }
+        if (periodoActual == null) return 0;
+
+        // 2) Activar a quienes SÍ pagaron el periodo vigente y fijar Periodo_idPeriodo = vigente
+        try (var ps = cn.prepareStatement(
+                "UPDATE sistemaescolar.alumno a " +
+                        "JOIN sistemaescolar.pago p ON p.Alumno_Matricula = a.Matricula " +
+                        "  AND p.Periodo_idPeriodo = ? AND p.Estatus = 1 " +
+                        "SET a.EstadoInscripcion = 'Activo', a.Periodo_idPeriodo = ?")) {
+            ps.setInt(1, periodoActual);
+            ps.setInt(2, periodoActual);
+            total += ps.executeUpdate();
+        }
+
+        // 3) Poner INACTIVO a los que NO pagaron el periodo vigente
+        try (var ps = cn.prepareStatement(
+                "UPDATE sistemaescolar.alumno a " +
+                        "LEFT JOIN sistemaescolar.pago p ON p.Alumno_Matricula = a.Matricula " +
+                        "  AND p.Periodo_idPeriodo = ? AND p.Estatus = 1 " +
+                        "SET a.EstadoInscripcion = 'Inactivo' " +
+                        "WHERE p.idPago IS NULL")) {
+            ps.setInt(1, periodoActual);
+            total += ps.executeUpdate();
+        }
+
+        return total;
+    }
+
+    public int sincronizarEstadoPorPagoVigente() throws java.sql.SQLException {
+        try (var cn = cbtis239.util.DB.get()) {
+            return sincronizarEstadoPorPagoVigente(cn);
+        }
+    }
+    public int sincronizarEstadoConPeriodoVigente(java.sql.Connection cn) throws java.sql.SQLException {
+        return sincronizarEstadoPorPagoVigente(cn);
+    }
+
+    public int sincronizarEstadoConPeriodoVigente() throws java.sql.SQLException {
+        try (var cn = cbtis239.util.DB.get()) {
+            return sincronizarEstadoPorPagoVigente(cn);
+        }
+    }
+    public Integer getPeriodoActualId() throws SQLException {
+        String sql = "SELECT idPeriodo FROM sistemaescolar.periodo WHERE CURDATE() BETWEEN Inicio AND Fin LIMIT 1";
+        try (var cn = DB.get(); var ps = cn.prepareStatement(sql); var rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        }
+        return null;
+    }
 
 }
 
