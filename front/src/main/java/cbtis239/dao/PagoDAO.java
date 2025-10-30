@@ -202,6 +202,36 @@ public class PagoDAO {
         return lista;
     }
 
+    public int insertPagoAlumnoTx(Connection cn, String matricula, double monto, int periodoId) throws SQLException {
+        String sql = "INSERT INTO sistemaescolar.pago (Estatus, Monto, Alumno_Matricula, Aspirante_Folio, Periodo_idPeriodo) " +
+                "VALUES (1, ?, ?, NULL, ?)";
+        try (var ps = cn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            ps.setBigDecimal(1, new java.math.BigDecimal(monto).setScale(2, java.math.RoundingMode.HALF_UP));
+            ps.setString(2, matricula);
+            ps.setInt(3, periodoId);
+            ps.executeUpdate();
+            try (var k = ps.getGeneratedKeys()) { return k.next() ? k.getInt(1) : 0; }
+        } catch (java.sql.SQLIntegrityConstraintViolationException dup) {
+            // Proviene del UNIQUE uq_pago_alumno_periodo
+            throw new SQLException("DUPLICATE_PAGO_ALUMNO");
+        }
+    }
+
+    public int insertPagoAspiranteTx(Connection cn, int folio, double monto, int periodoId) throws SQLException {
+        String sql = "INSERT INTO sistemaescolar.pago (Estatus, Monto, Alumno_Matricula, Aspirante_Folio, Periodo_idPeriodo) " +
+                "VALUES (1, ?, NULL, ?, ?)";
+        try (var ps = cn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            ps.setBigDecimal(1, new java.math.BigDecimal(monto).setScale(2, java.math.RoundingMode.HALF_UP));
+            ps.setInt(2, folio);
+            ps.setInt(3, periodoId);
+            ps.executeUpdate();
+            try (var k = ps.getGeneratedKeys()) { return k.next() ? k.getInt(1) : 0; }
+        } catch (java.sql.SQLIntegrityConstraintViolationException dup) {
+            // Proviene del UNIQUE uq_pago_aspirante_periodo
+            throw new SQLException("DUPLICATE_PAGO_ASPIRANTE");
+        }
+    }
+
 
 
     public int insertPagoAlumno(String matricula, double monto, int periodoId) throws SQLException {

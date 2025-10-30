@@ -57,33 +57,39 @@ public class pagosController {
     }
 
     @FXML
-    private void onRegistrarPago(ActionEvent e) throws SQLException {
-        Button btn = (Button) e.getSource();
-        btn.setDisable(true);
-        String entrada = txtBusqueda.getText();
-        var pago = pagoBO.registrarPago(entrada);   // <- ya lo tienes
+    private void onRegistrarPago() {
+        String entrada = txtBusqueda.getText() == null ? "" : txtBusqueda.getText().trim();
+        if (entrada.isEmpty()) {
+            info("Ingresa una matrícula o folio.");
+            return;
+        }
 
+        PagoBO bo = new PagoBO();
         try {
-            if (pago.getAlumnoMatricula() != null && !pago.getAlumnoMatricula().isBlank()) {
-                try {
-                    new cbtis239.bo.ReinscripcionBO().reinscribir(pago.getAlumnoMatricula());
-                } catch (Exception ex) {
-                    // No reventamos la UI si falla; solo avisamos
-                    System.err.println("Aviso reinscripción: " + ex.getMessage());
-                }
-            }
-            entrada = txtBusqueda.getText().trim();
-            if (entrada.isEmpty()) { info("Ingrese una matrícula o folio."); return; }
-            pagoBO.registrarPago(entrada);
-            onBuscar();
+            // intenta registrar directamente (la unicidad la valida la BD)
+            Pago p = bo.registrarPago(entrada);
+
+            // ÉXITO
+            info("Pago registrado con éxito para: " + p.getNombre());
+            // refrescar tabla (lista completa del periodo vigente)
+            tablaPagos.setItems(bo.listarTodos());
             txtBusqueda.clear();
-            info("Pago registrado correctamente.");
-        } catch (Exception ex) {
-            error("Pago exitoso\n" + ex.getMessage());
-        } finally {
-            btn.setDisable(false);
+
+        } catch (SQLException e) {
+            String msg = e.getMessage() == null ? "" : e.getMessage();
+
+            // Mensajes de negocio que lanza PagoBO al detectar duplicados
+            if (msg.contains("ya tiene un pago") ||
+                    msg.contains("DUPLICATE_PAGO_ALUMNO") ||
+                    msg.contains("DUPLICATE_PAGO_ASPIRANTE") ||
+                    "23000".equals(e.getSQLState())) {   // por si llega SQLState de constraint
+                error(msg.isBlank() ? "Ya existe un pago registrado para el periodo vigente." : msg);
+            } else {
+                error("No se pudo registrar el pago:\n" + msg);
+            }
         }
     }
+
 
 
     @FXML

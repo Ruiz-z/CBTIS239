@@ -52,56 +52,66 @@ public class PagoBO {
         }
     }
 
+    // En PagoBO
+
     public Pago registrarPago(String entrada) throws SQLException {
         if (entrada == null || entrada.isBlank())
             throw new SQLException("Ingrese una matrícula o folio.");
 
         entrada = entrada.trim();
-        final Integer periodoId = dao.getPeriodoActualId();
+        Integer periodoId = dao.getPeriodoActualId();
         if (periodoId == null) throw new SQLException("No hay un periodo vigente hoy.");
 
-        final boolean esNumero = entrada.matches("\\d+");
+        boolean esNumero = entrada.matches("\\d+");
 
-        // Si es folio, conserva tu lógica tal cual...
-        if (esNumero && dao.existsAspiranteFolio(Integer.parseInt(entrada))) {
-            int folio = Integer.parseInt(entrada);
-            if (dao.existsPagoAspiranteEnPeriodo(folio, periodoId)) {
-                throw new SQLException("Este aspirante ya tiene un pago en el periodo vigente.");
-            }
-            int id = dao.insertPagoAspirante(folio, MONTO_FIJO, periodoId);
-            dao.setAspiranteEstatusPagado(folio);
-            String nombre = dao.nombreCompletoAspirante(folio);
-            return new Pago(id, 1, MONTO_FIJO, null, folio, periodoId, nombre);
-        }
-
-        // Caso ALUMNO (matrícula)
-        if (!dao.existsAlumnoMatricula(entrada))
-            throw new SQLException("La matrícula '" + entrada + "' no existe en alumno.");
-        if (dao.existsPagoAlumnoEnPeriodo(entrada, periodoId))
-            throw new SQLException("Este alumno ya tiene un pago en el periodo vigente.");
-
-        // Transacción: insertar pago + actualizar alumno (semestre/periodo/estado)
-        try (Connection cn = DB.get()) {
+        try (var cn = cbtis239.util.DB.get()) {
+            cn.setAutoCommit(false);
             try {
-                cn.setAutoCommit(false);
+                if (esNumero && dao.existsAspiranteFolio(Integer.parseInt(entrada))) {
+                    int folio = Integer.parseInt(entrada);
 
-                int id = daoInsertPagoAlumnoTx(cn, entrada, MONTO_FIJO, periodoId);
+                    // Intento directo: si ya hay pago, saltará SQLIntegrityConstraintViolationException
+                    int id = dao.insertPagoAspiranteTx(cn, folio, MONTO_FIJO, periodoId);
 
-                // 🔹 aquí actualizamos al alumno según el periodo pagado
-                alumnoDAO.actualizarTrasPago(cn, entrada, periodoId);
+                    // Si quieres, marca pagado al aspirante (opcional)
+                    try (var ps = cn.prepareStatement("UPDATE sistemaescolar.aspirante SET EstatusPago='Pagado' WHERE Folio=?")) {
+                        ps.setInt(1, folio);
+                        ps.executeUpdate();
+                    }
+
+                    cn.commit();
+                    String nombre = dao.nombreCompletoAspirante(folio);
+                    return new Pago(id, 1, MONTO_FIJO, null, folio, periodoId, nombre);
+                }
+
+                // ALUMNO
+                if (!dao.existsAlumnoMatricula(entrada))
+                    throw new SQLException("La matrícula '" + entrada + "' no existe.");
+
+                // Insertar pago (si hay duplicado, se captura abajo)
+                int id = dao.insertPagoAlumnoTx(cn, entrada, MONTO_FIJO, periodoId);
+
+                // Actualizar alumno tras pago (semestre/periodo/activo)
+                new cbtis239.dao.AlumnoDAO().actualizarTrasPago(cn, entrada, periodoId);
 
                 cn.commit();
-
                 String nombre = dao.nombreCompletoAlumno(entrada);
                 return new Pago(id, 1, MONTO_FIJO, entrada, null, periodoId, nombre);
+
             } catch (SQLException ex) {
                 cn.rollback();
+                // Traducimos DUPLICATE_* a mensajes de negocio
+                if ("DUPLICATE_PAGO_ALUMNO".equals(ex.getMessage()))
+                    throw new SQLException("Este alumno ya tiene un pago registrado en el periodo vigente.");
+                if ("DUPLICATE_PAGO_ASPIRANTE".equals(ex.getMessage()))
+                    throw new SQLException("Este aspirante ya tiene un pago registrado en el periodo vigente.");
                 throw ex;
             } finally {
                 cn.setAutoCommit(true);
             }
         }
     }
+
 
     // helper interno: insertar pago usando la misma conexión
     private int daoInsertPagoAlumnoTx(Connection cn, String matricula, double monto, int periodoId) throws SQLException {
