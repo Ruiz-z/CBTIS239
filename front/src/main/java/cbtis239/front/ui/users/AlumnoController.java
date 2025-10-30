@@ -55,6 +55,14 @@ public class AlumnoController {
 
     @FXML
     public void initialize() {
+        try {
+            new cbtis239.dao.AlumnoDAO().sincronizarEstadoPorPagoVigente();
+            // o si prefieres el nombre "ConPeriodoVigente", ver punto 2 abajo
+            // new cbtis239.dao.AlumnoDAO().sincronizarEstadoConPeriodoVigente();
+        } catch (java.sql.SQLException ignore) {
+            // opcional: loggear
+            System.err.println("No se pudo sincronizar estado: " + ignore.getMessage());
+        }
         // Clip redondo para foto (se recalcula al cambiar el layout)
         imgFoto.layoutBoundsProperty().addListener((o, ov, nv) -> {
             double cx = nv.getWidth()/2.0, cy = nv.getHeight()/2.0, r = Math.min(cx, cy);
