@@ -18,13 +18,15 @@ public class PagoBO {
 
     public String periodoActualNombre() throws SQLException {
         String n = dao.getPeriodoActualNombre();
-        if (n == null) throw new SQLException("No hay un periodo vigente hoy.");
+        if (n == null)
+            throw new SQLException("No hay un periodo vigente hoy.");
         return n;
     }
 
     public int periodoActualId() throws SQLException {
         Integer id = dao.getPeriodoActualId();
-        if (id == null) throw new SQLException("No hay un periodo vigente hoy.");
+        if (id == null)
+            throw new SQLException("No hay un periodo vigente hoy.");
         return id;
     }
 
