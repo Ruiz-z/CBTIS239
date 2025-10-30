@@ -188,7 +188,8 @@ public class AspiranteController {
             nuevo.setSemestre(1);
             nuevo.setEstadoInscripcion("Activo");
             nuevo.setFechaInscripcion(LocalDate.now());
-            nuevo.setPeriodoId(1);
+            int periodoPago = new cbtis239.dao.PagoDAO().getPeriodoActualId();
+            nuevo.setPeriodoId(periodoPago);
             nuevo.setGrupoId(1);
 
             // 1) Insertar alumno

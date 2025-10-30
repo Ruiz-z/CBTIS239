@@ -18,6 +18,7 @@ public class PagoDAO {
         return null;
     }
 
+
     public String getPeriodoActualNombre() throws SQLException {
         String sql = "SELECT Nombre FROM sistemaescolar.periodo WHERE CURDATE() BETWEEN Inicio AND Fin LIMIT 1";
         try (var cn = DB.get(); var ps = cn.prepareStatement(sql); var rs = ps.executeQuery()) {
