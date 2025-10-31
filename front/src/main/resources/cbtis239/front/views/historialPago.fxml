@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.HistorialPagosController"
+            prefWidth="840" prefHeight="480"
+            stylesheets="@/cbtis239/front/css/historialPago.css"
+            styleClass="app-root">
+
+    <!-- Barra superior -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="8" styleClass="topbar">
+            <Label text="Historial de Pagos" styleClass="topbar-title"/>
+        </HBox>
+    </top>
+
+    <!-- Contenido -->
+    <center>
+        <VBox spacing="14" alignment="TOP_LEFT" styleClass="card">
+            <!-- Buscador -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Matrícula o folio:"/>
+                <TextField fx:id="txtBusqueda" prefWidth="260" promptText="Ej. 223001 o 1501"/>
+                <Button fx:id="btnBuscar" text="Buscar" onAction="#onBuscar" styleClass="button-primary"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button text="Volver al menú" onAction="#volverAlMenu"/>
+            </HBox>
+
+            <!-- Tabla -->
+            <TableView fx:id="tblHistorial" prefHeight="360">
+                <columns>
+                    <TableColumn fx:id="colNombre"  text="Nombre"  prefWidth="360"/>
+                    <TableColumn fx:id="colMonto"   text="Monto"   prefWidth="160"/>
+                    <TableColumn fx:id="colPeriodo" text="Periodo" prefWidth="240"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- Margen externo agradable -->
+    <padding>
+        <Insets top="12" right="12" bottom="12" left="12"/>
+    </padding>
+</BorderPane>

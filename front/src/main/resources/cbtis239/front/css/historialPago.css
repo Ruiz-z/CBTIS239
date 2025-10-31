@@ -1,0 +1,86 @@
+/* pagos-historial.css */
+
+/* --- Colores base --- */
+:root {
+    -app-bg:          #f2f3f7;
+    -app-topbar:      #8B0000; /* rojo CBTIS */
+    -app-topbar-text: #ffffff;
+    -app-card:        #ffffff;
+    -app-text:        #222;
+    -app-border:      #dcdde1;
+    -app-primary:     #8B0000;
+    -app-primary-h:   #a20f0f;
+}
+
+/* --- Fondo general --- */
+.app-root {
+    -fx-background-color: -app-bg;
+}
+
+/* --- Topbar --- */
+.topbar {
+    -fx-background-color: -app-topbar;
+    -fx-padding: 10 14;
+}
+
+.topbar-title {
+    -fx-text-fill: -app-topbar-text;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+/* --- Contenedor central tipo "card" --- */
+.card {
+    -fx-background-color: -app-card;
+    -fx-background-radius: 8;
+    -fx-padding: 16 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0.15, 0, 2);
+}
+
+/* --- Inputs --- */
+.text-field {
+    -fx-background-radius: 6;
+}
+.label {
+    -fx-text-fill: -app-text;
+}
+
+/* --- Botones --- */
+.button {
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.button-primary {
+    -fx-background-color: -app-primary;
+    -fx-text-fill: white;
+}
+.button-primary:hover {
+    -fx-background-color: -app-primary-h;
+}
+
+/* --- Tabla --- */
+.table-view {
+    -fx-background-insets: 0;
+    -fx-background-radius: 8;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 8;
+}
+.table-view:focused {
+    -fx-background-insets: 0, 1, 2;
+}
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f1f2f6);
+    -fx-background-radius: 8 8 0 0;
+    -fx-border-color: -app-border;
+    -fx-border-width: 0 0 1 0;
+}
+.table-view .column-header, .table-view .filler {
+    -fx-size: 36px;
+}
+.table-view .table-row-cell:selected {
+    -fx-background-color: rgba(139,0,0,0.12);
+}
+.table-view .table-row-cell:hover {
+    -fx-background-color: rgba(139,0,0,0.06);
+}
