@@ -2,10 +2,7 @@ package cbtis239.front.ui.users;
 
 import cbtis239.bo.AspiranteBO;
 import cbtis239.bo.PagoBO;
-import cbtis239.dao.AlumnoDAO;
-import cbtis239.dao.AspiranteDAO;
-import cbtis239.dao.CatalogoDAO;
-import cbtis239.dao.PagoDAO;                 // <-- añadido
+import cbtis239.dao.*;
 import cbtis239.model.Alumno;
 import cbtis239.model.Aspirante;
 import cbtis239.model.Catalogo;
@@ -147,23 +144,88 @@ public class AspiranteController {
     @FXML
     private void onInscribir() {
         try {
-            // Validar selección
-            Aspirante sel = tblAspirantes.getSelectionModel().getSelectedItem();
-            if (sel == null) {
+            // 1️⃣ Validar selección
+            Aspirante selTabla = tblAspirantes.getSelectionModel().getSelectedItem();
+            if (selTabla == null) {
                 showWarning("Selecciona un aspirante de la tabla para inscribir.");
                 return;
             }
 
-            // Validar pago
+            // 🔹 Recargar datos completos del aspirante (con sus opciones de especialidad)
+            AspiranteBO aspiranteBO = new AspiranteBO();
+            Aspirante sel = aspiranteBO.buscar(selTabla.getFolio());
+            if (sel == null) {
+                showError("No se encontró el aspirante en la base de datos.");
+                return;
+            }
+
+            // 2️⃣ Validar pago
             if (sel.getEstatusPago() == null || !sel.getEstatusPago().equalsIgnoreCase("Pagado")) {
                 showWarning("El aspirante aún no ha completado el pago. Solo los aspirantes con estatus 'Pagado' pueden ser inscritos.");
                 return;
             }
 
-            // Crear matrícula automática
-            String matricula = generarMatricula(sel);
+            // 3️⃣ Buscar grupo disponible según las opciones de especialidad
+            GrupoDao grupoDAO = new GrupoDao();
+            AlumnoDAO alumnoDAO = new AlumnoDAO();
 
-            // Construir Alumno desde el aspirante
+            Integer[] opciones = {
+                    sel.getOpcionEspecialidad1(),
+                    sel.getOpcionEspecialidad2(),
+                    sel.getOpcionEspecialidad3(),
+                    sel.getOpcionEspecialidad4()
+            };
+
+            Integer idEspecialidadFinal = null;
+            Integer idGrupoAsignado = null;
+
+            System.out.println("=== Inicio búsqueda de grupo disponible ===");
+            for (Integer idEsp : opciones) {
+                if (idEsp == null || idEsp == 0) continue;
+
+                System.out.println("Buscando grupo disponible para especialidad ID: " + idEsp);
+                Integer grupoDisponible = grupoDAO.grupoDisponible(idEsp);
+
+                if (grupoDisponible != null) {
+                    idEspecialidadFinal = idEsp;
+                    idGrupoAsignado = grupoDisponible;
+                    System.out.println("✅ Grupo asignado: " + grupoDisponible + " (especialidad " + idEsp + ")");
+                    break;
+                } else {
+                    System.out.println("❌ No hay cupo en especialidad " + idEsp);
+                }
+            }
+            System.out.println("=== Fin búsqueda ===");
+
+            if (idGrupoAsignado == null || idEspecialidadFinal == null) {
+                showError("❌ No hay cupo en ninguna de las especialidades seleccionadas.");
+                return;
+            }
+
+            // 4️⃣ Generar matrícula numérica
+
+            // 4️⃣ Generar matrícula automática (evita duplicados)
+            AlumnoDAO alumnoDAO2 = new AlumnoDAO();
+
+            int año = LocalDate.now().getYear() % 100; // ejemplo: 2025 → 25
+            int idEsp = idEspecialidadFinal;
+
+// Obtener consecutivo actual
+            int consecutivo = alumnoDAO2.obtenerConsecutivo(año, idEsp) + 1;
+
+// Construir matrícula (AAEECCC → Año + Especialidad + Consecutivo)
+            String matricula = String.format("%02d%02d%03d", año, idEsp, consecutivo);
+
+// Verificar si ya existe, por seguridad
+            while (alumnoDAO2.existe(matricula)) {
+                consecutivo++;
+                matricula = String.format("%02d%02d%03d", año, idEsp, consecutivo);
+            }
+
+            System.out.println("✅ Matrícula generada automáticamente: " + matricula);
+
+
+            // 5️⃣ Construir nuevo alumno desde el aspirante
             Alumno nuevo = new Alumno();
             nuevo.setMatricula(matricula);
             nuevo.setCurp(sel.getCurp());
@@ -184,28 +246,29 @@ public class AspiranteController {
             nuevo.setEdoCivilId(sel.getEdoCivilId());
             nuevo.setGeneroId(sel.getGeneroId());
 
-            // Iniciales del nuevo alumno (ajusta si necesitas)
+            // Datos del nuevo alumno
             nuevo.setSemestre(1);
             nuevo.setEstadoInscripcion("Activo");
             nuevo.setFechaInscripcion(LocalDate.now());
+            nuevo.setCarrera(String.valueOf(idEspecialidadFinal));
+            nuevo.setGrupoId(idGrupoAsignado);
             int periodoPago = new cbtis239.dao.PagoDAO().getPeriodoActualId();
             nuevo.setPeriodoId(periodoPago);
-            nuevo.setGrupoId(1);
 
-            // 1) Insertar alumno
-            new AlumnoDAO().insert(nuevo);
+            // 6️⃣ Insertar alumno
+            alumnoDAO.insert(nuevo);
 
-            // 2 + 3) Borrar pagos del aspirante y luego eliminar aspirante EN UNA TRANSACCIÓN
+            // 7️⃣ Eliminar pagos y aspirante (transacción)
             try (var cn = cbtis239.util.DB.get()) {
                 cn.setAutoCommit(false);
                 try {
                     int folio = sel.getFolio();
 
-                    // 2) borrar pagos del aspirante
+                    // Eliminar pagos
                     int borrados = new cbtis239.dao.PagoDAO().deleteByAspiranteFolio(cn, folio);
                     System.out.println("Pagos borrados para aspirante " + folio + ": " + borrados);
 
-                    // 3) eliminar aspirante
+                    // Eliminar aspirante
                     int rows = new cbtis239.dao.AspiranteDAO().deleteByFolio(cn, folio);
                     if (rows == 0) throw new SQLException("No existe aspirante con folio " + folio);
 
@@ -217,22 +280,21 @@ public class AspiranteController {
                     cn.setAutoCommit(true);
                 }
             } catch (SQLException de) {
-                // Si falla esta limpieza no deshacemos la inscripción del alumno
                 showWarning("El alumno fue inscrito, pero no se pudo eliminar al aspirante:\n" + de.getMessage());
             }
 
-            // 4) (Opcional) Registrar pago ya como alumno
+            // 8️⃣ Registrar pago del nuevo alumno
             try {
                 new PagoBO().registrarPago(matricula);
             } catch (Exception pe) {
                 showWarning("El alumno fue inscrito, pero no se pudo registrar su pago automático:\n" + pe.getMessage());
             }
 
-            showInfo("El aspirante fue inscrito correctamente con matrícula " + matricula + ".");
+            showInfo("✅ El aspirante fue inscrito correctamente.\nMatrícula: " + matricula);
             recargarTabla();
 
         } catch (SQLException e) {
-            showError("No se pudo inscribir al aspirante.\n" + e.getMessage());
+            showError("Error SQL al inscribir aspirante:\n" + e.getMessage());
             e.printStackTrace();
         } catch (Exception e) {
             showError("Error inesperado: " + e.getMessage());
@@ -240,15 +302,21 @@ public class AspiranteController {
         }
     }
 
-    // Método auxiliar: Generar matrícula
-    private String generarMatricula(Aspirante a) {
-        // Ejemplo: 25HES12 (año + iniciales + folio)
-        String año = String.valueOf(LocalDate.now().getYear()).substring(2);
-        String iniciales = (a.getNombre().substring(0, 1)
-                + a.getPaterno().substring(0, 1)
-                + a.getMaterno().substring(0, 1)).toUpperCase();
-        return año + iniciales + a.getFolio();
+
+    // 🔹 Generar matrícula numérica: año + especialidad + consecutivo
+    private String generarMatricula(int idEspecialidad) throws SQLException {
+        // Año actual (solo los dos últimos dígitos)
+        int año = LocalDate.now().getYear() % 100;
+
+        // Obtener cuántos alumnos hay ya en esa especialidad este año
+        AlumnoDAO alumnoDAO = new AlumnoDAO();
+        int consecutivo = alumnoDAO.obtenerConsecutivo(año, idEspecialidad) + 1;
+
+        // Formato final: AAEECCC → año, especialidad, consecutivo
+        // Ejemplo: 2501005 = año 2025, especialidad 01, alumno 005
+        return String.format("%02d%02d%03d", año, idEspecialidad, consecutivo);
     }
+
 
     @FXML
     public void onGuardar() {
