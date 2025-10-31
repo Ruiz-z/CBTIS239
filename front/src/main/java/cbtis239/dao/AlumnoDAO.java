@@ -290,5 +290,25 @@ public class AlumnoDAO {
         return null;
     }
 
+    // ============================================================
+    // 🔹 Obtener consecutivo de matrícula por año y especialidad
+    // ============================================================
+    public int obtenerConsecutivo(int año, int idEspecialidad) throws SQLException {
+        String sql = """
+            SELECT COUNT(*) AS total
+            FROM sistemaescolar.alumno
+            WHERE YEAR(FechaInscripcion) = ? AND Carrera = ?
+        """;
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, 2000 + año); // ejemplo: 25 → 2025
+            ps.setString(2, String.valueOf(idEspecialidad)); // usa el campo Carrera como identificador
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("total");
+            }
+        }
+        return 0;
+    }
+
 }
 
