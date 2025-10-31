@@ -41,7 +41,7 @@ public class MenuSFController {
     @FXML
     private void openRegistrarPago(ActionEvent event) {
         try {
-            System.out.println("Intentando cargar pagos.fxml...");
+            System.out.println("Intentando cargar pagos");
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/cbtis239/front/views/pagos.fxml")
             );
@@ -58,7 +58,7 @@ public class MenuSFController {
             newStage.setTitle("Registrar Pagos");
             newStage.show();
 
-            // 👇 cerrar el menú actual
+
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
 
@@ -70,8 +70,33 @@ public class MenuSFController {
 
 
     @FXML
-    private void openEstadoPago(ActionEvent event) {
-        loadContent("/cbtis239/front/views/finanzas/EstadoPago.fxml");
+    private void openHistorialPago(ActionEvent event) {
+        try {
+            System.out.println("Intentando cargar Historial pagos.");
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/cbtis239/front/views/historialPago.fxml")
+            );
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(
+                    getClass().getResource("/cbtis239/front/css/historialPago.css").toExternalForm()
+            );
+
+            Stage newStage = new Stage();
+            newStage.setScene(scene);
+            newStage.setMaximized(true);
+            newStage.setTitle("Historial de pagos");
+            newStage.show();
+
+
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("No se pudo abrir Historial de pagos: " + e.getMessage());
+        }
     }
 
     @FXML

@@ -28,25 +28,25 @@
                 <graphic><FontIcon iconLiteral="fas-cash-register" iconSize="20"/></graphic>
             </ToggleButton>
 
-            <ToggleButton text="Ver Estado de Pago" toggleGroup="$menuGroup"
-                          onAction="#openEstadoPago"
-                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fas-file-invoice-dollar" iconSize="20"/></graphic>
-            </ToggleButton>
+<!--            <ToggleButton text="Ver Estado de Pago" toggleGroup="$menuGroup"-->
+<!--                          onAction="#openEstadoPago"-->
+<!--                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">-->
+<!--                <graphic><FontIcon iconLiteral="fas-file-invoice-dollar" iconSize="20"/></graphic>-->
+<!--            </ToggleButton>-->
 
             <ToggleButton text="Historial" toggleGroup="$menuGroup"
-
+                          onAction = "#openHistorialPago"
                           styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
                 <graphic><FontIcon iconLiteral="fas-history" iconSize="20"/></graphic>
             </ToggleButton>
 
-            <ToggleButton text="Configuración" toggleGroup="$menuGroup"
+<!--            <ToggleButton text="Configuración" toggleGroup="$menuGroup"-->
 
-                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">
-                <graphic><FontIcon iconLiteral="fas-cogs" iconSize="20"/></graphic>
-            </ToggleButton>
+<!--                          styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10">-->
+<!--                <graphic><FontIcon iconLiteral="fas-cogs" iconSize="20"/></graphic>-->
+<!--            </ToggleButton>-->
 
-            <Separator/>
+<!--            <Separator/>-->
 
             <ToggleButton text="Cerrar sesión" toggleGroup="$menuGroup"
                           onAction="#onCerrarSesion"

@@ -3,12 +3,14 @@ package cbtis239.bo;
 import cbtis239.dao.AlumnoDAO;
 import cbtis239.dao.PagoDAO;
 import cbtis239.model.Pago;
+import cbtis239.model.PagoHist;
 import cbtis239.util.DB;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 public class PagoBO {
 
@@ -124,5 +126,9 @@ public class PagoBO {
             ps.executeUpdate();
             try (var k = ps.getGeneratedKeys()) { return k.next() ? k.getInt(1) : 0; }
         }
+    }
+    public ObservableList<PagoHist> buscarHistorialTodosPeriodos(String entrada) throws SQLException {
+        List<PagoHist> raw = dao.buscarHistorialTodosPeriodos(entrada);
+        return FXCollections.observableArrayList(raw);
     }
 }

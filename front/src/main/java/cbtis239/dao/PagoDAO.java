@@ -307,6 +307,89 @@ public class PagoDAO {
             return deleteByAspiranteFolio(cn, folio);
         }
     }
+    public List<cbtis239.model.PagoHist> buscarHistorialTodosPeriodos(String entrada) throws SQLException {
+        boolean esNumero = entrada != null && entrada.matches("\\d+");
 
+        String sqlAlumno =
+                "SELECT " +
+                        "  COALESCE(CONCAT_WS(' ', a.Nombre, a.Paterno, a.Materno), CONCAT('Alumno ', a.Matricula)) AS NombreCompleto, " +
+                        "  p.Monto, " +
+                        "  per.Nombre AS Periodo, " +
+                        "  p.idPago AS idPago, " +
+                        "  a.Matricula AS Matricula, " +
+                        "  NULL AS Folio " +
+                        "FROM sistemaescolar.pago p " +
+                        "JOIN sistemaescolar.alumno a   ON a.Matricula = p.Alumno_Matricula " +
+                        "JOIN sistemaescolar.periodo per ON per.idPeriodo = p.Periodo_idPeriodo " +
+                        "WHERE a.Matricula = ? " +
+                        "ORDER BY per.Inicio DESC, p.idPago DESC";
+
+        String sqlAspirante =
+                "SELECT " +
+                        "  COALESCE(CONCAT_WS(' ', s.Nombre, s.Paterno, s.Materno), CONCAT('Aspirante ', s.Folio)) AS NombreCompleto, " +
+                        "  p.Monto, " +
+                        "  per.Nombre AS Periodo, " +
+                        "  p.idPago AS idPago, " +
+                        "  NULL AS Matricula, " +
+                        "  s.Folio AS Folio " +
+                        "FROM sistemaescolar.pago p " +
+                        "JOIN sistemaescolar.aspirante s ON s.Folio = p.Aspirante_Folio " +
+                        "JOIN sistemaescolar.periodo per ON per.idPeriodo = p.Periodo_idPeriodo " +
+                        "WHERE s.Folio = ? " +
+                        "ORDER BY per.Inicio DESC, p.idPago DESC";
+
+        List<cbtis239.model.PagoHist> lista = new ArrayList<>();
+        try (Connection cn = DB.get()) {
+
+            // Si NO es número: es matrícula segura
+            if (!esNumero) {
+                try (PreparedStatement ps = cn.prepareStatement(sqlAlumno)) {
+                    ps.setString(1, entrada);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        while (rs.next()) {
+                            String nombre = rs.getString("NombreCompleto");
+                            double monto = rs.getBigDecimal("Monto") != null ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
+                            String periodo = rs.getString("Periodo");
+                            int idPago = rs.getInt("idPago");
+                            String mat = rs.getString("Matricula");
+                            lista.add(new cbtis239.model.PagoHist(nombre, monto, periodo, idPago, mat, null));
+                        }
+                    }
+                }
+                return lista;
+            }
+
+            // Es número: intenta por folio (aspirante)...
+            try (PreparedStatement ps = cn.prepareStatement(sqlAspirante)) {
+                ps.setInt(1, Integer.parseInt(entrada));
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        String nombre = rs.getString("NombreCompleto");
+                        double monto = rs.getBigDecimal("Monto") != null ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
+                        String periodo = rs.getString("Periodo");
+                        int idPago = rs.getInt("idPago");
+                        Integer folio = rs.getInt("Folio");
+                        lista.add(new cbtis239.model.PagoHist(nombre, monto, periodo, idPago, null, folio));
+                    }
+                }
+            }
+
+            // ...y también por matrícula numérica.
+            try (PreparedStatement ps = cn.prepareStatement(sqlAlumno)) {
+                ps.setString(1, entrada);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        String nombre = rs.getString("NombreCompleto");
+                        double monto = rs.getBigDecimal("Monto") != null ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
+                        String periodo = rs.getString("Periodo");
+                        int idPago = rs.getInt("idPago");
+                        String mat = rs.getString("Matricula");
+                        lista.add(new cbtis239.model.PagoHist(nombre, monto, periodo, idPago, mat, null));
+                    }
+                }
+            }
+        }
+        return lista;
+    }
 
 }
