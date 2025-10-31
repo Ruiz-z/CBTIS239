@@ -320,7 +320,7 @@ public class AlumnoController {
                 return;
             }
 
-            // 🔹 Rellenar los campos
+            // 🔹 Rellenar los campos generales
             txtMatricula.setText(a.getMatricula());
             txtCurp.setText(a.getCurp());
             txtNombre.setText(a.getNombre());
@@ -335,7 +335,7 @@ public class AlumnoController {
             cmbGenero.getSelectionModel().select(matchId(cmbGenero, a.getGeneroId()));
             dpFechaInscripcion.setValue(a.getFechaInscripcion());
 
-            // Especialidad por nombre
+            // 🔹 Especialidad (por nombre)
             if (a.getCarrera() != null) {
                 for (Catalogo c : cmbEspecialidad.getItems()) {
                     if (Objects.equals(c.getNombre(), a.getCarrera())) {
@@ -343,11 +343,17 @@ public class AlumnoController {
                         break;
                     }
                 }
-                onEspecialidadChange();
-            }
-            cmbGrupo.getSelectionModel().select(matchId(cmbGrupo, a.getGrupoId()));
 
-            // Dirección/teléfonos
+                // 🔹 Cargar grupos de esa especialidad
+                onEspecialidadChange();
+
+                // 🔹 Seleccionar el grupo actual del alumno
+                if (a.getGrupoId() != null) {
+                    cmbGrupo.getSelectionModel().select(matchId(cmbGrupo, a.getGrupoId()));
+                }
+            }
+
+            // 🔹 Dirección y contacto
             txtCalle.setText(a.getCalle());
             txtNumero.setText(a.getNumero());
             txtColonia.setText(a.getColonia());
@@ -358,7 +364,7 @@ public class AlumnoController {
             txtCelPadre.setText(a.getCelPadre());
             txtCelMadre.setText(a.getCelMadre());
 
-            // Imágenes
+            // 🔹 Imágenes
             pathFoto = a.getFoto();
             pathFirma = a.getFirma();
             loadImage(imgFoto, pathFoto);
