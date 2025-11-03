@@ -83,6 +83,11 @@ public class Menu2Controller {
         openFullScreenStage(event, "/cbtis239/front/views/DocenteMateria.fxml", "Asignar Materias");
     } 
 
+            @FXML
+    private void openReticula(ActionEvent event) {
+        openFullScreenStage(event, "/cbtis239/front/views/Reticula.fxml", "Retículas");
+    } 
+
     // ---- Utilidades para abrir ventanas ----
     private void openFullScreenStage(ActionEvent event, String fxml, String title) {
         try {
