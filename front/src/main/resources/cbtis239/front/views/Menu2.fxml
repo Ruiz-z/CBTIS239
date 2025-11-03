@@ -95,6 +95,12 @@
                 <graphic><FontIcon iconLiteral="fas-calendar-alt" iconSize="18"/></graphic>
             </ToggleButton>
 
+            <!-- Reticula -->
+            <ToggleButton text="Reticulas" toggleGroup="$menuGroup"
+                          onAction="#openReticula" styleClass="nav-btn"
+                          contentDisplay="LEFT" graphicTextGap="10">
+                <graphic><FontIcon iconLiteral="fas-book-open" iconSize="18"/></graphic>
+            </ToggleButton>
             <!-- ===================== -->
             <!-- NUEVOS BOTONES CON EL MISMO ESTILO -->
             <!-- ===================== -->

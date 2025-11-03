@@ -1,0 +1,5 @@
+.table-view { -fx-background-color: white; }
+.table-view .column-header-background .label { -fx-font-weight: bold; }
+.combo-box, .text-field, .button { -fx-font-size: 12px; }
+
+
