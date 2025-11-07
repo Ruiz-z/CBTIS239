@@ -1,0 +1,12 @@
+.box-pill {
+    -fx-padding: 10 18;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #33333322;
+    -fx-effect: dropshadow(gaussian, #00000011, 4, 0.2, 0, 1);
+}
+.box-green { -fx-background-color: #b7f0a5; }
+.box-red   { -fx-background-color: #ffa3a3; }
+.box-white { -fx-background-color: #ffffff; }
+
+.table-view .column-header-background .label { -fx-font-weight: bold; }

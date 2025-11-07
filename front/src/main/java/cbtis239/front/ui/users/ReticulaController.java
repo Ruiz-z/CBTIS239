@@ -1,9 +1,10 @@
 package cbtis239.front.ui.users;
 
 import cbtis239.bo.ReticulaBO;
+import cbtis239.model.MateriaSelectable;
 import cbtis239.model.Opcion;
-import cbtis239.model.OpcionStr;
-import cbtis239.model.Reticula;
+import cbtis239.model.ReticulaAsignadaRow;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,86 +12,60 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReticulaController {
 
-    @FXML private ComboBox<Opcion>    cmbEspecialidad;
-    @FXML private ComboBox<OpcionStr> cmbMateria;
-    @FXML private ComboBox<Integer>   cmbSemestre;
+    @FXML private ComboBox<Opcion>  cmbEspecialidad;
+    @FXML private ComboBox<Integer> cmbSemestre; // null = Todos
 
-    @FXML private TableView<Reticula> tblReticula;
-    @FXML private TableColumn<Reticula, String>  colEspecialidad;
-    @FXML private TableColumn<Reticula, Number>  colSemestre;
-    @FXML private TableColumn<Reticula, String>  colMateria;
+    @FXML private TableView<MateriaSelectable> tblDisponibles;
+    @FXML private TableColumn<MateriaSelectable, Boolean> colDispSel;
+    @FXML private TableColumn<MateriaSelectable, String>  colDispClave;
+    @FXML private TableColumn<MateriaSelectable, String>  colDispNombre;
+
+    @FXML private TableView<ReticulaAsignadaRow> tblAsignadas;
+    @FXML private TableColumn<ReticulaAsignadaRow, Boolean> colAsigSel;
+    @FXML private TableColumn<ReticulaAsignadaRow, String>  colAsigClave;
+    @FXML private TableColumn<ReticulaAsignadaRow, String>  colAsigNombre;
+    @FXML private TableColumn<ReticulaAsignadaRow, Number>  colAsigSem;
 
     private final ReticulaBO bo = new ReticulaBO();
-    private final ObservableList<Reticula> data = FXCollections.observableArrayList();
 
-    private boolean suspendUI = false;
+    private final ObservableList<MateriaSelectable> dispData = FXCollections.observableArrayList();
+    private final ObservableList<ReticulaAsignadaRow> asigData = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
-        // Configurar columnas
-        colEspecialidad.setCellValueFactory(c -> c.getValue().especialidadNombreProperty());
-        colSemestre.setCellValueFactory(c -> c.getValue().semestreProperty());
-        colMateria.setCellValueFactory(c -> c.getValue().materiaNombreProperty());
+        configurarCombos();
+        configurarTablas();   // <- aquí vive la magia del checkbox
+        cargarCatalogos();
+    }
 
-        cargarCombos();
-        configurarRenderers();
-
-        tblReticula.setItems(data);
-        recargarTabla();
-
-        // Listeners protegidos
-        cmbEspecialidad.valueProperty().addListener((o, a, n) -> { if (!suspendUI) aplicarFiltro(); });
-        cmbSemestre.valueProperty().addListener((o, a, n) -> { if (!suspendUI) aplicarFiltro(); });
-
-        // Selección de fila → autollenado
-        tblReticula.getSelectionModel().selectedItemProperty().addListener((o, a, n) -> {
-            if (n == null) return;
-            suspendUI = true;
-            try {
-                seleccionarEspecialidad(n.getEspecialidadClave());
-                seleccionarMateria(n.getMateriaClave());
-
-                if (!cmbSemestre.getItems().contains(n.getSemestre())) {
-                    List<Integer> sems = new ArrayList<>(cmbSemestre.getItems());
-                    sems.add(n.getSemestre());
-                    cmbSemestre.setItems(FXCollections.observableArrayList(sems));
-                }
-                cmbSemestre.getSelectionModel().select(Integer.valueOf(n.getSemestre()));
-            } finally {
-                suspendUI = false;
+    // ---------- Combos ----------
+    private void configurarCombos() {
+        // Especialidad
+        cmbEspecialidad.setCellFactory(lv -> new ListCell<>() {
+            @Override protected void updateItem(Opcion it, boolean empty) {
+                super.updateItem(it, empty);
+                setText(empty || it==null ? "" : it.getNombre());
             }
         });
-    }
+        cmbEspecialidad.setButtonCell(new ListCell<>() {
+            @Override protected void updateItem(Opcion it, boolean empty) {
+                super.updateItem(it, empty);
+                setText(empty || it==null ? "" : it.getNombre());
+            }
+        });
 
-    private void cargarCombos() {
-        try {
-            cmbEspecialidad.setItems(FXCollections.observableArrayList(bo.listarEspecialidades()));
-            cmbMateria.setItems(FXCollections.observableArrayList(bo.listarMaterias()));
-
-            List<Integer> sems = new ArrayList<>();
-            sems.add(null); // opción “Todos”
-            for (int i = 1; i <= 6; i++) sems.add(i);
-            cmbSemestre.setItems(FXCollections.observableArrayList(sems));
-            cmbSemestre.getSelectionModel().select(null);
-        } catch (SQLException e) {
-            error("No se pudieron cargar catálogos", e.getMessage());
-        }
-    }
-
-    private void configurarRenderers() {
-        setupComboOpcion(cmbEspecialidad);
-        setupComboOpcionStr(cmbMateria);
-
-        // Combo Semestre con “Todos”
+        // Semestre con “Todos”
         StringConverter<Integer> conv = new StringConverter<>() {
             @Override public String toString(Integer val) { return val == null ? "Todos" : String.valueOf(val); }
             @Override public Integer fromString(String s) {
@@ -111,86 +86,116 @@ public class ReticulaController {
                 setText(empty ? "" : conv.toString(it));
             }
         });
+
+        // Filtros
+        cmbEspecialidad.valueProperty().addListener((o,a,n) -> recargarListas());
+        cmbSemestre.valueProperty().addListener((o,a,n) -> recargarAsignadas());
     }
 
-    private void seleccionarEspecialidad(int clave) {
-        for (Opcion o : cmbEspecialidad.getItems())
-            if (o.getId() == clave) { cmbEspecialidad.getSelectionModel().select(o); return; }
-    }
-    private void seleccionarMateria(String clave) {
-        for (OpcionStr o : cmbMateria.getItems())
-            if (o.getId().equals(clave)) { cmbMateria.getSelectionModel().select(o); return; }
+    // ---------- Tablas / Checkboxes ----------
+    private void configurarTablas() {
+        // Hacer las tablas editables para que el CheckBoxTableCell reciba los clics
+        tblDisponibles.setEditable(true);
+        tblAsignadas.setEditable(true);
+
+        // DISPO: usar factory con índice -> devuelve el BooleanProperty correcto de esa fila
+        colDispSel.setEditable(true);
+        colDispSel.setCellValueFactory(cd -> cd.getValue().selectedProperty());
+        colDispSel.setCellFactory(CheckBoxTableCell.forTableColumn(index ->
+                dispData.get(index).selectedProperty()
+        ));
+        colDispClave.setCellValueFactory(p -> p.getValue().claveProperty());
+        colDispNombre.setCellValueFactory(p -> p.getValue().nombreProperty());
+        tblDisponibles.setItems(dispData);
+
+        // ASIG: igual que arriba
+        colAsigSel.setEditable(true);
+        colAsigSel.setCellValueFactory(cd -> cd.getValue().selectedProperty());
+        colAsigSel.setCellFactory(CheckBoxTableCell.forTableColumn(index ->
+                asigData.get(index).selectedProperty()
+        ));
+        colAsigClave.setCellValueFactory(p -> p.getValue().materiaClaveProperty());
+        colAsigNombre.setCellValueFactory(p -> p.getValue().materiaNombreProperty());
+        colAsigSem.setCellValueFactory(p -> new ReadOnlyObjectWrapper<>(p.getValue().semestreProperty().get()));
+        tblAsignadas.setItems(asigData);
     }
 
-    private void aplicarFiltro() {
+    // ---------- Datos ----------
+    private void cargarCatalogos() {
+        try {
+            cmbEspecialidad.setItems(FXCollections.observableArrayList(bo.listarEspecialidades()));
+            List<Integer> sems = new ArrayList<>();
+            sems.add(null); for (int i=1; i<=6; i++) sems.add(i);
+            cmbSemestre.setItems(FXCollections.observableArrayList(sems));
+            cmbSemestre.getSelectionModel().select(null);
+        } catch (SQLException e) {
+            error("No se pudieron cargar catálogos", e.getMessage());
+        }
+    }
+
+    private void recargarListas() {
+        Opcion esp = cmbEspecialidad.getValue();
+        if (esp == null) { dispData.clear(); asigData.clear(); return; }
+        try {
+            dispData.setAll(bo.listarDisponibles(esp.getId()));
+            recargarAsignadas();
+        } catch (SQLException e) {
+            error("Error al cargar materias disponibles", e.getMessage());
+        }
+    }
+
+    private void recargarAsignadas() {
+        Opcion esp = cmbEspecialidad.getValue();
+        if (esp == null) { asigData.clear(); return; }
+        try {
+            Integer sem = cmbSemestre.getValue(); // null = Todos
+            asigData.setAll(bo.listarAsignadas(esp.getId(), sem));
+        } catch (SQLException e) {
+            error("Error al cargar materias asignadas", e.getMessage());
+        }
+    }
+
+    // ---------- Acciones ----------
+    @FXML
+    private void onAgregarSeleccionadas() {
         Opcion esp = cmbEspecialidad.getValue();
         Integer sem = cmbSemestre.getValue();
+        if (esp == null) { warn("Validación", "Selecciona una especialidad."); return; }
+        if (sem == null) { warn("Validación", "Para agregar, selecciona un semestre específico (no 'Todos')."); return; }
+        if (sem < 1 || sem > 12) { warn("Validación", "Semestre inválido."); return; }
+
+        List<String> claves = dispData.stream()
+                .filter(MateriaSelectable::isSelected)
+                .map(MateriaSelectable::getClave)
+                .collect(Collectors.toList());
+        if (claves.isEmpty()) { warn("Validación", "No hay materias seleccionadas para agregar."); return; }
+
         try {
-            if (esp == null) {
-                data.setAll(bo.listarTodo());
-            } else if (sem == null) {
-                data.setAll(bo.listarPorEspecialidad(esp.getId()));
-            } else {
-                data.setAll(bo.listarPorEspecialidadYSemestre(esp.getId(), sem));
-            }
-            tblReticula.refresh();
+            bo.insertarMuchas(esp.getId(), claves, sem);
+            info("Materias agregadas correctamente.");
+            recargarListas();
         } catch (SQLException e) {
-            error("Error al filtrar", e.getMessage());
+            error("No fue posible agregar las materias", e.getMessage());
         }
     }
 
-    private void recargarTabla() {
-        try {
-            data.setAll(bo.listarTodo());
-            tblReticula.refresh();
-        } catch (SQLException e) {
-            error("Error al cargar retícula", e.getMessage());
-        }
-    }
-
-    // ---- Botones ----
     @FXML
-    private void onAsignar() {
+    private void onQuitarSeleccionadas() {
         Opcion esp = cmbEspecialidad.getValue();
-        OpcionStr mat = cmbMateria.getValue();
-        Integer sem = cmbSemestre.getValue();
-        try {
-            if (esp == null || mat == null || sem == null)
-                throw new IllegalArgumentException("Selecciona especialidad, materia y semestre (no 'Todos').");
-            if (sem < 1 || sem > 12) throw new IllegalArgumentException("Semestre inválido.");
+        if (esp == null) { warn("Validación", "Selecciona una especialidad."); return; }
 
-            bo.asignar(esp.getId(), mat.getId(), sem);
-            aplicarFiltro();
-            info("Materia asignada a la especialidad correctamente.");
-        } catch (IllegalArgumentException iae) {
-            warn("Validación", iae.getMessage());
-        } catch (SQLException e) {
-            error("Error de base de datos", e.getMessage());
-        }
-    }
+        List<String> claves = asigData.stream()
+                .filter(ReticulaAsignadaRow::isSelected)
+                .map(ReticulaAsignadaRow::getMateriaClave)
+                .collect(Collectors.toList());
+        if (claves.isEmpty()) { warn("Validación", "No hay materias seleccionadas para quitar."); return; }
 
-    @FXML
-    private void onEliminar() {
-        Reticula sel = tblReticula.getSelectionModel().getSelectedItem();
         try {
-            int esp; String mat;
-            if (sel != null) {
-                esp = sel.getEspecialidadClave();
-                mat = sel.getMateriaClave();
-            } else {
-                Opcion e = cmbEspecialidad.getValue();
-                OpcionStr m = cmbMateria.getValue();
-                if (e == null || m == null)
-                    throw new IllegalArgumentException("Selecciona una fila o ambos combos (esp+materia).");
-                esp = e.getId(); mat = m.getId();
-            }
-            bo.eliminar(esp, mat);
-            aplicarFiltro();
-            info("Relación eliminada correctamente.");
-        } catch (IllegalArgumentException iae) {
-            warn("Validación", iae.getMessage());
+            bo.eliminarMuchas(esp.getId(), claves);
+            info("Materias quitadas correctamente.");
+            recargarListas();
         } catch (SQLException e) {
-            error("Error al eliminar", e.getMessage());
+            error("No fue posible quitar las materias", e.getMessage());
         }
     }
 
@@ -214,41 +219,7 @@ public class ReticulaController {
         }
     }
 
-    // ---- Renderers para ComboBoxes ----
-    private void setupComboOpcion(ComboBox<Opcion> cb) {
-        cb.setCellFactory(lv -> new ListCell<>() {
-            @Override protected void updateItem(Opcion it, boolean empty) {
-                super.updateItem(it, empty);
-                setText(empty || it==null ? "" : it.getNombre());
-            }
-        });
-        cb.setButtonCell(new ListCell<>() {
-            @Override protected void updateItem(Opcion it, boolean empty) {
-                super.updateItem(it, empty);
-                setText(empty || it==null ? "" : it.getNombre());
-            }
-        });
-    }
-
-    private void setupComboOpcionStr(ComboBox<OpcionStr> cb) {
-        cb.setCellFactory(lv -> new ListCell<>() {
-            @Override protected void updateItem(OpcionStr it, boolean empty) {
-                super.updateItem(it, empty);
-                setText(empty || it==null ? "" : it.getNombre());
-            }
-        });
-        cb.setButtonCell(new ListCell<>() {
-            @Override protected void updateItem(OpcionStr it, boolean empty) {
-                super.updateItem(it, empty);
-                setText(empty || it==null ? "" : it.getNombre());
-            }
-        });
-    }
-
-    // ======================================================
-    // === Métodos de Alertas personalizados (tu versión) ===
-    // ======================================================
-
+    // ====== Alertas personalizadas (tus métodos) ======
     private Stage getStage() {
         javafx.stage.Window w = javafx.stage.Window.getWindows().stream()
                 .filter(javafx.stage.Window::isFocused)
@@ -267,10 +238,7 @@ public class ReticulaController {
         a.setHeaderText(title);
         a.setContentText(msg);
         Stage owner = getStage();
-        if (owner != null) {
-            a.initOwner(owner);
-            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
-        }
+        if (owner != null) { a.initOwner(owner); a.initModality(javafx.stage.Modality.WINDOW_MODAL); }
         a.showAndWait();
     }
 
@@ -279,10 +247,7 @@ public class ReticulaController {
         a.setTitle("Información");
         a.setContentText(msg);
         Stage owner = getStage();
-        if (owner != null) {
-            a.initOwner(owner);
-            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
-        }
+        if (owner != null) { a.initOwner(owner); a.initModality(javafx.stage.Modality.WINDOW_MODAL); }
         a.showAndWait();
     }
 
@@ -291,10 +256,7 @@ public class ReticulaController {
         a.setTitle("Error");
         a.setContentText(msg + (ex != null ? "\n\nDetalle: " + ex : ""));
         Stage owner = getStage();
-        if (owner != null) {
-            a.initOwner(owner);
-            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
-        }
+        if (owner != null) { a.initOwner(owner); a.initModality(javafx.stage.Modality.WINDOW_MODAL); }
         a.showAndWait();
     }
 }

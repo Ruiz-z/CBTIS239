@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.HorarioGruposController"
+            prefWidth="1100" prefHeight="800">
+
+    <top>
+        <VBox spacing="0">
+            <StackPane style="-fx-background-color:#7A0B0B; -fx-padding:12 18;">
+                <Label text="Horario por Grupo"
+                       style="-fx-text-fill:white; -fx-font-size:18; -fx-font-weight:bold;"/>
+            </StackPane>
+
+            <HBox spacing="12" style="-fx-padding:12 18;">
+                <Label text="Especialidad:"/>
+                <ComboBox fx:id="cmbEspecialidad" prefWidth="280"/>
+
+                <Label text="Grupo:"/>
+                <ComboBox fx:id="cmbGrupo" prefWidth="220"/>
+
+                <Label text="Semestre:"/>
+                <Label fx:id="lblSemestre" style="-fx-font-weight:bold;"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Volver al menú" onAction="#onVolverMenu"
+                        style="-fx-background-color:#6c757d; -fx-text-fill:white; -fx-font-weight:bold;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true">
+            <VBox spacing="18" style="-fx-padding:12 18;">
+                <!-- Retícula (8 pastillas) -->
+                <TitledPane text="Retícula del semestre (verde = cubierta, rojo = pendiente, blanco = vacío)" expanded="true">
+                    <content>
+                        <FlowPane fx:id="paneReticula" hgap="10" vgap="10" prefWrapLength="900"
+                                  style="-fx-padding:10;"/>
+                    </content>
+                </TitledPane>
+
+                <!-- Cursos seleccionados -->
+                <TitledPane text="Cursos del grupo (inscritos)" expanded="true">
+                    <content>
+                        <VBox spacing="10">
+                            <TableView fx:id="tblSeleccionados" prefHeight="220">
+                                <columns>
+                                    <TableColumn fx:id="colSelCheck" text="Sel." prefWidth="60"/>
+                                    <TableColumn fx:id="colSelMateria" text="Materia" prefWidth="220"/>
+                                    <TableColumn fx:id="colSelDocente" text="Docente" prefWidth="260"/>
+                                    <TableColumn fx:id="colSelHorario" text="Horario (Días de HH:MM a HH:MM en Aula)" />
+                                </columns>
+                            </TableView>
+                            <HBox spacing="10">
+                                <Button text="Quitar seleccionadas" onAction="#onQuitar"
+                                        style="-fx-background-color:#dc3545; -fx-text-fill:white; -fx-font-weight:bold;"/>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </TitledPane>
+
+                <!-- Cursos disponibles -->
+                <TitledPane text="Cursos disponibles (según retícula)" expanded="true">
+                    <content>
+                        <VBox spacing="10">
+                            <TableView fx:id="tblDisponibles" prefHeight="260">
+                                <columns>
+                                    <TableColumn fx:id="colDispCheck" text="Sel." prefWidth="60"/>
+                                    <TableColumn fx:id="colDispMateria" text="Materia" prefWidth="220"/>
+                                    <TableColumn fx:id="colDispDocente" text="Docente" prefWidth="260"/>
+                                    <TableColumn fx:id="colDispHorario" text="Horario (Días de HH:MM a HH:MM en Aula)"/>
+                                </columns>
+                            </TableView>
+                            <HBox spacing="10">
+                                <Button text="Agregar seleccionadas" onAction="#onAgregar"
+                                        style="-fx-background-color:#28a745; -fx-text-fill:white; -fx-font-weight:bold;"/>
+                                <Button text="Generar automáticamente" onAction="#onGenerarAuto"
+                                        style="-fx-background-color:#007bff; -fx-text-fill:white; -fx-font-weight:bold;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button text="Mover alumno al grupo actual" onAction="#onMoverAlumnoAlGrupoActual"/>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

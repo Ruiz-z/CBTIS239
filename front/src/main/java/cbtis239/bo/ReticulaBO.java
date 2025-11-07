@@ -1,33 +1,38 @@
 package cbtis239.bo;
 
 import cbtis239.dao.ReticulaDao;
+import cbtis239.model.MateriaSelectable;
 import cbtis239.model.Opcion;
-import cbtis239.model.OpcionStr;
-import cbtis239.model.Reticula;
+import cbtis239.model.ReticulaAsignadaRow;
 
 import java.sql.SQLException;
 import java.util.List;
 
+/** BO unificado: catálogos + operaciones masivas de retícula. */
 public class ReticulaBO {
+
     private final ReticulaDao dao = new ReticulaDao();
 
-    public List<Opcion> listarEspecialidades() throws SQLException { return dao.listarEspecialidades(); }
-    public List<OpcionStr> listarMaterias() throws SQLException { return dao.listarMaterias(); }
-
-    public List<Reticula> listarTodo() throws SQLException { return dao.listarTodo(); }
-    public List<Reticula> listarPorEspecialidad(int espClave) throws SQLException { return dao.listarPorEspecialidad(espClave); }
-    public List<Reticula> listarPorEspecialidadYSemestre(int espClave, int semestre) throws SQLException {
-        return dao.listarPorEspecialidadYSemestre(espClave, semestre);
+    // Catálogo
+    public List<Opcion> listarEspecialidades() throws SQLException {
+        return dao.listarEspecialidades();
     }
 
-    public void asignar(int espClave, String matClave, int semestre) throws SQLException {
-        // Como tu PK es (Especialidad_Clave, Materia_Clave), solo puede existir 1 semestre por relación
-        if (dao.existeRelacion(espClave, matClave))
-            throw new SQLException("La especialidad ya tiene asignada esa materia (relación única).");
-        dao.insertar(espClave, matClave, semestre);
+    // Listas
+    public List<MateriaSelectable> listarDisponibles(int espClave) throws SQLException {
+        return dao.listarDisponibles(espClave);
     }
 
-    public void eliminar(int espClave, String matClave) throws SQLException {
-        dao.eliminar(espClave, matClave);
+    public List<ReticulaAsignadaRow> listarAsignadas(int espClave, Integer semestre) throws SQLException {
+        return dao.listarAsignadas(espClave, semestre);
+    }
+
+    // Masivas
+    public void insertarMuchas(int espClave, List<String> clavesMateria, int semestre) throws SQLException {
+        dao.insertarMuchas(espClave, clavesMateria, semestre);
+    }
+
+    public void eliminarMuchas(int espClave, List<String> clavesMateria) throws SQLException {
+        dao.eliminarMuchas(espClave, clavesMateria);
     }
 }
