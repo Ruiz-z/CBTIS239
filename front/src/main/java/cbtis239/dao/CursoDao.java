@@ -337,4 +337,37 @@ public boolean existeCursoIgual(LocalDate periodoInicio, LocalDate periodoFin,
         }
         return out;
     }
+    public int obtenerCursoPorGrupoMateria(int grupoId, String materiaClave) throws SQLException {
+        String sql = """
+        SELECT DISTINCT c.CursoID
+        FROM Curso c
+        JOIN Calificacion cal ON cal.CursoID = c.CursoID
+        JOIN Alumno a ON a.Matricula = cal.Alumno_Matricula
+        JOIN Grupo g ON g.GrupoID = a.GrupoID
+        WHERE a.GrupoID = ?
+          AND c.Docente_has_Materia_Materia_Clave = ?
+        LIMIT 1
+    """;
+
+        System.out.println("[DEBUG] Buscando curso para GrupoID=" + grupoId + " y Materia=" + materiaClave);
+
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setInt(1, grupoId);
+            ps.setString(2, materiaClave);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int id = rs.getInt("CursoID");
+                    System.out.println("[DEBUG] ✅ Curso encontrado: " + id);
+                    return id;
+                } else {
+                    System.out.println("[WARN] ⚠️ No se encontró curso para grupo=" + grupoId + " materia=" + materiaClave);
+                }
+            }
+        }
+        return -1;
+    }
+
 }

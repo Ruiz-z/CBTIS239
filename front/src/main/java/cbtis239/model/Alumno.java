@@ -121,4 +121,13 @@ public class Alumno {
 
     public LocalDate getFechaInscripcion() { return fechaInscripcion; }
     public void setFechaInscripcion(LocalDate fechaInscripcion) { this.fechaInscripcion = fechaInscripcion; }
+
+    public String getNombreCompleto() {
+        StringBuilder sb = new StringBuilder();
+        if (nombre != null) sb.append(nombre.trim());
+        if (paterno != null) sb.append(" ").append(paterno.trim());
+        if (materno != null) sb.append(" ").append(materno.trim());
+        return sb.toString().trim();
+    }
+
 }
