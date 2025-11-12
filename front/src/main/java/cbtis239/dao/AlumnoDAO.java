@@ -6,6 +6,7 @@ import cbtis239.util.DB;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class AlumnoDAO {
@@ -308,6 +309,50 @@ public class AlumnoDAO {
             }
         }
         return 0;
+    }
+    // AlumnoDAO.java
+    public Alumno obtenerPorMatricula(String matricula) throws SQLException {
+        String sql = """
+        SELECT Matricula, Nombre, Paterno, Materno, CURP, NSS, Foto
+        FROM alumno
+        WHERE Matricula = ?
+    """;
+        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+            ps.setString(1, matricula);
+            try (var rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                var a = new Alumno();
+                a.setMatricula(rs.getString("Matricula"));
+                a.setNombre(rs.getString("Nombre"));
+                a.setPaterno(rs.getString("Paterno"));
+                a.setMaterno(rs.getString("Materno"));
+                a.setCurp(rs.getString("CURP"));
+                a.setNss(rs.getString("NSS"));
+                a.setFoto(Arrays.toString(rs.getBytes("Foto"))); // puede ser null
+                return a;
+            }
+        }
+    }
+
+    /* (opcional) Vigencia textual a partir de los periodos cursados.
+       Ajusta el JOIN a tu esquema real (kardex, reinscripcion, alumno_periodo, etc.). */
+    public String vigenciaPorMatricula(String matricula) throws SQLException {
+        String sql = """
+        SELECT MIN(p.Nombre) AS inicio, MAX(p.Nombre) AS fin
+        FROM periodo p
+        JOIN alumno_periodo ap ON ap.idPeriodo = p.idPeriodo
+        WHERE ap.Matricula = ?
+    """;
+        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+            ps.setString(1, matricula);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next() && rs.getString("inicio") != null) {
+                    return rs.getString("inicio") + " - " + rs.getString("fin");
+                }
+            }
+        }
+        // fallback si aún no hay historial
+        return "Sin historial";
     }
 
 }
