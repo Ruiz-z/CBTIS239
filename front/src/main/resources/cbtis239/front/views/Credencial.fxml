@@ -5,10 +5,10 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="740" prefWidth="980" stylesheets="/cbtis239/front/css/Credencial.css" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.CredencialController">
+<BorderPane prefHeight="700" prefWidth="1100" stylesheets="/cbtis239/front/css/Credencial.css" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.CredencialController">
 
     <top>
-        <VBox alignment="CENTER" spacing="2" BorderPane.alignment="CENTER">
+        <VBox alignment="CENTER" spacing="4">
             <Label styleClass="title" text="Credencialización" />
             <Label styleClass="subtitle" text="CENTRO DE BACHILLERATO TECNOLÓGICO industrial y de servicios No. 239" />
         </VBox>
@@ -16,123 +16,132 @@
 
     <center>
         <VBox spacing="18">
-            <!-- ===== Formulario ===== -->
-            <GridPane hgap="16" vgap="10">
-                <padding><Insets topRightBottomLeft="20" /></padding>
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="10" />
+            </padding>
 
+            <!-- ================= FORMULARIO ================= -->
+            <GridPane hgap="14" vgap="10">
                 <columnConstraints>
-                    <ColumnConstraints percentWidth="24" />
-                    <ColumnConstraints percentWidth="26" />
-                    <ColumnConstraints percentWidth="22" />
-                    <ColumnConstraints percentWidth="28" />
+                    <ColumnConstraints prefWidth="400" />
+                    <ColumnConstraints prefWidth="680" />
                 </columnConstraints>
 
                 <!-- Foto -->
-                <VBox spacing="8" GridPane.rowSpan="7">
-                    <StackPane styleClass="photo-frame-lg">
-                        <ImageView fx:id="imgAlumno" fitHeight="280" fitWidth="220" />
+                <VBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <StackPane prefHeight="195.0" prefWidth="393.0" styleClass="photo-frame">
+                        <ImageView fx:id="imgAlumno" fitHeight="161.0" fitWidth="168.0" preserveRatio="true" />
                     </StackPane>
-                    <Button maxWidth="1.0" onAction="#onCargarImagen" text="Cargar imagen" />
+                    <Button maxWidth="60" onAction="#onCargarImagen" text="..." />
                 </VBox>
 
-                <!-- Matrícula -->
-                <Label text="Matrícula (No. control):" GridPane.columnIndex="1" />
-                <HBox spacing="8" GridPane.columnIndex="2" GridPane.columnSpan="2">
-                    <TextField fx:id="txtMatricula" HBox.hgrow="ALWAYS" />
-                    <Button onAction="#onBuscar" text="Buscar" />
-                </HBox>
+                <!-- Datos y código de barras -->
+                <GridPane hgap="10" vgap="10" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <columnConstraints>
+                        <ColumnConstraints prefWidth="180" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                        <ColumnConstraints prefWidth="90" />
+                    </columnConstraints>
 
-                <!-- Nombre / Paterno / Materno -->
-                <Label text="Nombre:" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                <TextField fx:id="txtNombre" editable="false" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                    <!-- Row 0: Matrícula -->
+                    <Label text="Matrícula (No. control):" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="txtMatricula" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Button onAction="#onBuscar" text="Buscar" GridPane.columnIndex="2" GridPane.rowIndex="0" />
 
-                <Label text="Paterno:" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <TextField fx:id="txtPaterno" editable="false" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                    <!-- Row 1: Nombre -->
+                    <Label text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="txtNombre" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Materno:" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                <TextField fx:id="txtMaterno" editable="false" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                    <!-- Row 2: Paterno -->
+                    <Label text="Paterno:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="txtPaterno" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                <!-- CURP / NSS -->
-                <Label text="CURP:" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                <TextField fx:id="txtCurp" editable="false" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                    <!-- Row 3: Materno -->
+                    <Label text="Materno:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="txtMaterno" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                <Label text="NSS:" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                <TextField fx:id="txtNss" editable="false" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                    <!-- Row 4: CURP -->
+                    <Label text="CURP:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="txtCurp" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
-                <!-- Fecha / Vigencia -->
-                <Label text="Fecha de emisión:" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                <DatePicker fx:id="dpFechaEmision" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                    <!-- Row 5: NSS -->
+                    <Label text="NSS:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <TextField fx:id="txtNss" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
-                <Label text="Vigencia (periodo actual):" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                <TextField fx:id="txtVigencia" editable="false" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                    <!-- Row 6: Fecha de emisión / Vigencia -->
+                    <Label text="Fecha de emisión:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                    <DatePicker fx:id="dpFechaEmision" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                    <TextField fx:id="txtVigencia" promptText="Vigencia (calculada)" GridPane.columnIndex="2" GridPane.rowIndex="6" />
 
-                <!-- Código de barras (vista) -->
-                <Label text="Código de barras (matrícula):" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                <StackPane styleClass="barcode-frame" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="5">
-                    <ImageView fx:id="imgBarcode" fitHeight="90" fitWidth="280" />
-                </StackPane>
+                    <!-- Row 7: Código de barras -->
+                    <Label text="Código de barras (matrícula):" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                    <StackPane maxHeight="120" prefHeight="120" styleClass="barcode-box" GridPane.columnIndex="1" GridPane.rowIndex="7">
+                        <ImageView fx:id="imgBarcode" fitHeight="110" fitWidth="620" preserveRatio="true" />
+                    </StackPane>
 
-                <!-- Botonera -->
-                <HBox alignment="CENTER_RIGHT" spacing="12" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="6">
-                    <Region HBox.hgrow="ALWAYS" />
-                    <Button onAction="#onVolverMenu" styleClass="btn-secondary" text="Volver al menú" />
-                    <Button onAction="#onCancelar" styleClass="btn-secondary" text="Cancelar" />
-                    <Button onAction="#onGuardar" text="Guardar" />
-                    <Button onAction="#onGenerarPDF" text="Generar PDF" />
-                </HBox>
+                    <!-- Row 8: Botonera -->
+                    <HBox alignment="CENTER_RIGHT" spacing="10" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="8">
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button onAction="#onVolverMenu" styleClass="btn-secondary" text="Volver al menú" />
+                        <Button onAction="#onCancelar" styleClass="btn-secondary" text="Cancelar" />
+                        <Button onAction="#onGuardar" text="Guardar" />
+                        <Button onAction="#onGenerarPDF" styleClass="btn-primary" text="Generar PDF" />
+                    </HBox>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+                </GridPane>
             <rowConstraints>
-               <RowConstraints />
-               <RowConstraints />
-               <RowConstraints />
-               <RowConstraints />
-               <RowConstraints />
-               <RowConstraints />
                <RowConstraints />
             </rowConstraints>
             </GridPane>
 
-            <!-- ===== Plantilla (ANVERSO) ===== -->
-            <TitledPane expanded="true" text="Previsualización • Anverso (plantilla oficial)">
+            <!-- ============ PREVISUALIZACIÓN (ANVERSO) CON SCROLL ============ -->
+            <TitledPane collapsible="false" expanded="true" text="Previsualización • Anverso (plantilla oficial)">
                 <content>
-                    <StackPane fx:id="paneAnverso" maxHeight="560" maxWidth="1000" prefHeight="560" prefWidth="1000" styleClass="card-container">
-                        <!-- Fondo -->
-                        <ImageView fitHeight="560" fitWidth="1000" preserveRatio="false">
-                            <image>
-                                <Image url="@/cbtis239/front/credencial_enfrente.jpg" />
-                            </image>
-                        </ImageView>
+                    <ScrollPane fitToWidth="true" pannable="true" prefViewportHeight="420">
+                        <content>
+                            <StackPane fx:id="paneAnverso" alignment="TOP_LEFT" styleClass="preview-card">
 
-                        <!-- Capa de texto/foto -->
-                        <AnchorPane pickOnBounds="false">
-                            <!-- Foto -->
-                            <ImageView fx:id="imgFotoPlantilla" fitHeight="260" fitWidth="210" AnchorPane.leftAnchor="88.0" AnchorPane.topAnchor="190.0" />
+                                <!-- Fondo oficial -->
+                                <ImageView fitHeight="560" fitWidth="1000" preserveRatio="false">
+                                    <image>
+                                        <Image url="@/cbtis239/front/credencial_enfrente.jpg" />
+                                    </image>
+                                </ImageView>
 
-                            <!-- CÓDIGO DE BARRAS (debajo de la foto) -->
-                            <ImageView fx:id="imgBarcodePlantilla" fitHeight="70" fitWidth="210" AnchorPane.leftAnchor="88.0" AnchorPane.topAnchor="460.0" />
+                                <!-- Foto y código de barras en la vista -->
+                                <ImageView fx:id="imgFotoPlantilla" fitHeight="190" fitWidth="190" preserveRatio="true" translateX="130" translateY="240" />
+                                <ImageView fx:id="imgBarcodePlantilla" fitHeight="70" fitWidth="190" preserveRatio="true" translateX="120" translateY="470" />
 
-                            <Label layoutX="342.0" layoutY="229.0" styleClass="pl-title" text="ALUMNO" AnchorPane.leftAnchor="342.0" AnchorPane.topAnchor="229.0" />
-
-                            <Label fx:id="lblNombreLinea1" styleClass="pl-text" AnchorPane.leftAnchor="320.0" AnchorPane.topAnchor="220.0" />
-                            <Label fx:id="lblNombreLinea2" styleClass="pl-text" AnchorPane.leftAnchor="320.0" AnchorPane.topAnchor="248.0" />
-
-                            <Label layoutX="343.0" layoutY="312.0" styleClass="pl-title" text="CURP" AnchorPane.leftAnchor="343.0" AnchorPane.topAnchor="312.0" />
-                            <Label fx:id="lblCurp" styleClass="pl-text" AnchorPane.leftAnchor="320.0" AnchorPane.topAnchor="312.0" />
-
-                            <Label layoutX="347.0" layoutY="372.0" styleClass="pl-title" text="NSS" AnchorPane.leftAnchor="347.0" AnchorPane.topAnchor="372.0" />
-                            <Label fx:id="lblNss" styleClass="pl-text" AnchorPane.leftAnchor="320.0" AnchorPane.topAnchor="372.0" />
-
-                            <Label layoutX="347.0" layoutY="432.0" styleClass="pl-title-red" text="No. CONTROL" AnchorPane.leftAnchor="347.0" AnchorPane.topAnchor="432.0" />
-                            <Label fx:id="lblNoControl" styleClass="pl-text" AnchorPane.leftAnchor="320.0" AnchorPane.topAnchor="432.0" />
-                        </AnchorPane>
-                    </StackPane>
+                                <!-- Textos negros (valores) -->
+                                <Label fx:id="lblNombreLinea1" styleClass="preview-value" translateX="470" translateY="245" />
+                                <Label fx:id="lblNombreLinea2" styleClass="preview-value" translateX="470" translateY="279" />
+                                <Label fx:id="lblCurp" styleClass="preview-value" translateX="470" translateY="335" />
+                                <Label fx:id="lblNss" styleClass="preview-value" translateX="470" translateY="370" />
+                                <Label fx:id="lblNoControl" styleClass="preview-value" translateX="470" translateY="405" />
+                            </StackPane>
+                        </content>
+                    </ScrollPane>
                 </content>
             </TitledPane>
+
         </VBox>
     </center>
 
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="10">
-            <padding><Insets topRightBottomLeft="10" /></padding>
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="10" />
+            </padding>
             <Label styleClass="footnote" text="Prototipo • CBTis 239" />
         </HBox>
     </bottom>
