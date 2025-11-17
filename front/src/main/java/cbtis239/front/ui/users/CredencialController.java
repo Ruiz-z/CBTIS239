@@ -17,7 +17,6 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.*;
 
 import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.oned.Code128Writer;
 import com.google.zxing.EncodeHintType;
@@ -45,25 +44,37 @@ public class CredencialController {
     @FXML private DatePicker dpFechaEmision;
     @FXML private ImageView imgAlumno, imgBarcode;
 
-    // ===== Plantilla (solo vista) =====
+    // ===== Vista previa (anverso) =====
     @FXML private StackPane paneAnverso;
     @FXML private ImageView imgFotoPlantilla, imgBarcodePlantilla;
     @FXML private Label lblNombreLinea1, lblNombreLinea2, lblCurp, lblNss, lblNoControl;
 
     private byte[] fotoActual;
 
-    // Fondos posibles (.png/.jpg con/sin /assets)
+    // Fondo (classpath)
     private static final String[] FONDO_CANDIDATES = {
-            "/cbtis239/front/credencial_enfrente.jpg"
-
+            "/cbtis239/front/credencial_enfrente.jpg",
+            "/cbtis239/front/assets/credencial_frente.png",
+            "/cbtis239/front/assets/credencial_enfrente.jpg"
     };
 
-    // ======= Ajustes de layout (anverso) =======
-    private static final int W = 1000, H = 560; // tamaño canvas PDF
-    private static final int FOTO_X = 88,  FOTO_Y = 190, FOTO_W = 210, FOTO_H = 260;
-    private static final int BAR_X  = 88,  BAR_Y  = 460, BAR_W  = 210, BAR_H  = 70;
-    private static final int TXT_X  = 345;       // columna valores
-    private static final int LINE_H = 30;        // interlineado
+    private static final String[] FONDO_REVERSO_CANDIDATES = {
+            "/cbtis239/front/credencial_reverso.png"
+    };
+    // ======= Canvas PDF =======
+    private static final int W = 1000, H = 560;
+
+    // ======= Foto y código de barras (no mueven el fondo) =======
+    private static final int FOTO_X = 110, FOTO_Y = 240, FOTO_W = 160, FOTO_H = 190;
+    private static final int BAR_X  = 80, BAR_Y  = 460, BAR_W  = 230, BAR_H  = 30;
+
+    // ======= Posiciones del TEXTO NEGRO (independientes) =======
+    private static final int TXT_X        = 340;  // columna de valores
+    private static final int Y_NOMBRE1    = 265;  // ✔ ya correcta
+    private static final int Y_NOMBRE2    = 299;  // apellidos
+    private static final int Y_CURP       = 365;  // valor de CURP
+    private static final int Y_NSS        = 420;  // valor de NSS
+    private static final int Y_NOCONTROL  = 470;  // valor de No. CONTROL
 
     @FXML
     private void initialize() {
@@ -126,7 +137,7 @@ public class CredencialController {
             if (dpFechaEmision.getValue() == null) dpFechaEmision.setValue(LocalDate.now());
             txtVigencia.setText(bo.calcularVigencia(m));
 
-            // Código de barras (vista + plantilla debajo de la foto)
+            // Código de barras (vista)
             imgBarcode.setImage(generarCodigoBarrasFX(m, 600, 180));
             if (imgBarcodePlantilla != null)
                 imgBarcodePlantilla.setImage(generarCodigoBarrasFX(m, 210, 70));
@@ -195,7 +206,7 @@ public class CredencialController {
         } catch (Exception e) { showErr("No se pudo generar el PDF", e); }
     }
 
-    // ===== Plantilla (labels) =====
+    // ===== Plantilla (labels para vista) =====
     private void actualizarPlantilla(Alumno a) {
         String n = nvl(a.getNombre()).toUpperCase();
         String p = nvl(a.getPaterno()).toUpperCase();
@@ -215,7 +226,7 @@ public class CredencialController {
         lblNoControl.setText(nvl(a.getMatricula()));
     }
 
-    // ===== Dibujo ANVERSO (afinado) =====
+    // ===== ANVERSO: sólo texto negro y barcode; fondo intacto =====
     private BufferedImage buildAnversoImage() throws IOException {
         BufferedImage img = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
         var g = img.createGraphics();
@@ -224,10 +235,9 @@ public class CredencialController {
         g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING, java.awt.RenderingHints.VALUE_RENDER_QUALITY);
 
+        // Fondo desde vista o classpath (NO mover)
         g.setColor(java.awt.Color.WHITE);
         g.fillRect(0, 0, W, H);
-
-        // 1) fondo desde la vista  2) classpath
         boolean fondoPintado = false;
         try {
             if (paneAnverso != null && !paneAnverso.getChildren().isEmpty()
@@ -235,111 +245,123 @@ public class CredencialController {
                     && iv.getImage() != null) {
                 var fondoFX = iv.getImage();
                 var fondoBI = javafx.embed.swing.SwingFXUtils.fromFXImage(fondoFX, null);
-                if (fondoBI != null) {
-                    g.drawImage(fondoBI, 0, 0, W, H, null);
-                    fondoPintado = true;
-                }
+                if (fondoBI != null) { g.drawImage(fondoBI, 0, 0, W, H, null); fondoPintado = true; }
             }
         } catch (Exception ignore) {}
-
         if (!fondoPintado) {
             try (InputStream is = openFondoStream()) {
-                if (is != null) {
-                    BufferedImage fondo = ImageIO.read(is);
-                    g.drawImage(fondo, 0, 0, W, H, null);
-                    fondoPintado = true;
-                }
+                if (is != null) { BufferedImage f = ImageIO.read(is); g.drawImage(f, 0, 0, W, H, null); fondoPintado = true; }
             }
         }
-        if (!fondoPintado) {
-            g.setColor(java.awt.Color.LIGHT_GRAY);
-            g.drawString("FONDO NO ENCONTRADO", 20, 30);
-        }
+        if (!fondoPintado) { g.setColor(java.awt.Color.LIGHT_GRAY); g.drawString("FONDO NO ENCONTRADO", 20, 30); }
 
-        // Foto (3 fuentes posibles)
+        // Foto (3 fuentes)
         BufferedImage fotoBI = null;
         try {
             if (imgFotoPlantilla != null && imgFotoPlantilla.getImage() != null)
                 fotoBI = javafx.embed.swing.SwingFXUtils.fromFXImage(imgFotoPlantilla.getImage(), null);
             if (fotoBI == null && imgAlumno != null && imgAlumno.getImage() != null)
                 fotoBI = javafx.embed.swing.SwingFXUtils.fromFXImage(imgAlumno.getImage(), null);
-            if (fotoBI == null && fotoActual != null && fotoActual.length > 0) {
-                var fx = new Image(new ByteArrayInputStream(fotoActual));
-                fotoBI = javafx.embed.swing.SwingFXUtils.fromFXImage(fx, null);
-            }
+            if (fotoBI == null && fotoActual != null && fotoActual.length > 0)
+                fotoBI = javafx.embed.swing.SwingFXUtils.fromFXImage(new Image(new ByteArrayInputStream(fotoActual)), null);
         } catch (Exception ignore) {}
         if (fotoBI != null) g.drawImage(fotoBI, FOTO_X, FOTO_Y, FOTO_W, FOTO_H, null);
 
-        // Código de barras debajo de la foto (con quiet zone)
+        // Código de barras (alto/angosto, debajo de la foto)
         try {
             String noCtrl = nvl(lblNoControl.getText());
             if (!noCtrl.isBlank()) {
-                BufferedImage bc = generarCodigoBarrasBuffered(noCtrl, BAR_W * 2, BAR_H * 2, 6);
+                var hints = new java.util.EnumMap<EncodeHintType,Object>(EncodeHintType.class);
+                hints.put(EncodeHintType.MARGIN, 8);
+                BitMatrix m = new Code128Writer()
+                        .encode(noCtrl, BarcodeFormat.CODE_128, BAR_W * 3, BAR_H * 2, hints);
+                BufferedImage bc = new BufferedImage(m.getWidth(), m.getHeight(), BufferedImage.TYPE_INT_RGB);
+                for (int yy = 0; yy < m.getHeight(); yy++)
+                    for (int xx = 0; xx < m.getWidth(); xx++)
+                        bc.setRGB(xx, yy, m.get(xx, yy) ? 0xFF000000 : 0xFFFFFFFF);
                 java.awt.Image scaled = bc.getScaledInstance(BAR_W, BAR_H, java.awt.Image.SCALE_SMOOTH);
                 g.drawImage(scaled, BAR_X, BAR_Y, BAR_W, BAR_H, null);
             }
         } catch (Exception ignore) {}
 
-        // Valores (sin rótulos, el fondo ya los tiene)
+        // Texto negro en posiciones independientes
         java.awt.Font f = new java.awt.Font("SansSerif", java.awt.Font.BOLD, 24);
         g.setColor(java.awt.Color.BLACK);
         g.setFont(f);
 
-        int y = 205 + LINE_H; // primera línea (ALUMNO)
-        y = drawTextClipped(g, safeUpper(lblNombreLinea1), TXT_X, y, 600) + LINE_H;
-        y = drawTextClipped(g, safeUpper(lblNombreLinea2), TXT_X, y, 600) + LINE_H;
-        y += 4;
-        y = drawTextClipped(g, safeUpper(lblCurp), TXT_X, y, 620) + LINE_H;
-        y = drawTextClipped(g, nvl(lblNss.getText()), TXT_X, y, 620) + LINE_H;
-        drawTextClipped(g, nvl(lblNoControl.getText()), TXT_X, y, 620);
+        drawTextClipped(g, safeUpper(lblNombreLinea1),     TXT_X, Y_NOMBRE1,   440);
+        drawTextClipped(g, safeUpper(lblNombreLinea2),     TXT_X, Y_NOMBRE2,   440);
+        drawTextClipped(g, safeUpper(lblCurp),             TXT_X, Y_CURP,      460);
+        drawTextClipped(g, nvl(lblNss.getText()),          TXT_X, Y_NSS,       460);
+        drawTextClipped(g, nvl(lblNoControl.getText()),    TXT_X, Y_NOCONTROL, 460);
 
         g.dispose();
         return img;
     }
 
-    // ===== Dibujo REVERSO =====
+    // ===== REVERSO simple =====
+// ===== Dibujo REVERSO (usa plantilla oficial) =====
     private BufferedImage buildReversoImage() {
-        int M = 40;
         BufferedImage img = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
         var g = img.createGraphics();
 
-        g.setColor(java.awt.Color.WHITE); g.fillRect(0, 0, W, H);
+        // Calidad
+        g.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING,
+                java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING,
+                java.awt.RenderingHints.VALUE_RENDER_QUALITY);
 
-        java.awt.Color rojo = new java.awt.Color(155, 0, 0);
-        java.awt.Font fT = new java.awt.Font("SansSerif", java.awt.Font.BOLD, 28);
-        java.awt.Font f  = new java.awt.Font("SansSerif", java.awt.Font.BOLD, 24);
-        java.awt.Font fs = new java.awt.Font("SansSerif", java.awt.Font.PLAIN, 20);
+        // Fondo blanco por si falla la imagen
+        g.setColor(java.awt.Color.WHITE);
+        g.fillRect(0, 0, W, H);
 
-        g.setColor(rojo); g.setFont(fT); g.drawString("CREDENCIAL — REVERSO", M, M + 20);
+        // 1) Pintar fondo del reverso
+        boolean fondoPintado = false;
+        try (InputStream is = openFondoReversoStream()) {
+            if (is != null) {
+                BufferedImage fondo = ImageIO.read(is);
+                if (fondo != null) {
+                    g.drawImage(fondo, 0, 0, W, H, null);
+                    fondoPintado = true;
+                }
+            }
+        } catch (Exception ignore) { }
 
-        int y = M + 70;
-        g.setColor(java.awt.Color.DARK_GRAY); g.setFont(f);
-        g.drawString("Alumno:", M, y); y += 36;
-        g.setFont(fs); g.drawString(nvl(txtNombre.getText()).toUpperCase(), M, y); y += 30;
-        g.drawString((nvl(txtPaterno.getText()) + " " + nvl(txtMaterno.getText())).toUpperCase(), M, y); y += 40;
+        if (!fondoPintado) {
+            g.setColor(java.awt.Color.LIGHT_GRAY);
+            g.drawString("FONDO REVERSO NO ENCONTRADO", 20, 30);
+        }
 
-        g.setFont(f); g.setColor(java.awt.Color.DARK_GRAY);
-        g.drawString("CURP: " + nvl(txtCurp.getText()).toUpperCase(), M, y); y += 36;
-        g.drawString("Vigencia: " + nvl(txtVigencia.getText()), M, y);       y += 36;
-        g.drawString("Fecha de emisión: " + (dpFechaEmision.getValue() == null ? "" : dpFechaEmision.getValue().toString()), M, y); y += 50;
+        // 2) Datos dinámicos: fecha de emisión y vigencia
+        String vigencia = nvl(txtVigencia.getText());       // ej: "Ago-Dic 2025"
+        String fechaStr  = "";
+        if (dpFechaEmision.getValue() != null) {
+            fechaStr = dpFechaEmision.getValue()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        }
 
-        try {
-            BufferedImage barcode = generarCodigoBarrasBuffered(nvl(txtMatricula.getText()), 800, 200, 8);
-            int bx = M, by = H - M - barcode.getHeight();
-            g.drawImage(barcode, bx, by, null);
-            g.setFont(fs); g.setColor(java.awt.Color.GRAY);
-            g.drawString("No. control: " + nvl(txtMatricula.getText()), bx, by - 10);
-        } catch (Exception ignore) {}
+        g.setColor(java.awt.Color.BLACK);
+
+        // Fecha de emisión (recuadro superior derecho)
+        // Ajusta X/Y si quieres afinar la posición
+        g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 20));
+        drawTextClipped(g, fechaStr, 720, 120, 230);    // x=720, y=120, ancho máx 230
+
+        // Vigencia (sobre los cuadros de VIGENCIA)
+        g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 18));
+        drawTextClipped(g, vigencia, 180, 190, 600);    // x=180, y=190
 
         g.dispose();
         return img;
     }
 
-    // ===== Código de barras =====
+
+    // ===== Código de barras FX/Buffered =====
     private Image generarCodigoBarrasFX(String data, int w, int h) {
         try {
             if (data == null || data.isBlank()) return null;
-            // quiet zone
             var hints = new EnumMap<EncodeHintType,Object>(EncodeHintType.class);
             hints.put(EncodeHintType.MARGIN, 6);
             BitMatrix m = new Code128Writer().encode(data, BarcodeFormat.CODE_128, w, h, hints);
@@ -351,13 +373,15 @@ public class CredencialController {
         } catch (Exception e) { error("No se pudo generar el código de barras: " + e.getMessage()); return null; }
     }
 
-    private BufferedImage generarCodigoBarrasBuffered(String data, int w, int h, int marginPx) throws Exception {
-        var hints = new EnumMap<EncodeHintType,Object>(EncodeHintType.class);
-        hints.put(EncodeHintType.MARGIN, marginPx); // quiet zone
-        BitMatrix m = new Code128Writer().encode(data, BarcodeFormat.CODE_128, w, h, hints);
-        BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        for (int y=0; y<h; y++) for (int x=0; x<w; x++) bi.setRGB(x, y, m.get(x,y) ? 0xFF000000 : 0xFFFFFFFF);
-        return bi;
+    private BufferedImage generarCodigoBarrasBuffered(String data, int w, int h, int marginPx) {
+        try {
+            var hints = new EnumMap<EncodeHintType,Object>(EncodeHintType.class);
+            hints.put(EncodeHintType.MARGIN, marginPx);
+            BitMatrix m = new Code128Writer().encode(data, BarcodeFormat.CODE_128, w, h, hints);
+            BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+            for (int y=0; y<h; y++) for (int x=0; x<w; x++) bi.setRGB(x, y, m.get(x,y) ? 0xFF000000 : 0xFFFFFFFF);
+            return bi;
+        } catch (Exception e) { return null; }
     }
 
     private InputStream openFondoStream() {
@@ -369,8 +393,20 @@ public class CredencialController {
         }
         return null;
     }
+    private InputStream openFondoReversoStream() {
+        for (String path : FONDO_REVERSO_CANDIDATES) {
+            URL u = getClass().getResource(path);
+            if (u != null) {
+                try {
+                    return u.openStream();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return null;
+    }
 
-    // ===== Helpers dibujo/texto =====
+    // ===== Helpers =====
     private int drawTextClipped(java.awt.Graphics2D g, String text, int x, int y, int maxWidth) {
         if (text == null) text = "";
         var fm = g.getFontMetrics();
@@ -386,8 +422,9 @@ public class CredencialController {
     }
 
     private String safeUpper(Label l) { return (l == null || l.getText() == null) ? "" : l.getText().toUpperCase(); }
+    private static String trim(String s){ return s==null? "": s.trim(); }
+    private static String nvl(String s){ return Objects.toString(s,""); }
 
-    // ===== Foto desde String (dataURL / base64 / archivo / URL) =====
     private void setImageFromString(String fotoStr) {
         try {
             if (fotoStr == null || fotoStr.isBlank()) {
@@ -435,7 +472,6 @@ public class CredencialController {
         }
     }
 
-    // ===== Utilidades varias =====
     private void limpiar() {
         txtNombre.clear(); txtPaterno.clear(); txtMaterno.clear();
         txtCurp.clear(); txtNss.clear(); txtVigencia.clear();
@@ -445,9 +481,6 @@ public class CredencialController {
         imgBarcode.setImage(null);
         if (imgBarcodePlantilla != null) imgBarcodePlantilla.setImage(null);
     }
-
-    private static String trim(String s){ return s==null? "": s.trim(); }
-    private static String nvl(String s){ return Objects.toString(s,""); }
 
     private void info(String m){ new Alert(Alert.AlertType.INFORMATION, m).showAndWait(); }
     private void warn(String m){ new Alert(Alert.AlertType.WARNING, m).showAndWait(); }
@@ -460,4 +493,3 @@ public class CredencialController {
         a.showAndWait();
     }
 }
-
