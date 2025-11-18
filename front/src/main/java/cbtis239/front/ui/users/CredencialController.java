@@ -66,9 +66,9 @@ public class CredencialController {
             "/cbtis239/front/credencial_reverso.png"
     };
 
-    // Firma fija del director (imagen en resources)
+    // Firma fija del director
     private static final String FIRMA_DIRECTOR_PATH =
-            "/cbtis239/front/firmadirector.png"; // ajusta la ruta según tu proyecto
+            "/cbtis239/front/firmadirector.png";
 
     // ===== Tamaño del canvas PDF =====
     private static final int W = 1000, H = 560;
@@ -78,7 +78,7 @@ public class CredencialController {
     private static final int BAR_X  = 80,  BAR_Y  = 460, BAR_W  = 230, BAR_H  = 30;
 
     // ===== Posiciones de texto negro (anverso) =====
-    private static final int TXT_X        = 340;  // columna de valores
+    private static final int TXT_X        = 340;
     private static final int Y_NOMBRE1    = 265;
     private static final int Y_NOMBRE2    = 299;
     private static final int Y_CURP       = 365;
@@ -108,8 +108,16 @@ public class CredencialController {
         imgBarcode.setFitWidth(280);
         imgBarcode.setFitHeight(90);
 
-        dpFechaEmision.setEditable(false);
+        // El usuario NO puede editar estos campos (solo la matrícula)
+        txtNombre.setEditable(false);
+        txtPaterno.setEditable(false);
+        txtMaterno.setEditable(false);
+        txtCurp.setEditable(false);
+        txtNss.setEditable(false);
         txtVigencia.setEditable(false);
+
+        dpFechaEmision.setEditable(false);
+        dpFechaEmision.setDisable(true);          // también deshabilita el calendario
 
         Platform.runLater(() -> {
             if (openFondoStream() == null) {
@@ -154,6 +162,7 @@ public class CredencialController {
 
             Alumno a = bo.cargarAlumnoParaCredencial(m);
             if (a == null) {
+                // Por si acaso, aunque BO ya valida
                 warn("No se encontró información para: " + m);
                 limpiar();
                 return;
@@ -179,36 +188,30 @@ public class CredencialController {
                 imgBarcodePlantilla.setImage(generarCodigoBarrasFX(m, 210, 70));
 
             actualizarPlantilla(a);
+
         } catch (SQLException e) {
-            showErr("Error al buscar alumno (SQL)", e);
+            // ----------- ERROR AMIGABLE CUANDO LA MATRÍCULA NO EXISTE -----------
+            String msg = nvl(e.getMessage());
+            if (msg.toLowerCase().contains("no existe")) {
+                warn(msg);          // solo mostramos el texto al usuario
+                limpiar();
+            } else {
+                showErr("Error al buscar alumno (SQL)", e);
+            }
         } catch (Exception e) {
             showErr("Error inesperado en la búsqueda", e);
         }
     }
 
+    // Estos métodos quedan aunque luego quites los botones en el FXML
     @FXML
     private void onGuardar() {
-        info("Prototipo: esta vista no persiste en BD.");
+        info("Esta pantalla solo genera la credencial en PDF. No se guarda información desde aquí.");
     }
 
     @FXML
     private void onCargarImagen() {
-        try {
-            FileChooser fc = new FileChooser();
-            fc.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("Imágenes", "*.jpg;*.jpeg;*.png"));
-            File f = fc.showOpenDialog(getStage());
-            if (f == null) return;
-
-            try (FileInputStream fis = new FileInputStream(f)) {
-                fotoActual = fis.readAllBytes();
-                Image img = new Image(new ByteArrayInputStream(fotoActual));
-                imgAlumno.setImage(img);
-                if (imgFotoPlantilla != null) imgFotoPlantilla.setImage(img);
-            }
-        } catch (Exception e) {
-            showErr("No se pudo cargar la imagen", e);
-        }
+        info("La fotografía se toma automáticamente del registro del alumno.\nNo se selecciona manualmente en esta pantalla.");
     }
 
     @FXML
@@ -256,7 +259,9 @@ public class CredencialController {
                 doc.save(out);
             }
 
+            // Solo mostramos el mensaje; la ventana de credencialización NO se cierra.
             info("PDF generado correctamente:\n" + out.getAbsolutePath());
+
         } catch (Exception e) {
             showErr("No se pudo generar el PDF", e);
         }
@@ -312,7 +317,7 @@ public class CredencialController {
                     fondoPintado = true;
                 }
             }
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) { }
 
         if (!fondoPintado) {
             try (InputStream is = openFondoStream()) {
@@ -338,11 +343,11 @@ public class CredencialController {
             if (fotoBI == null && fotoActual != null && fotoActual.length > 0)
                 fotoBI = SwingFXUtils.fromFXImage(
                         new Image(new ByteArrayInputStream(fotoActual)), null);
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) { }
         if (fotoBI != null)
             g.drawImage(fotoBI, FOTO_X, FOTO_Y, FOTO_W, FOTO_H, null);
 
-        // Código de barras (debajo de la foto)
+        // Código de barras
         try {
             String noCtrl = nvl(lblNoControl.getText());
             if (!noCtrl.isBlank()) {
@@ -359,7 +364,7 @@ public class CredencialController {
                         BAR_W, BAR_H, java.awt.Image.SCALE_SMOOTH);
                 g.drawImage(scaled, BAR_X, BAR_Y, BAR_W, BAR_H, null);
             }
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) { }
 
         // Texto negro
         java.awt.Font f = new java.awt.Font("SansSerif", java.awt.Font.BOLD, 24);
@@ -401,7 +406,7 @@ public class CredencialController {
                     fondoPintado = true;
                 }
             }
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) { }
 
         if (!fondoPintado) {
             g.setColor(java.awt.Color.LIGHT_GRAY);
@@ -422,11 +427,11 @@ public class CredencialController {
         g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 20));
         drawTextClipped(g, fechaStr, REV_FECHA_X, REV_FECHA_Y, 230);
 
-        // Vigencia
+        // Vigencia (texto más pequeño)
         g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12));
         drawTextClipped(g, vigencia, REV_VIG_X, REV_VIG_Y, 600);
 
-        // Firma del alumno (si existe)
+        // Firma del alumno
         if (firmaActual != null && firmaActual.length > 0) {
             try {
                 Image fx = new Image(new ByteArrayInputStream(firmaActual));
@@ -435,7 +440,7 @@ public class CredencialController {
                     g.drawImage(firmaBI, FIRMA_ALUMNO_X, FIRMA_ALUMNO_Y,
                             FIRMA_ALUMNO_W, FIRMA_ALUMNO_H, null);
                 }
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) { }
         }
 
         // Firma fija del director
@@ -447,7 +452,7 @@ public class CredencialController {
                             FIRMA_DIR_W, FIRMA_DIR_H, null);
                 }
             }
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) { }
 
         g.dispose();
         return img;
@@ -478,10 +483,7 @@ public class CredencialController {
         for (String path : FONDO_CANDIDATES) {
             URL u = getClass().getResource(path);
             if (u != null) {
-                try {
-                    return u.openStream();
-                } catch (IOException ignore) {
-                }
+                try { return u.openStream(); } catch (IOException ignore) { }
             }
         }
         return null;
@@ -491,10 +493,7 @@ public class CredencialController {
         for (String path : FONDO_REVERSO_CANDIDATES) {
             URL u = getClass().getResource(path);
             if (u != null) {
-                try {
-                    return u.openStream();
-                } catch (IOException ignore) {
-                }
+                try { return u.openStream(); } catch (IOException ignore) { }
             }
         }
         return null;
@@ -526,7 +525,7 @@ public class CredencialController {
     private static String trim(String s) { return s == null ? "" : s.trim(); }
     private static String nvl(String s)   { return Objects.toString(s, ""); }
 
-    // ---------- Foto desde String (Base64 / dataURL / ruta / URL) ----------
+    // ---------- Foto desde String ----------
     private void setImageFromString(String fotoStr) {
         try {
             if (fotoStr == null || fotoStr.isBlank()) {
@@ -536,7 +535,6 @@ public class CredencialController {
                 return;
             }
 
-            // data:image/...
             if (fotoStr.startsWith("data:image")) {
                 String base64 = fotoStr.substring(fotoStr.indexOf(",") + 1);
                 byte[] bytes = Base64.getDecoder().decode(base64);
@@ -547,7 +545,6 @@ public class CredencialController {
                 return;
             }
 
-            // Base64 "pura"
             String compact = fotoStr.replaceAll("\\s+", "");
             if (compact.matches("^[A-Za-z0-9+/=]+$") && compact.length() % 4 == 0) {
                 byte[] bytes = Base64.getDecoder().decode(compact);
@@ -560,7 +557,6 @@ public class CredencialController {
                 }
             }
 
-            // Ruta local
             Path p = Path.of(fotoStr);
             if (Files.exists(p)) {
                 byte[] bytes = Files.readAllBytes(p);
@@ -571,10 +567,9 @@ public class CredencialController {
                 return;
             }
 
-            // URL / file:
             Image img = new Image(fotoStr.startsWith("http") ? fotoStr : "file:" + fotoStr);
             if (!img.isError()) {
-                fotoActual = null; // no tenemos el binario, pero al menos vista
+                fotoActual = null;
                 imgAlumno.setImage(img);
                 if (imgFotoPlantilla != null) imgFotoPlantilla.setImage(img);
             } else {
@@ -588,7 +583,7 @@ public class CredencialController {
         }
     }
 
-    // ---------- Firma desde String (mismas reglas que foto, pero sin ImageView) ----------
+    // ---------- Firma desde String ----------
     private void setFirmaFromString(String firmaStr) {
         try {
             if (firmaStr == null || firmaStr.isBlank()) {
@@ -596,18 +591,15 @@ public class CredencialController {
                 return;
             }
 
-            // data:image/...
             if (firmaStr.startsWith("data:image")) {
                 String base64 = firmaStr.substring(firmaStr.indexOf(",") + 1);
                 firmaActual = Base64.getDecoder().decode(base64);
                 return;
             }
 
-            // Base64 pura
             String compact = firmaStr.replaceAll("\\s+", "");
             if (compact.matches("^[A-Za-z0-9+/=]+$") && compact.length() % 4 == 0) {
                 byte[] bytes = Base64.getDecoder().decode(compact);
-                // Verificamos que sea imagen válida
                 Image test = new Image(new ByteArrayInputStream(bytes));
                 if (!test.isError()) {
                     firmaActual = bytes;
@@ -615,14 +607,12 @@ public class CredencialController {
                 }
             }
 
-            // Ruta local
             Path p = Path.of(firmaStr);
             if (Files.exists(p)) {
                 firmaActual = Files.readAllBytes(p);
                 return;
             }
 
-            // URL remota
             if (firmaStr.startsWith("http")) {
                 try (InputStream is = new URL(firmaStr).openStream();
                      ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -632,7 +622,6 @@ public class CredencialController {
                 }
             }
 
-            // Si nada funcionó
             firmaActual = null;
         } catch (Exception e) {
             firmaActual = null;
@@ -641,6 +630,7 @@ public class CredencialController {
 
     // ---------- Limpieza y mensajes ----------
     private void limpiar() {
+        txtMatricula.clear();
         txtNombre.clear();
         txtPaterno.clear();
         txtMaterno.clear();
@@ -658,16 +648,27 @@ public class CredencialController {
         firmaActual = null;
     }
 
-    private void info(String m)  { new Alert(Alert.AlertType.INFORMATION, m).showAndWait(); }
-    private void warn(String m)  { new Alert(Alert.AlertType.WARNING, m).showAndWait(); }
-    private void error(String m) { new Alert(Alert.AlertType.ERROR, m).showAndWait(); }
+    private void info(String m)  { showAlert(Alert.AlertType.INFORMATION, "Mensaje", m); }
+    private void warn(String m)  { showAlert(Alert.AlertType.WARNING, "Aviso", m); }
+    private void error(String m) { showAlert(Alert.AlertType.ERROR, "Error", m); }
 
     private void showErr(String titulo, Exception e) {
         e.printStackTrace();
         Throwable c = (e.getCause() != null ? e.getCause() : e);
-        Alert a = new Alert(Alert.AlertType.ERROR,
-                titulo + ":\n" + c.getClass().getSimpleName() + ": " + nvl(c.getMessage()));
-        a.setHeaderText("Error");
+        String msg = titulo + ":\n" + nvl(c.getMessage());
+        showAlert(Alert.AlertType.ERROR, "Error", msg);
+    }
+
+    private void showAlert(Alert.AlertType type, String header, String message) {
+        Alert a = new Alert(type);
+        a.setHeaderText(header);
+        a.setContentText(message);
+        // Esto hace que el diálogo siempre se muestre SOBRE la ventana de credencial
+        if (txtMatricula != null && txtMatricula.getScene() != null) {
+            Stage owner = (Stage) txtMatricula.getScene().getWindow();
+            a.initOwner(owner);
+            a.initModality(Modality.WINDOW_MODAL);
+        }
         a.showAndWait();
     }
 }
