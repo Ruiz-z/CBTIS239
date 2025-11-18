@@ -18,7 +18,8 @@ public class CredencialBO {
     }
 
     public String calcularVigencia(String matricula) throws SQLException {
-        // Solo muestra el periodo actual (no hace historial)
-        return credDAO.vigenciaActual();
+        // Ahora devuelve el HISTORIAL de periodos del alumno
+        return credDAO.vigenciaHistorial(matricula);
     }
+
 }

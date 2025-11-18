@@ -4,6 +4,7 @@ import cbtis239.bo.CredencialBO;
 import cbtis239.model.Alumno;
 
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -35,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class CredencialController {
@@ -49,9 +51,11 @@ public class CredencialController {
     @FXML private ImageView imgFotoPlantilla, imgBarcodePlantilla;
     @FXML private Label lblNombreLinea1, lblNombreLinea2, lblCurp, lblNss, lblNoControl;
 
+    // ===== Datos binarios =====
     private byte[] fotoActual;
+    private byte[] firmaActual;
 
-    // Fondo (classpath)
+    // ===== Recursos de fondo =====
     private static final String[] FONDO_CANDIDATES = {
             "/cbtis239/front/credencial_enfrente.jpg",
             "/cbtis239/front/assets/credencial_frente.png",
@@ -61,21 +65,39 @@ public class CredencialController {
     private static final String[] FONDO_REVERSO_CANDIDATES = {
             "/cbtis239/front/credencial_reverso.png"
     };
-    // ======= Canvas PDF =======
+
+    // Firma fija del director (imagen en resources)
+    private static final String FIRMA_DIRECTOR_PATH =
+            "/cbtis239/front/firmadirector.png"; // ajusta la ruta según tu proyecto
+
+    // ===== Tamaño del canvas PDF =====
     private static final int W = 1000, H = 560;
 
-    // ======= Foto y código de barras (no mueven el fondo) =======
+    // ===== Foto y código de barras (anverso) =====
     private static final int FOTO_X = 110, FOTO_Y = 240, FOTO_W = 160, FOTO_H = 190;
-    private static final int BAR_X  = 80, BAR_Y  = 460, BAR_W  = 230, BAR_H  = 30;
+    private static final int BAR_X  = 80,  BAR_Y  = 460, BAR_W  = 230, BAR_H  = 30;
 
-    // ======= Posiciones del TEXTO NEGRO (independientes) =======
+    // ===== Posiciones de texto negro (anverso) =====
     private static final int TXT_X        = 340;  // columna de valores
-    private static final int Y_NOMBRE1    = 265;  // ✔ ya correcta
-    private static final int Y_NOMBRE2    = 299;  // apellidos
-    private static final int Y_CURP       = 365;  // valor de CURP
-    private static final int Y_NSS        = 420;  // valor de NSS
-    private static final int Y_NOCONTROL  = 470;  // valor de No. CONTROL
+    private static final int Y_NOMBRE1    = 265;
+    private static final int Y_NOMBRE2    = 299;
+    private static final int Y_CURP       = 365;
+    private static final int Y_NSS        = 420;
+    private static final int Y_NOCONTROL  = 470;
 
+    // ===== Posiciones reverso =====
+    private static final int REV_FECHA_X = 700, REV_FECHA_Y = 120;
+    private static final int REV_VIG_X   = 100, REV_VIG_Y   = 240;
+
+    // Firmas en reverso
+    private static final int FIRMA_ALUMNO_X = 160,  FIRMA_ALUMNO_Y = 310,
+            FIRMA_ALUMNO_W = 200, FIRMA_ALUMNO_H = 80;
+    private static final int FIRMA_DIR_X    = 500, FIRMA_DIR_Y    = 310,
+            FIRMA_DIR_W    = 360, FIRMA_DIR_H    = 80;
+
+    private final CredencialBO bo = new CredencialBO();
+
+    // ================== INIT ==================
     @FXML
     private void initialize() {
         imgAlumno.setPreserveRatio(true);
@@ -97,7 +119,11 @@ public class CredencialController {
         });
     }
 
-    // ===== Navegación =====
+    private Stage getStage() {
+        return (Stage) txtMatricula.getScene().getWindow();
+    }
+
+    // ================== NAVEGACIÓN ==================
     @FXML
     private void onVolverMenu(javafx.event.ActionEvent event) {
         try {
@@ -110,67 +136,93 @@ public class CredencialController {
             s.setFullScreen(true);
             s.setFullScreenExitHint("");
             s.show();
-            ((Stage)((Node)event.getSource()).getScene().getWindow()).close();
-        } catch (Exception e) { showErr("No se pudo volver al Menú", e); }
+            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
+        } catch (Exception e) {
+            showErr("No se pudo volver al Menú", e);
+        }
     }
 
-    private Stage getStage() { return (Stage) txtMatricula.getScene().getWindow(); }
-
-    // ===== Acciones =====
+    // ================== ACCIONES ==================
     @FXML
     private void onBuscar() {
         try {
             String m = trim(txtMatricula.getText());
-            if (m.isEmpty()) { warn("Ingresa la matrícula."); return; }
+            if (m.isEmpty()) {
+                warn("Ingresa la matrícula.");
+                return;
+            }
 
-            CredencialBO bo = new CredencialBO();
             Alumno a = bo.cargarAlumnoParaCredencial(m);
-            if (a == null) { warn("No se encontró información para: " + m); limpiar(); return; }
+            if (a == null) {
+                warn("No se encontró información para: " + m);
+                limpiar();
+                return;
+            }
 
             txtNombre.setText(nvl(a.getNombre()));
             txtPaterno.setText(nvl(a.getPaterno()));
             txtMaterno.setText(nvl(a.getMaterno()));
             txtCurp.setText(nvl(a.getCurp()));
             txtNss.setText(nvl(a.getNss()));
-            setImageFromString(a.getFoto());
 
-            if (dpFechaEmision.getValue() == null) dpFechaEmision.setValue(LocalDate.now());
+            // Foto y firma desde BD
+            setImageFromString(a.getFoto());
+            setFirmaFromString(a.getFirma());
+
+            if (dpFechaEmision.getValue() == null)
+                dpFechaEmision.setValue(LocalDate.now());
             txtVigencia.setText(bo.calcularVigencia(m));
 
-            // Código de barras (vista)
+            // Código de barras en la vista
             imgBarcode.setImage(generarCodigoBarrasFX(m, 600, 180));
             if (imgBarcodePlantilla != null)
                 imgBarcodePlantilla.setImage(generarCodigoBarrasFX(m, 210, 70));
 
             actualizarPlantilla(a);
-        } catch (SQLException e) { showErr("Error al buscar alumno (SQL)", e);
-        } catch (Exception e) { showErr("Error inesperado en la búsqueda", e); }
+        } catch (SQLException e) {
+            showErr("Error al buscar alumno (SQL)", e);
+        } catch (Exception e) {
+            showErr("Error inesperado en la búsqueda", e);
+        }
     }
 
-    @FXML private void onGuardar() { info("Prototipo: esta vista no persiste en BD."); }
+    @FXML
+    private void onGuardar() {
+        info("Prototipo: esta vista no persiste en BD.");
+    }
 
     @FXML
     private void onCargarImagen() {
         try {
             FileChooser fc = new FileChooser();
-            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.jpg;*.jpeg;*.png"));
+            fc.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("Imágenes", "*.jpg;*.jpeg;*.png"));
             File f = fc.showOpenDialog(getStage());
             if (f == null) return;
+
             try (FileInputStream fis = new FileInputStream(f)) {
                 fotoActual = fis.readAllBytes();
                 Image img = new Image(new ByteArrayInputStream(fotoActual));
                 imgAlumno.setImage(img);
                 if (imgFotoPlantilla != null) imgFotoPlantilla.setImage(img);
             }
-        } catch (Exception e) { showErr("No se pudo cargar la imagen", e); }
+        } catch (Exception e) {
+            showErr("No se pudo cargar la imagen", e);
+        }
     }
 
-    @FXML private void onCancelar() { limpiar(); }
+    @FXML
+    private void onCancelar() {
+        limpiar();
+    }
 
     @FXML
     private void onGenerarPDF() {
         try {
-            if (trim(txtMatricula.getText()).isEmpty()) { warn("Primero busca un alumno."); return; }
+            if (trim(txtMatricula.getText()).isEmpty()) {
+                warn("Primero busca un alumno.");
+                return;
+            }
 
             FileChooser fc = new FileChooser();
             fc.setTitle("Guardar credencial en PDF");
@@ -179,12 +231,13 @@ public class CredencialController {
             File out = fc.showSaveDialog(getStage());
             if (out == null) return;
 
-            BufferedImage frente  = buildAnversoImage();
+            BufferedImage frente = buildAnversoImage();
             BufferedImage reverso = buildReversoImage();
 
             try (PDDocument doc = new PDDocument()) {
                 PDRectangle size = new PDRectangle(frente.getWidth(), frente.getHeight());
 
+                // Página 1 - anverso
                 PDPage p1 = new PDPage(size);
                 doc.addPage(p1);
                 var imgFront = LosslessFactory.createFromImage(doc, frente);
@@ -192,6 +245,7 @@ public class CredencialController {
                     cs.drawImage(imgFront, 0, 0, size.getWidth(), size.getHeight());
                 }
 
+                // Página 2 - reverso
                 PDPage p2 = new PDPage(size);
                 doc.addPage(p2);
                 var imgBack = LosslessFactory.createFromImage(doc, reverso);
@@ -203,16 +257,20 @@ public class CredencialController {
             }
 
             info("PDF generado correctamente:\n" + out.getAbsolutePath());
-        } catch (Exception e) { showErr("No se pudo generar el PDF", e); }
+        } catch (Exception e) {
+            showErr("No se pudo generar el PDF", e);
+        }
     }
 
-    // ===== Plantilla (labels para vista) =====
+    // ================== PLANTILLA (labels de vista) ==================
     private void actualizarPlantilla(Alumno a) {
         String n = nvl(a.getNombre()).toUpperCase();
         String p = nvl(a.getPaterno()).toUpperCase();
         String m = nvl(a.getMaterno()).toUpperCase();
 
-        String l1 = n, l2 = (p + " " + m).trim();
+        String l1 = n;
+        String l2 = (p + " " + m).trim();
+
         if ((l1 + " " + l2).length() > 26 && n.contains(" ")) {
             int cut = n.indexOf(' ');
             l1 = n.substring(0, cut).trim();
@@ -226,86 +284,11 @@ public class CredencialController {
         lblNoControl.setText(nvl(a.getMatricula()));
     }
 
-    // ===== ANVERSO: sólo texto negro y barcode; fondo intacto =====
+    // ================== ANVERSO ==================
     private BufferedImage buildAnversoImage() throws IOException {
         BufferedImage img = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
         var g = img.createGraphics();
 
-        g.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING, java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING, java.awt.RenderingHints.VALUE_RENDER_QUALITY);
-
-        // Fondo desde vista o classpath (NO mover)
-        g.setColor(java.awt.Color.WHITE);
-        g.fillRect(0, 0, W, H);
-        boolean fondoPintado = false;
-        try {
-            if (paneAnverso != null && !paneAnverso.getChildren().isEmpty()
-                    && paneAnverso.getChildren().get(0) instanceof ImageView iv
-                    && iv.getImage() != null) {
-                var fondoFX = iv.getImage();
-                var fondoBI = javafx.embed.swing.SwingFXUtils.fromFXImage(fondoFX, null);
-                if (fondoBI != null) { g.drawImage(fondoBI, 0, 0, W, H, null); fondoPintado = true; }
-            }
-        } catch (Exception ignore) {}
-        if (!fondoPintado) {
-            try (InputStream is = openFondoStream()) {
-                if (is != null) { BufferedImage f = ImageIO.read(is); g.drawImage(f, 0, 0, W, H, null); fondoPintado = true; }
-            }
-        }
-        if (!fondoPintado) { g.setColor(java.awt.Color.LIGHT_GRAY); g.drawString("FONDO NO ENCONTRADO", 20, 30); }
-
-        // Foto (3 fuentes)
-        BufferedImage fotoBI = null;
-        try {
-            if (imgFotoPlantilla != null && imgFotoPlantilla.getImage() != null)
-                fotoBI = javafx.embed.swing.SwingFXUtils.fromFXImage(imgFotoPlantilla.getImage(), null);
-            if (fotoBI == null && imgAlumno != null && imgAlumno.getImage() != null)
-                fotoBI = javafx.embed.swing.SwingFXUtils.fromFXImage(imgAlumno.getImage(), null);
-            if (fotoBI == null && fotoActual != null && fotoActual.length > 0)
-                fotoBI = javafx.embed.swing.SwingFXUtils.fromFXImage(new Image(new ByteArrayInputStream(fotoActual)), null);
-        } catch (Exception ignore) {}
-        if (fotoBI != null) g.drawImage(fotoBI, FOTO_X, FOTO_Y, FOTO_W, FOTO_H, null);
-
-        // Código de barras (alto/angosto, debajo de la foto)
-        try {
-            String noCtrl = nvl(lblNoControl.getText());
-            if (!noCtrl.isBlank()) {
-                var hints = new java.util.EnumMap<EncodeHintType,Object>(EncodeHintType.class);
-                hints.put(EncodeHintType.MARGIN, 8);
-                BitMatrix m = new Code128Writer()
-                        .encode(noCtrl, BarcodeFormat.CODE_128, BAR_W * 3, BAR_H * 2, hints);
-                BufferedImage bc = new BufferedImage(m.getWidth(), m.getHeight(), BufferedImage.TYPE_INT_RGB);
-                for (int yy = 0; yy < m.getHeight(); yy++)
-                    for (int xx = 0; xx < m.getWidth(); xx++)
-                        bc.setRGB(xx, yy, m.get(xx, yy) ? 0xFF000000 : 0xFFFFFFFF);
-                java.awt.Image scaled = bc.getScaledInstance(BAR_W, BAR_H, java.awt.Image.SCALE_SMOOTH);
-                g.drawImage(scaled, BAR_X, BAR_Y, BAR_W, BAR_H, null);
-            }
-        } catch (Exception ignore) {}
-
-        // Texto negro en posiciones independientes
-        java.awt.Font f = new java.awt.Font("SansSerif", java.awt.Font.BOLD, 24);
-        g.setColor(java.awt.Color.BLACK);
-        g.setFont(f);
-
-        drawTextClipped(g, safeUpper(lblNombreLinea1),     TXT_X, Y_NOMBRE1,   440);
-        drawTextClipped(g, safeUpper(lblNombreLinea2),     TXT_X, Y_NOMBRE2,   440);
-        drawTextClipped(g, safeUpper(lblCurp),             TXT_X, Y_CURP,      460);
-        drawTextClipped(g, nvl(lblNss.getText()),          TXT_X, Y_NSS,       460);
-        drawTextClipped(g, nvl(lblNoControl.getText()),    TXT_X, Y_NOCONTROL, 460);
-
-        g.dispose();
-        return img;
-    }
-
-    // ===== REVERSO simple =====
-// ===== Dibujo REVERSO (usa plantilla oficial) =====
-    private BufferedImage buildReversoImage() {
-        BufferedImage img = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
-        var g = img.createGraphics();
-
-        // Calidad
         g.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING,
                 java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
@@ -313,12 +296,103 @@ public class CredencialController {
         g.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING,
                 java.awt.RenderingHints.VALUE_RENDER_QUALITY);
 
-        // Fondo blanco por si falla la imagen
+        // Fondo
         g.setColor(java.awt.Color.WHITE);
         g.fillRect(0, 0, W, H);
-
-        // 1) Pintar fondo del reverso
         boolean fondoPintado = false;
+
+        try {
+            if (paneAnverso != null && !paneAnverso.getChildren().isEmpty()
+                    && paneAnverso.getChildren().get(0) instanceof ImageView iv
+                    && iv.getImage() != null) {
+                var fondoFX = iv.getImage();
+                var fondoBI = SwingFXUtils.fromFXImage(fondoFX, null);
+                if (fondoBI != null) {
+                    g.drawImage(fondoBI, 0, 0, W, H, null);
+                    fondoPintado = true;
+                }
+            }
+        } catch (Exception ignore) {}
+
+        if (!fondoPintado) {
+            try (InputStream is = openFondoStream()) {
+                if (is != null) {
+                    BufferedImage f = ImageIO.read(is);
+                    g.drawImage(f, 0, 0, W, H, null);
+                    fondoPintado = true;
+                }
+            }
+        }
+        if (!fondoPintado) {
+            g.setColor(java.awt.Color.LIGHT_GRAY);
+            g.drawString("FONDO NO ENCONTRADO", 20, 30);
+        }
+
+        // Foto
+        BufferedImage fotoBI = null;
+        try {
+            if (imgFotoPlantilla != null && imgFotoPlantilla.getImage() != null)
+                fotoBI = SwingFXUtils.fromFXImage(imgFotoPlantilla.getImage(), null);
+            if (fotoBI == null && imgAlumno != null && imgAlumno.getImage() != null)
+                fotoBI = SwingFXUtils.fromFXImage(imgAlumno.getImage(), null);
+            if (fotoBI == null && fotoActual != null && fotoActual.length > 0)
+                fotoBI = SwingFXUtils.fromFXImage(
+                        new Image(new ByteArrayInputStream(fotoActual)), null);
+        } catch (Exception ignore) {}
+        if (fotoBI != null)
+            g.drawImage(fotoBI, FOTO_X, FOTO_Y, FOTO_W, FOTO_H, null);
+
+        // Código de barras (debajo de la foto)
+        try {
+            String noCtrl = nvl(lblNoControl.getText());
+            if (!noCtrl.isBlank()) {
+                var hints = new EnumMap<EncodeHintType, Object>(EncodeHintType.class);
+                hints.put(EncodeHintType.MARGIN, 8);
+                BitMatrix m = new Code128Writer()
+                        .encode(noCtrl, BarcodeFormat.CODE_128, BAR_W * 3, BAR_H * 2, hints);
+                BufferedImage bc = new BufferedImage(
+                        m.getWidth(), m.getHeight(), BufferedImage.TYPE_INT_RGB);
+                for (int yy = 0; yy < m.getHeight(); yy++)
+                    for (int xx = 0; xx < m.getWidth(); xx++)
+                        bc.setRGB(xx, yy, m.get(xx, yy) ? 0xFF000000 : 0xFFFFFFFF);
+                java.awt.Image scaled = bc.getScaledInstance(
+                        BAR_W, BAR_H, java.awt.Image.SCALE_SMOOTH);
+                g.drawImage(scaled, BAR_X, BAR_Y, BAR_W, BAR_H, null);
+            }
+        } catch (Exception ignore) {}
+
+        // Texto negro
+        java.awt.Font f = new java.awt.Font("SansSerif", java.awt.Font.BOLD, 24);
+        g.setColor(java.awt.Color.BLACK);
+        g.setFont(f);
+
+        drawTextClipped(g, safeUpper(lblNombreLinea1), TXT_X, Y_NOMBRE1, 440);
+        drawTextClipped(g, safeUpper(lblNombreLinea2), TXT_X, Y_NOMBRE2, 440);
+        drawTextClipped(g, safeUpper(lblCurp), TXT_X, Y_CURP, 460);
+        drawTextClipped(g, nvl(lblNss.getText()), TXT_X, Y_NSS, 460);
+        drawTextClipped(g, nvl(lblNoControl.getText()), TXT_X, Y_NOCONTROL, 460);
+
+        g.dispose();
+        return img;
+    }
+
+    // ================== REVERSO ==================
+    private BufferedImage buildReversoImage() {
+        BufferedImage img = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        var g = img.createGraphics();
+
+        g.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING,
+                java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING,
+                java.awt.RenderingHints.VALUE_RENDER_QUALITY);
+
+        // Fondo
+        g.setColor(java.awt.Color.WHITE);
+        g.fillRect(0, 0, W, H);
+        boolean fondoPintado = false;
+
         try (InputStream is = openFondoReversoStream()) {
             if (is != null) {
                 BufferedImage fondo = ImageIO.read(is);
@@ -327,72 +401,92 @@ public class CredencialController {
                     fondoPintado = true;
                 }
             }
-        } catch (Exception ignore) { }
+        } catch (Exception ignore) {}
 
         if (!fondoPintado) {
             g.setColor(java.awt.Color.LIGHT_GRAY);
             g.drawString("FONDO REVERSO NO ENCONTRADO", 20, 30);
         }
 
-        // 2) Datos dinámicos: fecha de emisión y vigencia
-        String vigencia = nvl(txtVigencia.getText());       // ej: "Ago-Dic 2025"
-        String fechaStr  = "";
+        // Datos dinámicos
+        String vigencia = nvl(txtVigencia.getText());
+        String fechaStr = "";
         if (dpFechaEmision.getValue() != null) {
             fechaStr = dpFechaEmision.getValue()
-                    .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         }
 
         g.setColor(java.awt.Color.BLACK);
 
-        // Fecha de emisión (recuadro superior derecho)
-        // Ajusta X/Y si quieres afinar la posición
+        // Fecha de emisión
         g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 20));
-        drawTextClipped(g, fechaStr, 720, 120, 230);    // x=720, y=120, ancho máx 230
+        drawTextClipped(g, fechaStr, REV_FECHA_X, REV_FECHA_Y, 230);
 
-        // Vigencia (sobre los cuadros de VIGENCIA)
-        g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 18));
-        drawTextClipped(g, vigencia, 180, 190, 600);    // x=180, y=190
+        // Vigencia
+        g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12));
+        drawTextClipped(g, vigencia, REV_VIG_X, REV_VIG_Y, 600);
+
+        // Firma del alumno (si existe)
+        if (firmaActual != null && firmaActual.length > 0) {
+            try {
+                Image fx = new Image(new ByteArrayInputStream(firmaActual));
+                BufferedImage firmaBI = SwingFXUtils.fromFXImage(fx, null);
+                if (firmaBI != null) {
+                    g.drawImage(firmaBI, FIRMA_ALUMNO_X, FIRMA_ALUMNO_Y,
+                            FIRMA_ALUMNO_W, FIRMA_ALUMNO_H, null);
+                }
+            } catch (Exception ignore) {}
+        }
+
+        // Firma fija del director
+        try (InputStream is = getClass().getResourceAsStream(FIRMA_DIRECTOR_PATH)) {
+            if (is != null) {
+                BufferedImage firmaDir = ImageIO.read(is);
+                if (firmaDir != null) {
+                    g.drawImage(firmaDir, FIRMA_DIR_X, FIRMA_DIR_Y,
+                            FIRMA_DIR_W, FIRMA_DIR_H, null);
+                }
+            }
+        } catch (Exception ignore) {}
 
         g.dispose();
         return img;
     }
 
-
-    // ===== Código de barras FX/Buffered =====
+    // ================== CÓDIGO DE BARRAS ==================
     private Image generarCodigoBarrasFX(String data, int w, int h) {
         try {
             if (data == null || data.isBlank()) return null;
-            var hints = new EnumMap<EncodeHintType,Object>(EncodeHintType.class);
+            var hints = new EnumMap<EncodeHintType, Object>(EncodeHintType.class);
             hints.put(EncodeHintType.MARGIN, 6);
             BitMatrix m = new Code128Writer().encode(data, BarcodeFormat.CODE_128, w, h, hints);
             WritableImage wi = new WritableImage(w, h);
             var pw = wi.getPixelWriter();
             final int B = 0xFF000000, W = 0xFFFFFFFF;
-            for (int y=0; y<h; y++) for (int x=0; x<w; x++) pw.setArgb(x, y, m.get(x,y) ? B : W);
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                    pw.setArgb(x, y, m.get(x, y) ? B : W);
             return wi;
-        } catch (Exception e) { error("No se pudo generar el código de barras: " + e.getMessage()); return null; }
+        } catch (Exception e) {
+            error("No se pudo generar el código de barras: " + e.getMessage());
+            return null;
+        }
     }
 
-    private BufferedImage generarCodigoBarrasBuffered(String data, int w, int h, int marginPx) {
-        try {
-            var hints = new EnumMap<EncodeHintType,Object>(EncodeHintType.class);
-            hints.put(EncodeHintType.MARGIN, marginPx);
-            BitMatrix m = new Code128Writer().encode(data, BarcodeFormat.CODE_128, w, h, hints);
-            BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-            for (int y=0; y<h; y++) for (int x=0; x<w; x++) bi.setRGB(x, y, m.get(x,y) ? 0xFF000000 : 0xFFFFFFFF);
-            return bi;
-        } catch (Exception e) { return null; }
-    }
-
+    // ================== FONDOS ==================
     private InputStream openFondoStream() {
         for (String path : FONDO_CANDIDATES) {
             URL u = getClass().getResource(path);
             if (u != null) {
-                try { return u.openStream(); } catch (IOException ignore) {}
+                try {
+                    return u.openStream();
+                } catch (IOException ignore) {
+                }
             }
         }
         return null;
     }
+
     private InputStream openFondoReversoStream() {
         for (String path : FONDO_REVERSO_CANDIDATES) {
             URL u = getClass().getResource(path);
@@ -406,12 +500,16 @@ public class CredencialController {
         return null;
     }
 
-    // ===== Helpers =====
+    // ================== HELPERS ==================
     private int drawTextClipped(java.awt.Graphics2D g, String text, int x, int y, int maxWidth) {
         if (text == null) text = "";
         var fm = g.getFontMetrics();
-        if (fm.stringWidth(text) <= maxWidth) { g.drawString(text, x, y); return y; }
-        String ell = "…"; int wEll = fm.stringWidth(ell);
+        if (fm.stringWidth(text) <= maxWidth) {
+            g.drawString(text, x, y);
+            return y;
+        }
+        String ell = "…";
+        int wEll = fm.stringWidth(ell);
         StringBuilder sb = new StringBuilder();
         for (char c : text.toCharArray()) {
             if (fm.stringWidth(sb.toString()) + fm.charWidth(c) + wEll > maxWidth) break;
@@ -421,45 +519,62 @@ public class CredencialController {
         return y;
     }
 
-    private String safeUpper(Label l) { return (l == null || l.getText() == null) ? "" : l.getText().toUpperCase(); }
-    private static String trim(String s){ return s==null? "": s.trim(); }
-    private static String nvl(String s){ return Objects.toString(s,""); }
+    private String safeUpper(Label l) {
+        return (l == null || l.getText() == null) ? "" : l.getText().toUpperCase();
+    }
 
+    private static String trim(String s) { return s == null ? "" : s.trim(); }
+    private static String nvl(String s)   { return Objects.toString(s, ""); }
+
+    // ---------- Foto desde String (Base64 / dataURL / ruta / URL) ----------
     private void setImageFromString(String fotoStr) {
         try {
             if (fotoStr == null || fotoStr.isBlank()) {
                 imgAlumno.setImage(null);
                 if (imgFotoPlantilla != null) imgFotoPlantilla.setImage(null);
+                fotoActual = null;
                 return;
             }
+
+            // data:image/...
             if (fotoStr.startsWith("data:image")) {
                 String base64 = fotoStr.substring(fotoStr.indexOf(",") + 1);
                 byte[] bytes = Base64.getDecoder().decode(base64);
+                fotoActual = bytes;
                 Image img = new Image(new ByteArrayInputStream(bytes));
                 imgAlumno.setImage(img);
                 if (imgFotoPlantilla != null) imgFotoPlantilla.setImage(img);
-                fotoActual = bytes; return;
+                return;
             }
-            String compact = fotoStr.replaceAll("\\s+","");
+
+            // Base64 "pura"
+            String compact = fotoStr.replaceAll("\\s+", "");
             if (compact.matches("^[A-Za-z0-9+/=]+$") && compact.length() % 4 == 0) {
                 byte[] bytes = Base64.getDecoder().decode(compact);
                 Image img = new Image(new ByteArrayInputStream(bytes));
                 if (!img.isError()) {
+                    fotoActual = bytes;
                     imgAlumno.setImage(img);
                     if (imgFotoPlantilla != null) imgFotoPlantilla.setImage(img);
-                    fotoActual = bytes; return;
+                    return;
                 }
             }
+
+            // Ruta local
             Path p = Path.of(fotoStr);
             if (Files.exists(p)) {
                 byte[] bytes = Files.readAllBytes(p);
+                fotoActual = bytes;
                 Image img = new Image(new ByteArrayInputStream(bytes));
                 imgAlumno.setImage(img);
                 if (imgFotoPlantilla != null) imgFotoPlantilla.setImage(img);
-                fotoActual = bytes; return;
+                return;
             }
+
+            // URL / file:
             Image img = new Image(fotoStr.startsWith("http") ? fotoStr : "file:" + fotoStr);
             if (!img.isError()) {
+                fotoActual = null; // no tenemos el binario, pero al menos vista
                 imgAlumno.setImage(img);
                 if (imgFotoPlantilla != null) imgFotoPlantilla.setImage(img);
             } else {
@@ -469,26 +584,89 @@ public class CredencialController {
         } catch (Exception e) {
             imgAlumno.setImage(null);
             if (imgFotoPlantilla != null) imgFotoPlantilla.setImage(null);
+            fotoActual = null;
         }
     }
 
+    // ---------- Firma desde String (mismas reglas que foto, pero sin ImageView) ----------
+    private void setFirmaFromString(String firmaStr) {
+        try {
+            if (firmaStr == null || firmaStr.isBlank()) {
+                firmaActual = null;
+                return;
+            }
+
+            // data:image/...
+            if (firmaStr.startsWith("data:image")) {
+                String base64 = firmaStr.substring(firmaStr.indexOf(",") + 1);
+                firmaActual = Base64.getDecoder().decode(base64);
+                return;
+            }
+
+            // Base64 pura
+            String compact = firmaStr.replaceAll("\\s+", "");
+            if (compact.matches("^[A-Za-z0-9+/=]+$") && compact.length() % 4 == 0) {
+                byte[] bytes = Base64.getDecoder().decode(compact);
+                // Verificamos que sea imagen válida
+                Image test = new Image(new ByteArrayInputStream(bytes));
+                if (!test.isError()) {
+                    firmaActual = bytes;
+                    return;
+                }
+            }
+
+            // Ruta local
+            Path p = Path.of(firmaStr);
+            if (Files.exists(p)) {
+                firmaActual = Files.readAllBytes(p);
+                return;
+            }
+
+            // URL remota
+            if (firmaStr.startsWith("http")) {
+                try (InputStream is = new URL(firmaStr).openStream();
+                     ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+                    is.transferTo(bos);
+                    firmaActual = bos.toByteArray();
+                    return;
+                }
+            }
+
+            // Si nada funcionó
+            firmaActual = null;
+        } catch (Exception e) {
+            firmaActual = null;
+        }
+    }
+
+    // ---------- Limpieza y mensajes ----------
     private void limpiar() {
-        txtNombre.clear(); txtPaterno.clear(); txtMaterno.clear();
-        txtCurp.clear(); txtNss.clear(); txtVigencia.clear();
+        txtNombre.clear();
+        txtPaterno.clear();
+        txtMaterno.clear();
+        txtCurp.clear();
+        txtNss.clear();
+        txtVigencia.clear();
         dpFechaEmision.setValue(null);
+
         imgAlumno.setImage(null);
         if (imgFotoPlantilla != null) imgFotoPlantilla.setImage(null);
         imgBarcode.setImage(null);
         if (imgBarcodePlantilla != null) imgBarcodePlantilla.setImage(null);
+
+        fotoActual = null;
+        firmaActual = null;
     }
 
-    private void info(String m){ new Alert(Alert.AlertType.INFORMATION, m).showAndWait(); }
-    private void warn(String m){ new Alert(Alert.AlertType.WARNING, m).showAndWait(); }
-    private void error(String m){ new Alert(Alert.AlertType.ERROR, m).showAndWait(); }
-    private void showErr(String titulo, Exception e){
+    private void info(String m)  { new Alert(Alert.AlertType.INFORMATION, m).showAndWait(); }
+    private void warn(String m)  { new Alert(Alert.AlertType.WARNING, m).showAndWait(); }
+    private void error(String m) { new Alert(Alert.AlertType.ERROR, m).showAndWait(); }
+
+    private void showErr(String titulo, Exception e) {
         e.printStackTrace();
-        Throwable c = (e.getCause()!=null? e.getCause(): e);
-        Alert a = new Alert(Alert.AlertType.ERROR, titulo + ":\n" + c.getClass().getSimpleName() + ": " + nvl(c.getMessage()));
+        Throwable c = (e.getCause() != null ? e.getCause() : e);
+        Alert a = new Alert(Alert.AlertType.ERROR,
+                titulo + ":\n" + c.getClass().getSimpleName() + ": " + nvl(c.getMessage()));
         a.setHeaderText("Error");
         a.showAndWait();
     }
