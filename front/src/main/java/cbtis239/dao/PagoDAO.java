@@ -1,6 +1,7 @@
 package cbtis239.dao;
 
 import cbtis239.model.Pago;
+import cbtis239.model.PagoHist;
 import cbtis239.util.DB;
 
 import java.sql.*;
@@ -9,68 +10,87 @@ import java.util.List;
 
 public class PagoDAO {
 
+    // ================== PERIODO ACTUAL ==================
 
     public Integer getPeriodoActualId() throws SQLException {
-        String sql = "SELECT idPeriodo FROM sistemaescolar.periodo WHERE CURDATE() BETWEEN Inicio AND Fin LIMIT 1";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql); var rs = ps.executeQuery()) {
+        String sql = "SELECT idPeriodo FROM sistemaescolar.periodo " +
+                "WHERE CURDATE() BETWEEN Inicio AND Fin LIMIT 1";
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
         }
         return null;
     }
 
-
     public String getPeriodoActualNombre() throws SQLException {
-        String sql = "SELECT Nombre FROM sistemaescolar.periodo WHERE CURDATE() BETWEEN Inicio AND Fin LIMIT 1";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql); var rs = ps.executeQuery()) {
+        String sql = "SELECT Nombre FROM sistemaescolar.periodo " +
+                "WHERE CURDATE() BETWEEN Inicio AND Fin LIMIT 1";
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             if (rs.next()) return rs.getString(1);
         }
         return null;
     }
 
+    // ================== EXISTENCIA BÁSICA ==================
 
     public boolean existsAspiranteFolio(int folio) throws SQLException {
         String sql = "SELECT 1 FROM sistemaescolar.aspirante WHERE Folio = ? LIMIT 1";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, folio);
-            try (var rs = ps.executeQuery()) { return rs.next(); }
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         }
     }
 
     public boolean existsAlumnoMatricula(String mat) throws SQLException {
         String sql = "SELECT 1 FROM sistemaescolar.alumno WHERE Matricula = ? LIMIT 1";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setString(1, mat);
-            try (var rs = ps.executeQuery()) { return rs.next(); }
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         }
     }
 
+    // ================== NOMBRES COMPLETOS ==================
 
     public String nombreCompletoAlumno(String matricula) {
         String sql =
                 "SELECT COALESCE(CONCAT_WS(' ', NULLIF(Nombre,''), NULLIF(Paterno,''), NULLIF(Materno,'')), " +
                         "               CONCAT('Alumno ', Matricula)) AS nom " +
                         "FROM sistemaescolar.alumno WHERE Matricula = ? LIMIT 1";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setString(1, matricula);
-            try (var rs = ps.executeQuery()) { if (rs.next()) return rs.getString(1); }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString(1);
+            }
         } catch (SQLException ignore) {}
         return "Alumno " + matricula;
     }
-
 
     public String nombreCompletoAspirante(int folio) {
         String sql =
                 "SELECT COALESCE(CONCAT_WS(' ', NULLIF(Nombre,''), NULLIF(Paterno,''), NULLIF(Materno,'')), " +
                         "               CONCAT('Aspirante ', Folio)) AS nom " +
                         "FROM sistemaescolar.aspirante WHERE Folio = ? LIMIT 1";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, folio);
-            try (var rs = ps.executeQuery()) { if (rs.next()) return rs.getString(1); }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString(1);
+            }
         } catch (SQLException ignore) {}
         return "Aspirante " + folio;
     }
 
-
+    // ================== LISTAS ==================
 
     public List<Pago> listarTodosConEstado(int periodoId, double montoFijo) throws SQLException {
         String sql =
@@ -100,28 +120,27 @@ public class PagoDAO {
                         "ORDER BY 1";
 
         List<Pago> lista = new ArrayList<>();
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, periodoId);
             ps.setInt(2, periodoId);
-            try (var rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String nombre = rs.getString("NombreCompleto");
-                    double monto  = rs.getBigDecimal("Monto") != null ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
+                    double monto  = rs.getBigDecimal("Monto") != null
+                            ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
                     int est       = rs.getInt("Estatus");
                     int idPago    = rs.getInt("idPago");
                     String mat    = rs.getString("Matricula");
                     int folio     = rs.getInt("Folio");
                     boolean folioNull = rs.wasNull();
-                    lista.add(new Pago(idPago, est, monto, mat, folioNull ? null : folio, periodoId, nombre));
+                    lista.add(new Pago(idPago, est, monto, mat,
+                            folioNull ? null : folio, periodoId, nombre));
                 }
             }
         }
         return lista;
     }
-
-
-
-
 
     public List<Pago> buscarTodosConEstado(String entrada, int periodoId, double montoFijo) throws SQLException {
         boolean esNumero = entrada != null && entrada.matches("\\d+");
@@ -151,15 +170,18 @@ public class PagoDAO {
                         "WHERE s.Folio = ?";
 
         List<Pago> lista = new ArrayList<>();
-        try (var cn = DB.get()) {
+        try (Connection cn = DB.get()) {
+
             if (!esNumero) {
-                try (var ps = cn.prepareStatement(sqlAlumnos)) {
+                // matrícula alfanumérica
+                try (PreparedStatement ps = cn.prepareStatement(sqlAlumnos)) {
                     ps.setInt(1, periodoId);
                     ps.setString(2, entrada);
-                    try (var rs = ps.executeQuery()) {
+                    try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
                             String nombre = rs.getString("NombreCompleto");
-                            double monto  = rs.getBigDecimal("Monto") != null ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
+                            double monto  = rs.getBigDecimal("Monto") != null
+                                    ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
                             int est       = rs.getInt("Estatus");
                             int idPago    = rs.getInt("idPago");
                             String mat    = rs.getString("Matricula");
@@ -167,34 +189,39 @@ public class PagoDAO {
                         }
                     }
                 }
-            } else {
-                try (var ps = cn.prepareStatement(sqlAspirantes)) {
-                    ps.setInt(1, periodoId);
-                    ps.setInt(2, Integer.parseInt(entrada));
-                    try (var rs = ps.executeQuery()) {
-                        while (rs.next()) {
-                            String nombre = rs.getString("NombreCompleto");
-                            double monto  = rs.getBigDecimal("Monto") != null ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
-                            int est       = rs.getInt("Estatus");
-                            int idPago    = rs.getInt("idPago");
-                            int folio     = rs.getInt("Folio");
-                            lista.add(new Pago(idPago, est, monto, null, folio, periodoId, nombre));
-                        }
+                return lista;
+            }
+
+            // es número -> primero folio aspirante
+            try (PreparedStatement ps = cn.prepareStatement(sqlAspirantes)) {
+                ps.setInt(1, periodoId);
+                ps.setInt(2, Integer.parseInt(entrada));
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        String nombre = rs.getString("NombreCompleto");
+                        double monto  = rs.getBigDecimal("Monto") != null
+                                ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
+                        int est       = rs.getInt("Estatus");
+                        int idPago    = rs.getInt("idPago");
+                        int folio     = rs.getInt("Folio");
+                        lista.add(new Pago(idPago, est, monto, null, folio, periodoId, nombre));
                     }
                 }
-                // matricula numérica
-                try (var ps = cn.prepareStatement(sqlAlumnos)) {
-                    ps.setInt(1, periodoId);
-                    ps.setString(2, entrada);
-                    try (var rs = ps.executeQuery()) {
-                        while (rs.next()) {
-                            String nombre = rs.getString("NombreCompleto");
-                            double monto  = rs.getBigDecimal("Monto") != null ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
-                            int est       = rs.getInt("Estatus");
-                            int idPago    = rs.getInt("idPago");
-                            String mat    = rs.getString("Matricula");
-                            lista.add(new Pago(idPago, est, monto, mat, null, periodoId, nombre));
-                        }
+            }
+
+            // ...y también matrícula numérica
+            try (PreparedStatement ps = cn.prepareStatement(sqlAlumnos)) {
+                ps.setInt(1, periodoId);
+                ps.setString(2, entrada);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        String nombre = rs.getString("NombreCompleto");
+                        double monto  = rs.getBigDecimal("Monto") != null
+                                ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
+                        int est       = rs.getInt("Estatus");
+                        int idPago    = rs.getInt("idPago");
+                        String mat    = rs.getString("Matricula");
+                        lista.add(new Pago(idPago, est, monto, mat, null, periodoId, nombre));
                     }
                 }
             }
@@ -202,47 +229,100 @@ public class PagoDAO {
         return lista;
     }
 
+    // ================== INSERTS EN TRANSACCIÓN ==================
+
     public int insertPagoAlumnoTx(Connection cn, String matricula, double monto, int periodoId) throws SQLException {
-        String sql = "INSERT INTO sistemaescolar.pago (Estatus, Monto, Alumno_Matricula, Aspirante_Folio, Periodo_idPeriodo) " +
+        String sql = "INSERT INTO sistemaescolar.pago " +
+                "(Estatus, Monto, Alumno_Matricula, Aspirante_Folio, Periodo_idPeriodo) " +
                 "VALUES (1, ?, ?, NULL, ?)";
-        try (var ps = cn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setBigDecimal(1, new java.math.BigDecimal(monto).setScale(2, java.math.RoundingMode.HALF_UP));
             ps.setString(2, matricula);
             ps.setInt(3, periodoId);
             ps.executeUpdate();
-            try (var k = ps.getGeneratedKeys()) { return k.next() ? k.getInt(1) : 0; }
-        } catch (java.sql.SQLIntegrityConstraintViolationException dup) {
-            // Proviene del UNIQUE uq_pago_alumno_periodo
+            try (ResultSet k = ps.getGeneratedKeys()) {
+                return k.next() ? k.getInt(1) : 0;
+            }
+        } catch (SQLIntegrityConstraintViolationException dup) {
+            // UNIQUE uq_pago_alumno_periodo
             throw new SQLException("DUPLICATE_PAGO_ALUMNO");
         }
     }
 
     public int insertPagoAspiranteTx(Connection cn, int folio, double monto, int periodoId) throws SQLException {
-        String sql = "INSERT INTO sistemaescolar.pago (Estatus, Monto, Alumno_Matricula, Aspirante_Folio, Periodo_idPeriodo) " +
+        String sql = "INSERT INTO sistemaescolar.pago " +
+                "(Estatus, Monto, Alumno_Matricula, Aspirante_Folio, Periodo_idPeriodo) " +
                 "VALUES (1, ?, NULL, ?, ?)";
-        try (var ps = cn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setBigDecimal(1, new java.math.BigDecimal(monto).setScale(2, java.math.RoundingMode.HALF_UP));
             ps.setInt(2, folio);
             ps.setInt(3, periodoId);
             ps.executeUpdate();
-            try (var k = ps.getGeneratedKeys()) { return k.next() ? k.getInt(1) : 0; }
-        } catch (java.sql.SQLIntegrityConstraintViolationException dup) {
-            // Proviene del UNIQUE uq_pago_aspirante_periodo
+            try (ResultSet k = ps.getGeneratedKeys()) {
+                return k.next() ? k.getInt(1) : 0;
+            }
+        } catch (SQLIntegrityConstraintViolationException dup) {
+            // UNIQUE uq_pago_aspirante_periodo
             throw new SQLException("DUPLICATE_PAGO_ASPIRANTE");
         }
     }
 
+    // ================== HISTORIAL alumno_periodo ==================
 
+    /** Inserta en alumno_periodo sólo si no existe ya ese periodo para esa matrícula. */
+    public void insertAlumnoPeriodoTx(Connection cn, String matricula, int periodoId) throws SQLException {
+        String sql = """
+            INSERT INTO sistemaescolar.alumno_periodo (Matricula, idPeriodo, FechaRegistro)
+            SELECT ?, ?, CURDATE()
+            WHERE NOT EXISTS (
+                SELECT 1 FROM sistemaescolar.alumno_periodo
+                WHERE Matricula = ? AND idPeriodo = ?
+            )
+            """;
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, matricula);
+            ps.setInt(2, periodoId);
+            ps.setString(3, matricula);
+            ps.setInt(4, periodoId);
+            ps.executeUpdate();
+        }
+    }
+
+    // ================== VIGENCIA POR ÚLTIMO PERIODO ==================
+
+    public String vigenciaUltimoPeriodoAlumno(String matricula) throws SQLException {
+        String sql = """
+            SELECT per.Nombre
+            FROM sistemaescolar.alumno_periodo ap
+            JOIN sistemaescolar.periodo per ON per.idPeriodo = ap.idPeriodo
+            WHERE ap.Matricula = ?
+            ORDER BY per.Fin DESC, per.Inicio DESC, ap.FechaRegistro DESC
+            LIMIT 1
+            """;
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, matricula);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString(1);
+            }
+        }
+        return null;
+    }
+
+    // ================== INSERTS “sencillos” (ya los tenías) ==================
 
     public int insertPagoAlumno(String matricula, double monto, int periodoId) throws SQLException {
         String sql = "INSERT INTO sistemaescolar.pago (Estatus, Monto, Alumno_Matricula, Aspirante_Folio, Periodo_idPeriodo) " +
                 "VALUES (1, ?, ?, NULL, ?)";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setBigDecimal(1, new java.math.BigDecimal(monto).setScale(2, java.math.RoundingMode.HALF_UP));
             ps.setString(2, matricula);
             ps.setInt(3, periodoId);
             ps.executeUpdate();
-            try (var k = ps.getGeneratedKeys()) { if (k.next()) return k.getInt(1); }
+            try (ResultSet k = ps.getGeneratedKeys()) {
+                if (k.next()) return k.getInt(1);
+            }
         }
         return 0;
     }
@@ -250,19 +330,25 @@ public class PagoDAO {
     public int insertPagoAspirante(int folio, double monto, int periodoId) throws SQLException {
         String sql = "INSERT INTO sistemaescolar.pago (Estatus, Monto, Alumno_Matricula, Aspirante_Folio, Periodo_idPeriodo) " +
                 "VALUES (1, ?, NULL, ?, ?)";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setBigDecimal(1, new java.math.BigDecimal(monto).setScale(2, java.math.RoundingMode.HALF_UP));
             ps.setInt(2, folio);
             ps.setInt(3, periodoId);
             ps.executeUpdate();
-            try (var k = ps.getGeneratedKeys()) { if (k.next()) return k.getInt(1); }
+            try (ResultSet k = ps.getGeneratedKeys()) {
+                if (k.next()) return k.getInt(1);
+            }
         }
         return 0;
     }
 
+    // ================== UPDATES ==================
+
     public boolean setAspiranteEstatusPagado(int folio) throws SQLException {
         String sql = "UPDATE sistemaescolar.aspirante SET EstatusPago = 'Pagado' WHERE Folio = ?";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, folio);
             return ps.executeUpdate() == 1;
         }
@@ -270,44 +356,58 @@ public class PagoDAO {
 
     public boolean setAlumnoEstadoActivo(String matricula) throws SQLException {
         String sql = "UPDATE sistemaescolar.alumno SET EstadoInscripcion = 'Activo' WHERE Matricula = ?";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setString(1, matricula);
             return ps.executeUpdate() == 1;
         }
     }
+
+    // ================== EXISTS PAGO ==================
+
     public boolean existsPagoAlumnoEnPeriodo(String matricula, int periodoId) throws SQLException {
         String sql = "SELECT 1 FROM sistemaescolar.pago WHERE Alumno_Matricula = ? AND Periodo_idPeriodo = ? LIMIT 1";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setString(1, matricula);
             ps.setInt(2, periodoId);
-            try (var rs = ps.executeQuery()) { return rs.next(); }
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         }
     }
 
     public boolean existsPagoAspiranteEnPeriodo(int folio, int periodoId) throws SQLException {
         String sql = "SELECT 1 FROM sistemaescolar.pago WHERE Aspirante_Folio = ? AND Periodo_idPeriodo = ? LIMIT 1";
-        try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
+        try (Connection cn = DB.get();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, folio);
             ps.setInt(2, periodoId);
-            try (var rs = ps.executeQuery()) { return rs.next(); }
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
         }
     }
-    /** Elimina todos los pagos ligados al aspirante (para liberar la FK). */
+
+    // ================== DELETE POR ASPIRANTE ==================
+
     public int deleteByAspiranteFolio(Connection cn, int folio) throws SQLException {
         String sql = "DELETE FROM sistemaescolar.pago WHERE Aspirante_Folio = ?";
         try (PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, folio);
-            return ps.executeUpdate(); // número de pagos borrados
+            return ps.executeUpdate();
         }
     }
 
-    /** Versión cómoda sin transacción externa. */
     public int deleteByAspiranteFolio(int folio) throws SQLException {
         try (Connection cn = DB.get()) {
             return deleteByAspiranteFolio(cn, folio);
         }
     }
-    public List<cbtis239.model.PagoHist> buscarHistorialTodosPeriodos(String entrada) throws SQLException {
+
+    // ================== HISTORIAL DE PAGOS (YA LO TENÍAS) ==================
+
+    public List<PagoHist> buscarHistorialTodosPeriodos(String entrada) throws SQLException {
         boolean esNumero = entrada != null && entrada.matches("\\d+");
 
         String sqlAlumno =
@@ -338,58 +438,60 @@ public class PagoDAO {
                         "WHERE s.Folio = ? " +
                         "ORDER BY per.Inicio DESC, p.idPago DESC";
 
-        List<cbtis239.model.PagoHist> lista = new ArrayList<>();
+        List<PagoHist> lista = new ArrayList<>();
         try (Connection cn = DB.get()) {
 
-            // Si NO es número: es matrícula segura
             if (!esNumero) {
+                // matrícula
                 try (PreparedStatement ps = cn.prepareStatement(sqlAlumno)) {
                     ps.setString(1, entrada);
                     try (ResultSet rs = ps.executeQuery()) {
                         while (rs.next()) {
                             String nombre = rs.getString("NombreCompleto");
-                            double monto = rs.getBigDecimal("Monto") != null ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
+                            double monto = rs.getBigDecimal("Monto") != null
+                                    ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
                             String periodo = rs.getString("Periodo");
                             int idPago = rs.getInt("idPago");
                             String mat = rs.getString("Matricula");
-                            lista.add(new cbtis239.model.PagoHist(nombre, monto, periodo, idPago, mat, null));
+                            lista.add(new PagoHist(nombre, monto, periodo, idPago, mat, null));
                         }
                     }
                 }
                 return lista;
             }
 
-            // Es número: intenta por folio (aspirante)...
+            // número -> primero folio aspirante
             try (PreparedStatement ps = cn.prepareStatement(sqlAspirante)) {
                 ps.setInt(1, Integer.parseInt(entrada));
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         String nombre = rs.getString("NombreCompleto");
-                        double monto = rs.getBigDecimal("Monto") != null ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
+                        double monto = rs.getBigDecimal("Monto") != null
+                                ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
                         String periodo = rs.getString("Periodo");
                         int idPago = rs.getInt("idPago");
                         Integer folio = rs.getInt("Folio");
-                        lista.add(new cbtis239.model.PagoHist(nombre, monto, periodo, idPago, null, folio));
+                        lista.add(new PagoHist(nombre, monto, periodo, idPago, null, folio));
                     }
                 }
             }
 
-            // ...y también por matrícula numérica.
+            // y también matrícula numérica
             try (PreparedStatement ps = cn.prepareStatement(sqlAlumno)) {
                 ps.setString(1, entrada);
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         String nombre = rs.getString("NombreCompleto");
-                        double monto = rs.getBigDecimal("Monto") != null ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
+                        double monto = rs.getBigDecimal("Monto") != null
+                                ? rs.getBigDecimal("Monto").doubleValue() : 0.0;
                         String periodo = rs.getString("Periodo");
                         int idPago = rs.getInt("idPago");
                         String mat = rs.getString("Matricula");
-                        lista.add(new cbtis239.model.PagoHist(nombre, monto, periodo, idPago, mat, null));
+                        lista.add(new PagoHist(nombre, monto, periodo, idPago, mat, null));
                     }
                 }
             }
         }
         return lista;
     }
-
 }

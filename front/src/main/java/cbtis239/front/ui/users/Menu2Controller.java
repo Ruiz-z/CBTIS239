@@ -29,7 +29,9 @@ public class Menu2Controller {
         openFullScreenStage(event, "/cbtis239/front/views/Docente.fxml", "Gestión de Docentes");
      }
     
-    @FXML private void openCredencial() { loadContent("home.fxml"); }
+    @FXML private void openCredencial(ActionEvent event)    {
+        openFullScreenStage(event, "/cbtis239/front/views/Credencial.fxml", "Creacion de credenciales");
+    }
 
 
     // ---- Acciones que abren nuevas ventanas ----
