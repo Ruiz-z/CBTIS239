@@ -29,7 +29,6 @@ public class AsistenciaController {
     private final AlumnoDAO alumnoDAO = new AlumnoDAO();
 
     // AJUSTA ESTA RUTA A DONDE TENGAS LAS FOTOS
-    // Ejemplo: C:/CBTIS239/fotos/22050727.jpg  →  en BD guardas "22050727.jpg"
     private static final String BASE_FOTOS = "file:/C:/CBTIS239/fotos/";
 
     private final DateTimeFormatter fmtFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -55,11 +54,10 @@ public class AsistenciaController {
 
     @FXML
     private void onSalir(ActionEvent e) {
-        // AJUSTA LA RUTA DEL LOGIN SI ES DISTINTA
         SceneNavigator.switchFromEvent(
                 e,
-                "/cbtis239/front/views/login.fxml",
-                "Acceso al sistema"
+                "/cbtis239/front/views/login.fxml",   // ajusta si tu login tiene otro nombre/ruta
+                "Inicio de sesión"
         );
     }
 
@@ -68,60 +66,67 @@ public class AsistenciaController {
 
         if (matricula.isEmpty()) {
             lblMensaje.setText("Capture o escanee una matrícula.");
+            volverAFocoMatricula();
             return;
         }
 
         try {
-            // 1) Registrar entrada / salida
+            // 1) Buscar primero al alumno
+            Alumno a = alumnoDAO.buscarPorMatricula(matricula);
+
+            if (a == null) {
+                // 👉 Credencial no corresponde a ningún alumno
+                lblMensaje.setText("Credencial no válida. Verifique la credencial del alumno.");
+                // No movemos fecha/hora, no cambiamos escena
+                txtNombre.clear();
+                imgAlumno.setImage(null);
+                volverAFocoMatricula();
+                return;
+            }
+
+            // 2) Si el alumno existe, registrar entrada / salida
             String mensaje = asistenciaBO.registrarEscaneo(matricula);
             lblMensaje.setText(mensaje);
 
-            // 2) Fecha y hora actuales
+            // 3) Actualizar fecha y hora actuales
             LocalDate hoy  = LocalDate.now();
             LocalTime ahora = LocalTime.now();
             txtFecha.setText(fmtFecha.format(hoy));
             txtHora.setText(fmtHora.format(ahora));
 
-            // 3) Buscar alumno en BD
-            Alumno a = alumnoDAO.buscarPorMatricula(matricula);
+            // 4) Mostrar nombre completo
+            String nombreCompleto = a.getNombreCompleto();
+            if (nombreCompleto == null || nombreCompleto.isBlank()) {
+                nombreCompleto = "Sin nombre";
+            }
+            txtNombre.setText(nombreCompleto);
 
-            if (a != null) {
-                String nombreCompleto = a.getNombreCompleto();
-                if (nombreCompleto == null || nombreCompleto.isBlank()) {
-                    nombreCompleto = "Sin nombre";
-                }
-                txtNombre.setText(nombreCompleto);
-
-                // FOTO (String con nombre de archivo o ruta relativa)
-                String archivoFoto = a.getFoto();  // ej. "22050727.jpg"
-
-                if (archivoFoto != null && !archivoFoto.isBlank()) {
-                    String url = BASE_FOTOS + archivoFoto;
-                    System.out.println("Cargando foto desde: " + url);
-
-                    try {
-                        imgAlumno.setImage(new Image(url, true));
-                    } catch (Exception exImg) {
-                        exImg.printStackTrace();
-                        imgAlumno.setImage(null);
-                    }
-                } else {
+            // 5) Mostrar foto si existe
+            String archivoFoto = a.getFoto();  // ej. "22050727.jpg"
+            if (archivoFoto != null && !archivoFoto.isBlank()) {
+                String url = BASE_FOTOS + archivoFoto;
+                try {
+                    imgAlumno.setImage(new Image(url, true));
+                } catch (Exception exImg) {
+                    exImg.printStackTrace();
                     imgAlumno.setImage(null);
                 }
-
             } else {
-                txtNombre.setText("Alumno no encontrado");
                 imgAlumno.setImage(null);
             }
 
-            // Preparar para el siguiente escaneo
-            txtMatricula.requestFocus();
-            txtMatricula.selectAll();
+            // 6) Preparar para el siguiente escaneo
+            volverAFocoMatricula();
 
         } catch (Exception ex) {
             ex.printStackTrace();
             lblMensaje.setText("Error al registrar: " + ex.getMessage());
+            volverAFocoMatricula();
         }
     }
-}
 
+    private void volverAFocoMatricula() {
+        txtMatricula.requestFocus();
+        txtMatricula.selectAll();
+    }
+}
