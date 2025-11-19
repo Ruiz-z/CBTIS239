@@ -51,7 +51,9 @@
     <center>
         <StackPane fx:id="contentArea" styleClass="content">
             <VBox alignment="TOP_CENTER" spacing="30">
-                <Label text="Bienvenido Docente" styleClass="welcome-title"/>
+                <Label fx:id="lblBienvenida"
+       text="Bienvenido Docente"
+       styleClass="welcome-title"/>
                 <ImageView fx:id="imgMenu"
                            fitHeight="560" fitWidth="560"
                            preserveRatio="true" pickOnBounds="true">

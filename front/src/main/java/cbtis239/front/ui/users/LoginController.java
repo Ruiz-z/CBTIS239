@@ -1,7 +1,10 @@
 package cbtis239.front.ui.users;
 
+import cbtis239.bo.DocenteBO;
 import cbtis239.bo.UsuarioBO;
+import cbtis239.model.Docente;
 import cbtis239.model.Usuario;
+import cbtis239.session.SesionActual;
 import cbtis239.util.SceneNavigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,6 +27,7 @@ public class LoginController {
     @FXML private Label lblEstado;
 
     private final UsuarioBO usuarioBO = new UsuarioBO();
+    private final DocenteBO docenteBO = new DocenteBO();
 
     public void attachWindow(javafx.stage.Stage stage) {
         stage.setOnCloseRequest(e -> { e.consume(); System.exit(0); });
@@ -46,10 +50,8 @@ public class LoginController {
 
     @FXML
     private void toggleShowPassword(ActionEvent e) {
-        // No hace falta lógica adicional porque ya está enlazado en initialize(),
-        // pero mantenemos el handler porque el FXML lo invoca.
+        // Lógica ya manejada con las bindings en initialize()
     }
-
 
     @FXML
     private void onEntrar(ActionEvent e) {
@@ -60,16 +62,18 @@ public class LoginController {
         String pass = (chkMostrar.isSelected() ? txtPassVisible.getText() : txtPass.getText()).trim();
 
         try {
-            // ✅ Se obtiene el objeto Usuario desde UsuarioBO
             // ✅ Se obtiene el objeto Usuario con su rol desde UsuarioBO
             Usuario usuario = usuarioBO.validarLogin(user, pass);
 
             if (usuario != null) {
-                String rolNombre = usuario.getRolNombre();
 
+                // Guardar usuario en sesión global
+                SesionActual.setUsuario(usuario);
+
+                String rolNombre = usuario.getRolNombre();
                 lblEstado.setText("Acceso concedido");
 
-// 🔹 Redirección según el nombre del rol (ignore case)
+                // --- Servicios Escolares ---
                 if (rolNombre.equalsIgnoreCase("Servicios Escolares")) {
                     SceneNavigator.switchFromEvent(
                             e,
@@ -78,14 +82,27 @@ public class LoginController {
                     );
                     System.out.println("✅ Acceso: Servicios Escolares");
                 }
+                // --- Docente ---
                 else if (rolNombre.equalsIgnoreCase("Docente")) {
+
+                    // Buscar docente asociado a este usuario
+                    Docente d = docenteBO.obtenerDocentePorUsuario(usuario.getUsuario());
+                    if (d == null) {
+                        lblEstado.setText("No se encontró un docente vinculado a este usuario.");
+                        btnEntrar.setDisable(false);
+                        return;
+                    }
+                    // Guardar docente en sesión
+                    SesionActual.setDocente(d);
+
                     SceneNavigator.switchFromEvent(
                             e,
                             "/cbtis239/front/views/MenuDocente.fxml",
                             "Menú Docente"
                     );
-                    System.out.println("✅ Acceso: Docente");
+                    System.out.println("✅ Acceso: Docente (ID " + d.getDocenteId() + ")");
                 }
+                // --- Servicios Financieros ---
                 else if (rolNombre.equalsIgnoreCase("Servicios Financieros")) {
                     SceneNavigator.switchFromEvent(
                             e,
@@ -100,7 +117,6 @@ public class LoginController {
                     System.out.println("⚠️ Rol desconocido: " + rolNombre);
                 }
 
-
             } else {
                 lblEstado.setText("Usuario o contraseña incorrectos");
                 btnEntrar.setDisable(false);
@@ -109,18 +125,14 @@ public class LoginController {
         } catch (Exception ex) {
             btnEntrar.setDisable(false);
 
-            // Si es una excepción de negocio (usuario o contraseña incorrectos)
             if (ex instanceof cbtis239.bo.BusinessException) {
                 lblEstado.setText("❌ " + ex.getMessage());
             } else {
-                // Cualquier otro error técnico (BD, conexión, etc.)
                 lblEstado.setText("⚠️ Error interno, contacte al administrador");
                 ex.printStackTrace();
             }
         }
-
     }
-
 
     private void showError(String title, Throwable ex) {
         ex.printStackTrace();
@@ -134,9 +146,6 @@ public class LoginController {
         a.showAndWait();
     }
 
-
     @FXML
     private void onSalir(ActionEvent e) { System.exit(0); }
 }
-
-

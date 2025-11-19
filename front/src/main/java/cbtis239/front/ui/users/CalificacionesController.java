@@ -1,8 +1,10 @@
 package cbtis239.front.ui.users;
 
 import cbtis239.bo.CalificacionBO;
-import cbtis239.dao.*;
-import cbtis239.model.*;
+import cbtis239.model.Calificacion;
+import cbtis239.model.Catalogo;
+import cbtis239.model.Docente;
+import cbtis239.session.SesionActual;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -18,24 +20,24 @@ import javafx.util.converter.DoubleStringConverter;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CalificacionesController {
 
-    private final Map<String, String> materiaClaveMap = new HashMap<>(); // nombre → clave real
-    @FXML private ComboBox<Catalogo> cmbGrupo, cmbMateria;
+    // ====== Controles ======
+    @FXML private ComboBox<Catalogo> cmbCurso;
+    @FXML private TextField txtBuscarMatricula;
     @FXML private TextField txtPromedioGeneral;
+
     @FXML private TableView<Calificacion> tblCalificaciones;
-    @FXML private TableColumn<Calificacion, String> colNombre, colMatricula;
-    @FXML private TableColumn<Calificacion, Double> colParcial1, colParcial2, colParcial3, colFinal;
+    @FXML private TableColumn<Calificacion, String>  colNombre;
+    @FXML private TableColumn<Calificacion, String>  colMatricula;
+    @FXML private TableColumn<Calificacion, Double> colParcial1;
+    @FXML private TableColumn<Calificacion, Double> colParcial2;
+    @FXML private TableColumn<Calificacion, Double> colParcial3;
+    @FXML private TableColumn<Calificacion, Double> colFinal;
 
     private final CalificacionBO califBO = new CalificacionBO();
-    private final GrupoDao grupoDAO = new GrupoDao();
-    private final MateriaDao materiaDAO = new MateriaDao();
-    private final CursoDao cursoDAO = new CursoDao();
-
     private int cursoSeleccionado = -1;
 
     // ============================================================
@@ -44,35 +46,22 @@ public class CalificacionesController {
     @FXML
     public void initialize() {
         try {
-            // 🔹 Cargar grupos
-            cmbGrupo.getItems().setAll(
-                    grupoDAO.findAll().stream()
-                            .map(g -> new Catalogo(g.getGrupoId(), g.getNombreGrupo()))
-                            .toList()
-            );
-
-            // 🔹 Llenar mapa nombre → clave real de materia
-            materiaDAO.listar().forEach(m -> materiaClaveMap.put(m.getNombre(), m.getClave()));
-
-            // 🔹 Llenar ComboBox con nombres visibles de materia
-            cmbMateria.getItems().setAll(
-                    materiaDAO.listar().stream()
-                            .map(m -> new Catalogo(m.getClave().hashCode(), m.getNombre()))
-                            .toList()
-            );
-
-            // 🔹 Configurar la tabla editable
             configurarTabla();
 
-            // 🔹 Permitir buscar al presionar Enter en el campo de matrícula
-            txtBuscarMatricula.setOnAction(event -> {
-                try {
-                    onBuscarPorMatricula();
-                } catch (Exception e) {
-                    showError("Error al buscar por matrícula:\n" + e.getMessage());
-                    e.printStackTrace();
-                }
-            });
+            // Buscar al presionar Enter
+            txtBuscarMatricula.setOnAction(e -> onBuscarPorMatricula());
+
+            // Docente actual desde la sesión global
+            Docente doc = SesionActual.getDocente();
+            if (doc == null) {
+                showError("No hay un docente en sesión. Vuelva a iniciar sesión.");
+                deshabilitarPantalla();
+                return;
+            }
+
+            // Llenar ComboBox de cursos del docente
+            var cursos = califBO.cursosDelDocente(doc.getDocenteId());
+            cmbCurso.getItems().setAll(cursos);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -80,8 +69,11 @@ public class CalificacionesController {
         }
     }
 
-
-
+    private void deshabilitarPantalla() {
+        cmbCurso.setDisable(true);
+        txtBuscarMatricula.setDisable(true);
+        tblCalificaciones.setDisable(true);
+    }
 
     // ============================================================
     // CONFIGURAR TABLA
@@ -126,75 +118,61 @@ public class CalificacionesController {
                 case "Parcial 3" -> cal.setParcial3(nuevoValor);
             }
 
-            // 🔹 Recalcular promedio inmediato
             cal.recalcularPromedio();
             tblCalificaciones.refresh();
             actualizarPromedioGeneral();
         });
     }
 
+    // ============================================================
+    // EVENTOS
+    // ============================================================
 
-    // ============================================================
-    // EVENTOS DE BOTONES
-    // ============================================================
+    /** Botón Buscar: carga los alumnos del curso seleccionado. */
     @FXML
     private void onBuscar() {
-        Catalogo grupo = cmbGrupo.getValue();
-        Catalogo materia = cmbMateria.getValue();
-
-        if (grupo == null || materia == null) {
-            showError("Selecciona grupo y materia antes de buscar.");
+        Catalogo cursoCat = cmbCurso.getValue();
+        if (cursoCat == null) {
+            showError("Selecciona un curso.");
             return;
         }
 
+        cursoSeleccionado = cursoCat.getId();
+
         try {
-            // Recuperar la clave real usando el nombre mostrado
-            String materiaClave = materiaClaveMap.get(materia.getNombre());
-
-            cursoSeleccionado = cursoDAO.obtenerCursoPorGrupoMateria(
-                    grupo.getId(),
-                    materiaClave
-            );
-
-
-            if (cursoSeleccionado == -1) {
-                showError("No se encontró un curso activo para esa combinación.");
-                return;
-            }
-
             List<Calificacion> lista = califBO.listarPorCurso(cursoSeleccionado);
             tblCalificaciones.setItems(FXCollections.observableArrayList(lista));
             actualizarPromedioGeneral();
-
         } catch (SQLException e) {
             showError("Error al cargar las calificaciones:\n" + e.getMessage());
         }
     }
 
-    @FXML
-    private TextField txtBuscarMatricula;
+    /** Buscar/filtrar por matrícula (manteniendo el curso actual). */
     @FXML
     private void onBuscarPorMatricula() {
         try {
-            String matricula = txtBuscarMatricula.getText().trim();
-
-            // 🔹 Si el campo está vacío, mostrar todo el curso
-            if (matricula.isEmpty()) {
-                if (cursoSeleccionado != -1) {
-                    tblCalificaciones.setItems(FXCollections.observableArrayList(
-                            califBO.listarPorCurso(cursoSeleccionado)
-                    ));
-                    showInfo("Se ha restaurado la lista completa de alumnos.");
-                } else {
-                    showError("Selecciona un curso antes de buscar.");
-                }
+            if (cursoSeleccionado == -1) {
+                showError("Selecciona un curso antes de buscar.");
                 return;
             }
 
-            // 🔹 Filtrar por matrícula
-            List<Calificacion> listaFiltrada = tblCalificaciones.getItems().stream()
+            String matricula = txtBuscarMatricula.getText().trim();
+
+            // Campo vacío: restaurar todos los alumnos del curso
+            if (matricula.isEmpty()) {
+                tblCalificaciones.setItems(FXCollections.observableArrayList(
+                        califBO.listarPorCurso(cursoSeleccionado)
+                ));
+                actualizarPromedioGeneral();
+                showInfo("Se ha restaurado la lista completa de alumnos.");
+                return;
+            }
+
+            // Filtrar sobre lo que ya está cargado
+            var listaFiltrada = tblCalificaciones.getItems().stream()
                     .filter(c -> c.getAlumnoMatricula() != null &&
-                            c.getAlumnoMatricula().equalsIgnoreCase(matricula))
+                                 c.getAlumnoMatricula().equalsIgnoreCase(matricula))
                     .toList();
 
             if (listaFiltrada.isEmpty()) {
@@ -208,8 +186,6 @@ public class CalificacionesController {
             e.printStackTrace();
         }
     }
-
-
 
     @FXML
     private void onGuardar() {
@@ -231,7 +207,8 @@ public class CalificacionesController {
     private void onCancelar() {
         tblCalificaciones.getItems().clear();
         txtPromedioGeneral.clear();
-        cursoSeleccionado = -1;
+        txtBuscarMatricula.clear();
+        // no reseteo cursoSeleccionado para que el docente pueda volver a buscar
     }
 
     @FXML
@@ -239,9 +216,6 @@ public class CalificacionesController {
         showInfo("✔️ Calificaciones finalizadas correctamente.");
     }
 
-    // ============================================================
-    // 🔙 BOTÓN: VOLVER AL MENÚ DOCENTE
-    // ============================================================
     @FXML
     private void onVolverMenu(ActionEvent event) {
         try {
@@ -255,7 +229,6 @@ public class CalificacionesController {
             stage.setMaximized(true);
             stage.show();
 
-            // cerrar ventana actual
             ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
 
         } catch (IOException e) {

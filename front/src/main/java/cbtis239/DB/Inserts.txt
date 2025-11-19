@@ -1,0 +1,8 @@
+-- Inserta de lunes a viernes
+INSERT INTO DiasSemana (idDiasSemana, Lunes, Martes, Miercoles, Jueves, Viernes)
+VALUES (1, 1, 1, 1, 1, 1);
+
+-- Inserta de lunes a jueves
+INSERT INTO DiasSemana (idDiasSemana, Lunes, Martes, Miercoles, Jueves, Viernes)
+VALUES (2, 1, 1, 1, 1, 0);
+

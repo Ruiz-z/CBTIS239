@@ -2,12 +2,23 @@ package cbtis239.bo;
 
 import cbtis239.dao.CalificacionDAO;
 import cbtis239.model.Calificacion;
+import cbtis239.model.Catalogo;
+
 import java.sql.SQLException;
 import java.util.List;
 
 public class CalificacionBO {
 
     private final CalificacionDAO dao = new CalificacionDAO();
+
+    // ============================================================
+    // LISTAR CURSOS DEL DOCENTE (para el ComboBox)
+    // ============================================================
+    public List<Catalogo> cursosDelDocente(int docenteId) throws SQLException {
+        if (docenteId <= 0)
+            throw new IllegalArgumentException("El ID del docente no es válido.");
+        return dao.listarCursosDeDocente(docenteId);
+    }
 
     // ============================================================
     // LISTAR CALIFICACIONES POR CURSO
