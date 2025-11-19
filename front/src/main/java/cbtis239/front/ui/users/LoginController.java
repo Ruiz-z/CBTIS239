@@ -60,8 +60,6 @@ public class LoginController {
         String pass = (chkMostrar.isSelected() ? txtPassVisible.getText() : txtPass.getText()).trim();
 
         try {
-            // ✅ Se obtiene el objeto Usuario desde UsuarioBO
-            // ✅ Se obtiene el objeto Usuario con su rol desde UsuarioBO
             Usuario usuario = usuarioBO.validarLogin(user, pass);
 
             if (usuario != null) {
@@ -69,14 +67,13 @@ public class LoginController {
 
                 lblEstado.setText("Acceso concedido");
 
-// 🔹 Redirección según el nombre del rol (ignore case)
                 if (rolNombre.equalsIgnoreCase("Servicios Escolares")) {
                     SceneNavigator.switchFromEvent(
                             e,
                             "/cbtis239/front/views/menu.fxml",
                             "Servicios Escolares"
                     );
-                    System.out.println("✅ Acceso: Servicios Escolares");
+                    System.out.println("Acceso: Servicios Escolares");
                 }
                 else if (rolNombre.equalsIgnoreCase("Docente")) {
                     SceneNavigator.switchFromEvent(
@@ -84,7 +81,7 @@ public class LoginController {
                             "/cbtis239/front/views/MenuDocente.fxml",
                             "Menú Docente"
                     );
-                    System.out.println("✅ Acceso: Docente");
+                    System.out.println("Acceso: Docente");
                 }
                 else if (rolNombre.equalsIgnoreCase("Servicios Financieros")) {
                     SceneNavigator.switchFromEvent(
@@ -92,14 +89,24 @@ public class LoginController {
                             "/cbtis239/front/views/MenuSF.fxml",
                             "Servicios Financieros"
                     );
-                    System.out.println("✅ Acceso: Servicios Financieros");
+                    System.out.println("Acceso: Servicios Financieros");
+                }
+                else if (rolNombre.equalsIgnoreCase("Asistencia")) {
+
+                    //  AQUI SE ABRE DIRECTAMENTE LA PANTALLA DE REGISTRO DE ASISTENCIA
+                    SceneNavigator.switchFromEvent(
+                            e,
+                            "/cbtis239/front/views/AsistenciaView.fxml",
+                            "Registro de Asistencia"
+                    );
+
+                    System.out.println("Acceso: Módulo de Asistencia");
                 }
                 else {
                     lblEstado.setText("Rol no reconocido: " + rolNombre);
                     btnEntrar.setDisable(false);
-                    System.out.println("⚠️ Rol desconocido: " + rolNombre);
+                    System.out.println("Rol desconocido: " + rolNombre);
                 }
-
 
             } else {
                 lblEstado.setText("Usuario o contraseña incorrectos");
@@ -109,17 +116,15 @@ public class LoginController {
         } catch (Exception ex) {
             btnEntrar.setDisable(false);
 
-            // Si es una excepción de negocio (usuario o contraseña incorrectos)
             if (ex instanceof cbtis239.bo.BusinessException) {
                 lblEstado.setText("❌ " + ex.getMessage());
             } else {
-                // Cualquier otro error técnico (BD, conexión, etc.)
                 lblEstado.setText("⚠️ Error interno, contacte al administrador");
                 ex.printStackTrace();
             }
         }
-
     }
+
 
 
     private void showError(String title, Throwable ex) {
