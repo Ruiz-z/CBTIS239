@@ -1,93 +1,50 @@
 package cbtis239.model;
 
-import javafx.beans.property.*;
-
 public class Docente {
-    private final IntegerProperty docenteId = new SimpleIntegerProperty(this, "docenteId");
-    private final StringProperty curp = new SimpleStringProperty(this, "curp");
-    private final StringProperty correo = new SimpleStringProperty(this, "correo");
-    private final StringProperty nss = new SimpleStringProperty(this, "nss");
-    private final StringProperty nombre = new SimpleStringProperty(this, "nombre");
-    private final StringProperty paterno = new SimpleStringProperty(this, "paterno");
-    private final StringProperty materno = new SimpleStringProperty(this, "materno");
-    private final StringProperty telefono = new SimpleStringProperty(this, "telefono");
-    private final StringProperty celular = new SimpleStringProperty(this, "celular");
-    private final IntegerProperty idEdoCivil = new SimpleIntegerProperty(this, "idEdoCivil");
-    private final IntegerProperty idGenero = new SimpleIntegerProperty(this, "idGenero");
 
-    // Para la tabla (texto del género y nombre completo)
-    private final StringProperty generoNombre = new SimpleStringProperty(this, "generoNombre");
+    private int docenteId;
+    private String curp;
+    private String correo;
+    private String nss;
+    private String nombre;
+    private String paterno;
+    private String materno;
+    private String telefono;
+    private String celular;
+    private int edoCivilId;
+    private int generoId;
 
-    public Docente() { }
-    public Docente(int id, String curp, String correo, String nss, String nombre,
-                   String paterno, String materno, String telefono, String celular,
-                   int idEdoCivil, int idGenero, String generoNombre) {
-        setDocenteId(id);
-        setCurp(curp);
-        setCorreo(correo);
-        setNss(nss);
-        setNombre(nombre);
-        setPaterno(paterno);
-        setMaterno(materno);
-        setTelefono(telefono);
-        setCelular(celular);
-        setIdEdoCivil(idEdoCivil);
-        setIdGenero(idGenero);
-        setGeneroNombre(generoNombre);
-    }
+    // ===== Getters / Setters =====
+    public int getDocenteId() { return docenteId; }
+    public void setDocenteId(int docenteId) { this.docenteId = docenteId; }
 
-    public int getDocenteId() { return docenteId.get(); }
-    public void setDocenteId(int v) { docenteId.set(v); }
-    public IntegerProperty docenteIdProperty() { return docenteId; }
+    public String getCurp() { return curp; }
+    public void setCurp(String curp) { this.curp = curp; }
 
-    public String getCurp() { return curp.get(); }
-    public void setCurp(String v) { curp.set(v); }
-    public StringProperty curpProperty() { return curp; }
+    public String getCorreo() { return correo; }
+    public void setCorreo(String correo) { this.correo = correo; }
 
-    public String getCorreo() { return correo.get(); }
-    public void setCorreo(String v) { correo.set(v); }
-    public StringProperty correoProperty() { return correo; }
+    public String getNss() { return nss; }
+    public void setNss(String nss) { this.nss = nss; }
 
-    public String getNss() { return nss.get(); }
-    public void setNss(String v) { nss.set(v); }
-    public StringProperty nssProperty() { return nss; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getNombre() { return nombre.get(); }
-    public void setNombre(String v) { nombre.set(v); }
-    public StringProperty nombreProperty() { return nombre; }
+    public String getPaterno() { return paterno; }
+    public void setPaterno(String paterno) { this.paterno = paterno; }
 
-    public String getPaterno() { return paterno.get(); }
-    public void setPaterno(String v) { paterno.set(v); }
-    public StringProperty paternoProperty() { return paterno; }
+    public String getMaterno() { return materno; }
+    public void setMaterno(String materno) { this.materno = materno; }
 
-    public String getMaterno() { return materno.get(); }
-    public void setMaterno(String v) { materno.set(v); }
-    public StringProperty maternoProperty() { return materno; }
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
 
-    public String getTelefono() { return telefono.get(); }
-    public void setTelefono(String v) { telefono.set(v); }
-    public StringProperty telefonoProperty() { return telefono; }
+    public String getCelular() { return celular; }
+    public void setCelular(String celular) { this.celular = celular; }
 
-    public String getCelular() { return celular.get(); }
-    public void setCelular(String v) { celular.set(v); }
-    public StringProperty celularProperty() { return celular; }
+    public int getEdoCivilId() { return edoCivilId; }
+    public void setEdoCivilId(int edoCivilId) { this.edoCivilId = edoCivilId; }
 
-    public int getIdEdoCivil() { return idEdoCivil.get(); }
-    public void setIdEdoCivil(int v) { idEdoCivil.set(v); }
-    public IntegerProperty idEdoCivilProperty() { return idEdoCivil; }
-
-    public int getIdGenero() { return idGenero.get(); }
-    public void setIdGenero(int v) { idGenero.set(v); }
-    public IntegerProperty idGeneroProperty() { return idGenero; }
-
-    public String getGeneroNombre() { return generoNombre.get(); }
-    public void setGeneroNombre(String v) { generoNombre.set(v); }
-    public StringProperty generoNombreProperty() { return generoNombre; }
-
-    // Nombre completo para la tabla
-    public String getNombreCompleto() {
-        String p = getPaterno() == null ? "" : getPaterno();
-        String m = getMaterno() == null ? "" : getMaterno();
-        return (getNombre() + " " + p + " " + m).trim().replaceAll(" +", " ");
-    }
+    public int getGeneroId() { return generoId; }
+    public void setGeneroId(int generoId) { this.generoId = generoId; }
 }
