@@ -354,6 +354,25 @@ public class AlumnoDAO {
         // fallback si aún no hay historial
         return "Sin historial";
     }
+    public Alumno buscarPorMatricula(String matricula) throws SQLException {
+        String sql = "SELECT Matricula, Nombre, Paterno, Materno, Foto " +
+                "FROM alumno WHERE Matricula = ?";
 
+        try (Connection cn = DB.get(); PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, matricula);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Alumno a = new Alumno();
+                    a.setMatricula(rs.getString("Matricula"));
+                    a.setNombre(rs.getString("Nombre"));
+                    a.setPaterno(rs.getString("Paterno"));
+                    a.setMaterno(rs.getString("Materno"));
+                    a.setFoto(Arrays.toString(rs.getBytes("Foto"))); // byte[]
+                    return a;
+                }
+            }
+        }
+        return null;
+    }
 }
 
