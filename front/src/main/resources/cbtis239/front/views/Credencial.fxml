@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="cbtis239.front.ui.users.CredencialController"
+            prefWidth="1200" prefHeight="700"
+            stylesheets="/cbtis239/front/css/Credencial.css">
+
+    <!-- ===== TÍTULO ===== -->
+    <top>
+        <VBox spacing="5" alignment="CENTER">
+            <children>
+                <Label text="Credencialización">
+                    <font>
+                        <Font size="28" />
+                    </font>
+                </Label>
+                <Label text="CENTRO DE BACHILLERATO TECNOLÓGICO industrial y de servicios No. 239" />
+            </children>
+            <padding>
+                <Insets top="10" right="0" bottom="10" left="0" />
+            </padding>
+        </VBox>
+    </top>
+
+    <!-- ===== CONTENIDO PRINCIPAL ===== -->
+    <center>
+        <VBox spacing="20">
+            <padding>
+                <Insets top="20" right="40" bottom="20" left="40" />
+            </padding>
+            <children>
+
+                <!-- Primera fila: foto + datos -->
+                <HBox spacing="40">
+                    <children>
+
+                        <!-- Foto del alumno (solo vista) -->
+                        <VBox spacing="10">
+                            <children>
+                                <ImageView fx:id="imgAlumno"
+                                           fitWidth="220" fitHeight="280"
+                                           preserveRatio="true"
+                                           smooth="true"
+                                           style="-fx-border-color: #cccccc; -fx-border-width: 1;" />
+                                <!-- Ya no hay botón para cargar imagen -->
+                            </children>
+                        </VBox>
+
+                        <!-- Datos de la credencial -->
+                        <GridPane hgap="10" vgap="10">
+                            <columnConstraints>
+                                <ColumnConstraints halignment="RIGHT" prefWidth="160"/>
+                                <ColumnConstraints halignment="LEFT"  prefWidth="320"/>
+                                <ColumnConstraints halignment="RIGHT" prefWidth="140"/>
+                                <ColumnConstraints halignment="LEFT"  prefWidth="160"/>
+                            </columnConstraints>
+
+                            <rowConstraints>
+                                <RowConstraints minHeight="30"/>
+                                <RowConstraints minHeight="30"/>
+                                <RowConstraints minHeight="30"/>
+                                <RowConstraints minHeight="30"/>
+                                <RowConstraints minHeight="30"/>
+                                <RowConstraints minHeight="30"/>
+                                <RowConstraints minHeight="30"/>
+                            </rowConstraints>
+
+                            <children>
+                                <!-- Matrícula + botón buscar -->
+                                <Label text="Matrícula (No. control):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtMatricula"
+                                           promptText="Ingrese matrícula"
+                                           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                <Button text="Buscar"
+                                        onAction="#onBuscar"
+                                        GridPane.rowIndex="0" GridPane.columnIndex="2" GridPane.columnSpan="2"/>
+
+                                <!-- Nombre -->
+                                <Label text="Nombre:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtNombre"
+                                           editable="false"
+                                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                <!-- Paterno -->
+                                <Label text="Paterno:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtPaterno"
+                                           editable="false"
+                                           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                <!-- Materno -->
+                                <Label text="Materno:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtMaterno"
+                                           editable="false"
+                                           GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                                <!-- CURP -->
+                                <Label text="CURP:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtCurp"
+                                           editable="false"
+                                           GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                                <!-- NSS -->
+                                <Label text="NSS:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtNss"
+                                           editable="false"
+                                           GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                                <!-- Fecha de emisión -->
+                                <Label text="Fecha de emisión:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                                <DatePicker fx:id="dpFechaEmision"
+                                            editable="false" disable="true"
+                                            GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                                <!-- Vigencia -->
+                                <Label text="Vigencia:" GridPane.rowIndex="6" GridPane.columnIndex="2"/>
+                                <TextField fx:id="txtVigencia"
+                                           editable="false"
+                                           GridPane.rowIndex="6" GridPane.columnIndex="3"/>
+
+                            </children>
+                        </GridPane>
+                    </children>
+                </HBox>
+
+                <!-- Código de barras -->
+                <VBox spacing="5">
+                    <children>
+                        <Label text="Código de barras (matrícula):"/>
+                        <ImageView fx:id="imgBarcode"
+                                   fitWidth="600" fitHeight="180"
+                                   preserveRatio="true"
+                                   smooth="true" />
+                    </children>
+                </VBox>
+
+                <!-- Botones inferiores -->
+                <HBox spacing="15" alignment="CENTER_RIGHT">
+                    <children>
+                        <Button text="Volver al menú" onAction="#onVolverMenu"/>
+                        <Button text="Cancelar" onAction="#onCancelar"/>
+                        <Button text="Generar PDF" onAction="#onGenerarPDF"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+
+    <!-- ===== PANE ANVERSO OCULTO (solo para generar imágenes) ===== -->
+    <bottom>
+        <StackPane fx:id="paneAnverso"
+                   visible="false" managed="false"
+                   prefHeight="0" prefWidth="0">
+            <children>
+                <!-- Fondo oficial del frente -->
+                <ImageView fitWidth="1000" fitHeight="560" preserveRatio="false">
+                    <image>
+                        <!-- Ajusta el path al archivo real en resources -->
+                        <Image url="@../credencial_enfrente.jpg" />
+                    </image>
+                </ImageView>
+
+                <!-- Estos labels NO se ven, pero el controller los usa
+                     para componer el anverso al generar el PDF -->
+                <Label fx:id="lblNombreLinea1" layoutX="340" layoutY="265"/>
+                <Label fx:id="lblNombreLinea2" layoutX="340" layoutY="299"/>
+                <Label fx:id="lblCurp"          layoutX="340" layoutY="365"/>
+                <Label fx:id="lblNss"           layoutX="340" layoutY="420"/>
+                <Label fx:id="lblNoControl"     layoutX="340" layoutY="470"/>
+
+                <!-- Código de barras sobre la plantilla (no visible en la UI) -->
+                <ImageView fx:id="imgBarcodePlantilla"
+                           fitWidth="210" fitHeight="70"
+                           layoutX="80" layoutY="460"
+                           preserveRatio="true"/>
+            </children>
+        </StackPane>
+    </bottom>
+
+</BorderPane>

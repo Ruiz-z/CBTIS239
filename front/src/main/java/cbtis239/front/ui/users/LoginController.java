@@ -80,7 +80,7 @@ public class LoginController {
                             "/cbtis239/front/views/menu.fxml",
                             "Servicios Escolares"
                     );
-                    System.out.println("✅ Acceso: Servicios Escolares");
+                    System.out.println("Acceso: Servicios Escolares");
                 }
                 // --- Docente ---
                 else if (rolNombre.equalsIgnoreCase("Docente")) {
@@ -101,6 +101,7 @@ public class LoginController {
                             "Menú Docente"
                     );
                     System.out.println("✅ Acceso: Docente (ID " + d.getDocenteId() + ")");
+                    System.out.println("Acceso: Docente");
                 }
                 // --- Servicios Financieros ---
                 else if (rolNombre.equalsIgnoreCase("Servicios Financieros")) {
@@ -109,12 +110,23 @@ public class LoginController {
                             "/cbtis239/front/views/MenuSF.fxml",
                             "Servicios Financieros"
                     );
-                    System.out.println("✅ Acceso: Servicios Financieros");
+                    System.out.println("Acceso: Servicios Financieros");
+                }
+                else if (rolNombre.equalsIgnoreCase("Asistencia")) {
+
+                    //  AQUI SE ABRE DIRECTAMENTE LA PANTALLA DE REGISTRO DE ASISTENCIA
+                    SceneNavigator.switchFromEvent(
+                            e,
+                            "/cbtis239/front/views/AsistenciaView.fxml",
+                            "Registro de Asistencia"
+                    );
+
+                    System.out.println("Acceso: Módulo de Asistencia");
                 }
                 else {
                     lblEstado.setText("Rol no reconocido: " + rolNombre);
                     btnEntrar.setDisable(false);
-                    System.out.println("⚠️ Rol desconocido: " + rolNombre);
+                    System.out.println("Rol desconocido: " + rolNombre);
                 }
 
             } else {
@@ -133,6 +145,8 @@ public class LoginController {
             }
         }
     }
+
+
 
     private void showError(String title, Throwable ex) {
         ex.printStackTrace();
