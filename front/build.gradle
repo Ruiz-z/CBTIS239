@@ -24,11 +24,18 @@ dependencies {
   implementation("com.zaxxer:HikariCP:5.1.0")
   implementation 'org.openjfx:javafx-controls:21.0.4'
   implementation 'org.openjfx:javafx-fxml:21.0.4'
+  implementation 'com.google.zxing:core:3.5.3'
+  implementation 'org.apache.pdfbox:pdfbox:2.0.30'
+  implementation "org.openjfx:javafx-swing:21"
 }
 
 javafx {
   version = '21.0.4' // debe coincidir con las dependencias de arriba
-  modules = ['javafx.controls', 'javafx.fxml']
+  modules = [
+          'javafx.controls',
+          'javafx.fxml',
+          'javafx.swing'   // <-- FALTA, agréguese aquí
+  ]
 }
 
 application { mainClass.set("cbtis239.front.MainApp") }

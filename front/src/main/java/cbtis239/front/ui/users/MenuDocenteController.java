@@ -1,5 +1,8 @@
 package cbtis239.front.ui.users;
 
+import cbtis239.model.Docente;
+import cbtis239.model.Usuario;
+import cbtis239.session.SesionActual;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -16,6 +20,52 @@ import java.io.IOException;
 public class MenuDocenteController {
 
     @FXML private StackPane contentArea;
+    @FXML private Label lblBienvenida;   // <--- asegúrate de tener fx:id="lblBienvenida" en el FXML
+
+    // ====== initialize: se ejecuta al cargar el FXML ======
+    @FXML
+    private void initialize() {
+        actualizarMensajeBienvenida();
+    }
+
+    /** Arma el mensaje "Bienvenido <nombre docente>" usando la sesión global. */
+    private void actualizarMensajeBienvenida() {
+        String nombre = "Docente";
+
+        Docente d = SesionActual.getDocente();
+        if (d != null) {
+            String n = safe(d.getNombre());
+            String p = safe(d.getPaterno());
+            String m = safe(d.getMaterno());
+            String full = (n + " " + p + " " + m).trim().replaceAll("\\s+", " ");
+            if (!full.isEmpty()) {
+                nombre = full;
+            }
+        } else {
+            // Si por alguna razón no hay Docente en sesión, usamos Usuario como respaldo
+            Usuario u = SesionActual.getUsuario();
+            if (u != null) {
+                String full = (safe(u.getNombre()) + " " +
+                               safe(u.getPaterno()) + " " +
+                               safe(u.getMaterno()))
+                               .trim()
+                               .replaceAll("\\s+", " ");
+                if (!full.isEmpty()) {
+                    nombre = full;
+                } else if (u.getUsuario() != null && !u.getUsuario().isBlank()) {
+                    nombre = u.getUsuario();
+                }
+            }
+        }
+
+        if (lblBienvenida != null) {
+            lblBienvenida.setText("Bienvenido " + nombre);
+        }
+    }
+
+    private String safe(String s) {
+        return s == null ? "" : s.trim();
+    }
 
     // ===== Helper: mostrar errores genéricos =====
     private void showError(String msg) {
@@ -62,7 +112,8 @@ public class MenuDocenteController {
             Throwable t = e;
             while (t.getCause() != null) t = t.getCause();
             String msg = (t.getMessage() == null) ? t.toString() : t.getMessage();
-            Alert a = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de Calificaciones\n\n" + msg, ButtonType.OK);
+            Alert a = new Alert(Alert.AlertType.ERROR,
+                    "No se pudo abrir la ventana de Calificaciones\n\n" + msg, ButtonType.OK);
             a.setHeaderText("Error");
             a.showAndWait();
             t.printStackTrace();
@@ -90,7 +141,8 @@ public class MenuDocenteController {
             Throwable t = e;
             while (t.getCause() != null) t = t.getCause();
             String msg = (t.getMessage() == null) ? t.toString() : t.getMessage();
-            Alert a = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana de Grupo\n\n" + msg, ButtonType.OK);
+            Alert a = new Alert(Alert.AlertType.ERROR,
+                    "No se pudo abrir la ventana de Grupo\n\n" + msg, ButtonType.OK);
             a.setHeaderText("Error");
             a.showAndWait();
             t.printStackTrace();
@@ -100,6 +152,9 @@ public class MenuDocenteController {
     @FXML
     private void onCerrarSesion(ActionEvent event) {
         try {
+            // Limpiamos la sesión global al cerrar
+            cbtis239.session.SesionActual.limpiar();
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Login.fxml"));
             Parent root = loader.load();
 

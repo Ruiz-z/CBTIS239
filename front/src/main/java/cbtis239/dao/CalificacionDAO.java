@@ -2,6 +2,7 @@ package cbtis239.dao;
 
 import cbtis239.model.Alumno;
 import cbtis239.model.Calificacion;
+import cbtis239.model.Catalogo;
 import cbtis239.util.DB;
 
 import java.sql.*;
@@ -13,6 +14,53 @@ public class CalificacionDAO {
     private Connection getConnection() throws SQLException {
         return DB.get(); // conexión unificada
     }
+
+    // ============================================================
+    // LISTAR CURSOS DEL DOCENTE (para ComboBox)
+    // ============================================================
+    public List<Catalogo> listarCursosDeDocente(int docenteId) throws SQLException {
+        String sql = """
+            SELECT DISTINCT 
+                   c.CursoID,
+                   m.Nombre       AS MateriaNombre,
+                   g.NombreGrupo  AS GrupoNombre,
+                   TIME_FORMAT(c.HoraInicio, '%H:%i') AS Hi,
+                   TIME_FORMAT(c.HoraFin,   '%H:%i') AS Hf
+            FROM   Curso c
+            JOIN   HorarioCurso hc 
+                     ON hc.Curso_CursoID = c.CursoID
+            JOIN   Grupo g 
+                     ON g.GrupoID = hc.Grupo_GrupoID
+            JOIN   Materia m 
+                     ON m.Clave = c.Docente_has_Materia_Materia_Clave
+            WHERE  c.Docente_has_Materia_Docente_DocenteID = ?
+            ORDER BY MateriaNombre, GrupoNombre, Hi
+            """;
+
+        List<Catalogo> lista = new ArrayList<>();
+
+        try (Connection cn = getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setInt(1, docenteId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int idCurso = rs.getInt("CursoID");
+                    String materia = rs.getString("MateriaNombre");
+                    String grupo = rs.getString("GrupoNombre");
+                    String hi = rs.getString("Hi");
+                    String hf = rs.getString("Hf");
+
+                    String etiqueta = materia + " - " + grupo + " - " + hi + " a " + hf;
+                    lista.add(new Catalogo(idCurso, etiqueta));
+                }
+            }
+        }
+
+        return lista;
+    }
+
 
     // ============================================================
     // LISTAR CALIFICACIONES DE UN CURSO (con Alumno completo)
@@ -112,6 +160,7 @@ public class CalificacionDAO {
 
     // ============================================================
     // INSERTAR REGISTROS VACÍOS SI NO EXISTEN PARA UN CURSO
+    // (por si la sigues usando en otro lado)
     // ============================================================
     public void insertarSiNoExiste(int cursoId, String matricula) throws SQLException {
         String checkSql = "SELECT 1 FROM calificacion WHERE CursoID = ? AND Alumno_Matricula = ?";
@@ -132,4 +181,6 @@ public class CalificacionDAO {
             }
         }
     }
+
+    
 }
