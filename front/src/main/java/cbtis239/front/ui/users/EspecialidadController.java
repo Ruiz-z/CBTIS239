@@ -89,7 +89,7 @@ public class EspecialidadController {
     @FXML
     private void onVolverMenu(javafx.event.ActionEvent event) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu3.fxml"));
                 Parent root = loader.load();
                 Stage newStage = new Stage();
                 newStage.setTitle("Menú Principal");

@@ -202,7 +202,7 @@ public class ReticulaController {
     @FXML
     private void onVolverMenu(javafx.event.ActionEvent event) {
         try {
-            var url = getClass().getResource("/cbtis239/front/views/Menu2.fxml");
+            var url = getClass().getResource("/cbtis239/front/views/Menu3.fxml");
             if (url == null) throw new IllegalStateException("No se encontró el menú.");
             Parent root = FXMLLoader.load(url);
             Stage st = new Stage();

@@ -5,10 +5,8 @@ import cbtis239.model.Especialidad;
 import cbtis239.model.Grupo;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -45,7 +43,6 @@ public class GrupoController {
             if (sel != null) {
                 txtNombreGrupo.setText(sel.getNombreGrupo());
                 txtCapacidad.setText(String.valueOf(sel.getCapacidad()));
-                // seleccionar especialidad en el combo
                 listaEsp.stream()
                         .filter(e -> e.getClave() == sel.getEspecialidadClave())
                         .findFirst()
@@ -66,14 +63,27 @@ public class GrupoController {
         }
     }
 
+    // 👉 ACTUALIZADO: limpia SIEMPRE después de registrar
     @FXML
     private void onRegistrar() {
         try {
-            var esp = cbEspecialidad.getValue();
-            Grupo g = bo.crear(txtNombreGrupo.getText(), txtCapacidad.getText(),
-                    esp == null ? null : esp.getClave());
+            Especialidad esp = cbEspecialidad.getValue();
+
+            if (esp == null) {
+                throw new IllegalArgumentException("Selecciona una especialidad.");
+            }
+
+            Grupo g = bo.crear(
+                    txtNombreGrupo.getText(),
+                    txtCapacidad.getText(),
+                    esp.getClave()
+            );
+
             listaGrupos.add(0, g);
+
+            // 🔥 Limpia los campos después de registrar
             limpiar();
+
             showInfo("Grupo registrado.");
         } catch (Exception e) {
             showError(e.getMessage());
@@ -87,13 +97,16 @@ public class GrupoController {
 
         try {
             sel.setNombreGrupo(txtNombreGrupo.getText());
+
             try {
                 sel.setCapacidad(Integer.parseInt(txtCapacidad.getText().trim()));
             } catch (NumberFormatException n) {
                 throw new IllegalArgumentException("La capacidad debe ser numérica.");
             }
-            var esp = cbEspecialidad.getValue();
+
+            Especialidad esp = cbEspecialidad.getValue();
             if (esp == null) throw new IllegalArgumentException("Selecciona una especialidad.");
+
             sel.setEspecialidadClave(esp.getClave());
             sel.setEspecialidadNombre(esp.getNombre());
 
@@ -106,7 +119,9 @@ public class GrupoController {
     }
 
     @FXML
-    private void onCancelar() { limpiar(); }
+    private void onCancelar() {
+        limpiar();
+    }
 
     private void limpiar() {
         txtNombreGrupo.clear();
@@ -133,7 +148,6 @@ public class GrupoController {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
             alert.setHeaderText("Error");
-            // === Ajuste: owner y modalidad para no cerrar/ocultar la pantalla ===
             alert.initOwner(getStage());
             alert.initModality(javafx.stage.Modality.WINDOW_MODAL);
             alert.showAndWait();
