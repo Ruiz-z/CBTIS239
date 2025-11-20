@@ -111,9 +111,9 @@ public class DocenteMateriaController {
     }
 
     @FXML
-    private void onCancelar(javafx.event.ActionEvent event) {
+    private void onVolver(javafx.event.ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu3.fxml"));
             Parent root = loader.load();
             Stage newStage = new Stage();
             newStage.setTitle("Menú Principal");

@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class Menu2Controller {
+public class Menu3Controller {
 
     @FXML
     private StackPane contentArea;
@@ -32,50 +32,6 @@ public class Menu2Controller {
     // ==========================================
     //      Acciones que abren vistas completas
     // ==========================================
-    @FXML
-    private void openDocente(ActionEvent event) {
-        openFullScreenStage(event, "/cbtis239/front/views/Docente.fxml", "Gestión de Docentes");
-    }
-
-    @FXML
-    private void openCredencial() {
-        loadContent("home.fxml");
-    }
-
-    @FXML
-    private void openCursos(ActionEvent event) {
-        openFullScreenStage(event, "/cbtis239/front/views/Curso.fxml", "Gestión de Curso");
-    }
-
-    @FXML
-    private void openExpediente(ActionEvent event) {
-        openFullScreenStage(event, "/cbtis239/front/views/Expediente.fxml", "Gestión de Expediente");
-    }
-    @FXML
-    private void onCerrarSesion(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Login.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Inicio de Sesión");
-            stage.setScene(new Scene(root));
-            stage.show();
-
-            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
-
-        } catch (IOException e) {
-            showError("No se pudo volver al inicio de sesión.\n" + e.getMessage());
-        }
-    }
-    @FXML
-    private void openGrupo(ActionEvent event) {
-        openFullScreenStage(event, "/cbtis239/front/views/Grupo.fxml", "Gestión de Grupos");
-    }
-    @FXML
-    private void openMenu3(ActionEvent event) {
-        openFullScreenStage(event, "/cbtis239/front/views/Menu3.fxml", "Gestión de Grupos");
-    }
 
     @FXML
     private void openAulas(ActionEvent event) {
@@ -168,6 +124,23 @@ public class Menu2Controller {
             alert.showAndWait();
         }
     }
+    @FXML
+    private void onCerrarSesion(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Login.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Inicio de Sesión");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
+
+        } catch (IOException e) {
+            showError("No se pudo volver al inicio de sesión.\n" + e.getMessage());
+        }
+    }
 
     // ==========================================
     //  Mostrar errores
@@ -185,7 +158,7 @@ public class Menu2Controller {
     @FXML
     private void onVolver(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
             Stage st = new Stage();
             st.setScene(new Scene(root));
             st.initStyle(javafx.stage.StageStyle.UNDECORATED);

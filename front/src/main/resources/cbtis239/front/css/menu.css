@@ -22,8 +22,8 @@
     -fx-padding: 0;
     -fx-spacing: 0;
     -fx-alignment: top-left;
-    -fx-background-radius: 0 15 15 0;
-    -fx-pref-height: 100%;
+    -fx-background-radius: 0;   /* ← Recto, sin bordes */
+    -fx-border-radius: 0;       /* ← Recto también en el borde */
 }
 
 /* Botones del menú */
