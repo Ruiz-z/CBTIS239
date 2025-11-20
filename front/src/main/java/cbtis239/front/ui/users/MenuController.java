@@ -49,39 +49,31 @@ public class MenuController {
     // ===== Botón "Más Opciones" → cambia a Menu2 (pantalla completa) =====
     @FXML
     private void openMenu2(ActionEvent event) {
+        openFullScreenStage(event, "/cbtis239/front/views/Menu2.fxml", "Menu2");
+    }
+    private void openFullScreenStage(ActionEvent event, String fxml, String title) {
         try {
-            System.out.println("Intentando cargar Menu2.fxml...");
-
-            // ✅ Cargar el FXML correctamente (usando la ruta absoluta dentro de resources)
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
             Parent root = loader.load();
 
-            // ✅ Crear la escena y aplicar el CSS de forma segura
-            Scene scene = new Scene(root);
-            String css = getClass().getResource("/cbtis239/front/css/menu2.css").toExternalForm();
-            scene.getStylesheets().add(css);
-
-            // ✅ Crear la nueva ventana sin barra de Windows
             Stage newStage = new Stage();
-            newStage.setScene(scene);
-            newStage.setTitle("Menú 2");
-            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED); // 🔥 Quita la barra superior de Windows
-            newStage.setMaximized(true);
+            newStage.setTitle(title);
+            newStage.setScene(new Scene(root));
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            newStage.setFullScreen(true);
+            newStage.setFullScreenExitHint("");
             newStage.show();
 
-            // ✅ Cerrar la ventana anterior
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             currentStage.close();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            showError("No se pudo abrir el Menú 2:\n\n" + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            showError("Error inesperado al abrir Menú 2:\n\n" + e.getMessage());
+            Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo abrir la ventana\n\n" + e.getMessage());
+            alert.setHeaderText("Error");
+            alert.showAndWait();
         }
     }
-
     // ===== Botones de la pantalla de bienvenida =====
     @FXML private void onActualizarPagado() {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
