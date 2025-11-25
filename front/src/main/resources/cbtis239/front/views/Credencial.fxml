@@ -146,7 +146,7 @@
                     <children>
                         <Button text="Volver al menú" onAction="#onVolverMenu"/>
                         <Button text="Cancelar" onAction="#onCancelar"/>
-                        <Button text="Generar PDF" onAction="#onGenerarPDF"/>
+                        <Button text="Generar Credencial" onAction="#onGenerarPDF"/>
                     </children>
                 </HBox>
             </children>

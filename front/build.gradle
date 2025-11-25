@@ -10,7 +10,7 @@ repositories {
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(21) // Usa JDK 17
+    languageVersion = JavaLanguageVersion.of(21)
   }
 }
 
@@ -30,11 +30,11 @@ dependencies {
 }
 
 javafx {
-  version = '21.0.4' // debe coincidir con las dependencias de arriba
+  version = '21.0.4'
   modules = [
           'javafx.controls',
           'javafx.fxml',
-          'javafx.swing'   // <-- FALTA, agréguese aquí
+          'javafx.swing'
   ]
 }
 

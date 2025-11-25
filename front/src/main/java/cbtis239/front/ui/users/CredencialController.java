@@ -1,7 +1,9 @@
 package cbtis239.front.ui.users;
 
 import cbtis239.bo.CredencialBO;
+import cbtis239.bo.DirectorBO;
 import cbtis239.model.Alumno;
+import cbtis239.model.Director;
 
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -53,7 +55,8 @@ public class CredencialController {
 
     // ===== Datos binarios =====
     private byte[] fotoActual;
-    private byte[] firmaActual;
+    private byte[] firmaActual;           // firma del alumno
+    private byte[] firmaDirectorActual;   // firma del director
 
     // ===== Recursos de fondo =====
     private static final String[] FONDO_CANDIDATES = {
@@ -66,7 +69,7 @@ public class CredencialController {
             "/cbtis239/front/credencial_reverso.png"
     };
 
-    // Firma fija del director
+    // Firma estática de respaldo del director
     private static final String FIRMA_DIRECTOR_PATH =
             "/cbtis239/front/firmadirector.png";
 
@@ -95,7 +98,18 @@ public class CredencialController {
     private static final int FIRMA_DIR_X    = 500, FIRMA_DIR_Y    = 310,
             FIRMA_DIR_W    = 360, FIRMA_DIR_H    = 80;
 
+    // Texto del nombre del director en el reverso
+    // Ajusta estos valores según tu diseño
+    private static final int DIR_NOMBRE_X = 500;
+    private static final int DIR_NOMBRE_Y = 410;
+    private static final int DIR_NOMBRE_MAX_W = 360;
+
+    // ===== BOs =====
     private final CredencialBO bo = new CredencialBO();
+    private final DirectorBO directorBO = new DirectorBO();
+
+    // ===== Director actual =====
+    private Director directorActual;
 
     // ================== INIT ==================
     @FXML
@@ -108,7 +122,6 @@ public class CredencialController {
         imgBarcode.setFitWidth(280);
         imgBarcode.setFitHeight(90);
 
-        // El usuario NO puede editar estos campos (solo la matrícula)
         txtNombre.setEditable(false);
         txtPaterno.setEditable(false);
         txtMaterno.setEditable(false);
@@ -117,18 +130,35 @@ public class CredencialController {
         txtVigencia.setEditable(false);
 
         dpFechaEmision.setEditable(false);
-        dpFechaEmision.setDisable(true);          // también deshabilita el calendario
+        dpFechaEmision.setDisable(true);
 
         Platform.runLater(() -> {
             if (openFondoStream() == null) {
                 warn("No se encontró la imagen de fondo:\n" +
                         String.join("\n", FONDO_CANDIDATES) + "\nColócala en resources.");
             }
+            cargarDirector();
         });
     }
 
     private Stage getStage() {
         return (Stage) txtMatricula.getScene().getWindow();
+    }
+
+    // ================== DIRECTOR ==================
+    private void cargarDirector() {
+        try {
+            directorActual = directorBO.obtenerDirector();
+            if (directorActual != null) {
+                firmaDirectorActual = directorActual.getFirma();
+            } else {
+                firmaDirectorActual = null;
+            }
+        } catch (SQLException e) {
+            directorActual = null;
+            firmaDirectorActual = null;
+            error("No se pudo cargar la información del director:\n" + nvl(e.getMessage()));
+        }
     }
 
     // ================== NAVEGACIÓN ==================
@@ -162,7 +192,6 @@ public class CredencialController {
 
             Alumno a = bo.cargarAlumnoParaCredencial(m);
             if (a == null) {
-                // Por si acaso, aunque BO ya valida
                 warn("No se encontró información para: " + m);
                 limpiar();
                 return;
@@ -190,10 +219,9 @@ public class CredencialController {
             actualizarPlantilla(a);
 
         } catch (SQLException e) {
-            // ----------- ERROR AMIGABLE CUANDO LA MATRÍCULA NO EXISTE -----------
             String msg = nvl(e.getMessage());
             if (msg.toLowerCase().contains("no existe")) {
-                warn(msg);          // solo mostramos el texto al usuario
+                warn(msg);
                 limpiar();
             } else {
                 showErr("Error al buscar alumno (SQL)", e);
@@ -203,7 +231,6 @@ public class CredencialController {
         }
     }
 
-    // Estos métodos quedan aunque luego quites los botones en el FXML
     @FXML
     private void onGuardar() {
         info("Esta pantalla solo genera la credencial en PDF. No se guarda información desde aquí.");
@@ -259,7 +286,6 @@ public class CredencialController {
                 doc.save(out);
             }
 
-            // Solo mostramos el mensaje; la ventana de credencialización NO se cierra.
             info("PDF generado correctamente:\n" + out.getAbsolutePath());
 
         } catch (Exception e) {
@@ -443,16 +469,34 @@ public class CredencialController {
             } catch (Exception ignore) { }
         }
 
-        // Firma fija del director
-        try (InputStream is = getClass().getResourceAsStream(FIRMA_DIRECTOR_PATH)) {
-            if (is != null) {
-                BufferedImage firmaDir = ImageIO.read(is);
-                if (firmaDir != null) {
-                    g.drawImage(firmaDir, FIRMA_DIR_X, FIRMA_DIR_Y,
-                            FIRMA_DIR_W, FIRMA_DIR_H, null);
+        // Firma del director (dinámica, desde BD; si no hay, usa la imagen estática)
+        try {
+            BufferedImage firmaDirBI = null;
+
+            if (firmaDirectorActual != null && firmaDirectorActual.length > 0) {
+                Image fxDir = new Image(new ByteArrayInputStream(firmaDirectorActual));
+                firmaDirBI = SwingFXUtils.fromFXImage(fxDir, null);
+            } else {
+                try (InputStream is = getClass().getResourceAsStream(FIRMA_DIRECTOR_PATH)) {
+                    if (is != null) {
+                        firmaDirBI = ImageIO.read(is);
+                    }
                 }
             }
+
+            if (firmaDirBI != null) {
+                g.drawImage(firmaDirBI, FIRMA_DIR_X, FIRMA_DIR_Y,
+                        FIRMA_DIR_W, FIRMA_DIR_H, null);
+            }
         } catch (Exception ignore) { }
+
+        // Nombre del director en texto
+        if (directorActual != null) {
+            String nombreDir = directorActual.getNombreCompleto().toUpperCase();
+            g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 16));
+            g.setColor(java.awt.Color.RED); // si lo quieres rojo como en el ejemplo
+            drawTextClipped(g, nombreDir, DIR_NOMBRE_X, DIR_NOMBRE_Y, DIR_NOMBRE_MAX_W);
+        }
 
         g.dispose();
         return img;
@@ -583,7 +627,7 @@ public class CredencialController {
         }
     }
 
-    // ---------- Firma desde String ----------
+    // ---------- Firma desde String (alumno) ----------
     private void setFirmaFromString(String firmaStr) {
         try {
             if (firmaStr == null || firmaStr.isBlank()) {
@@ -663,7 +707,6 @@ public class CredencialController {
         Alert a = new Alert(type);
         a.setHeaderText(header);
         a.setContentText(message);
-        // Esto hace que el diálogo siempre se muestre SOBRE la ventana de credencial
         if (txtMatricula != null && txtMatricula.getScene() != null) {
             Stage owner = (Stage) txtMatricula.getScene().getWindow();
             a.initOwner(owner);
