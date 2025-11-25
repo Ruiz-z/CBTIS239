@@ -591,3 +591,68 @@ SET character_set_client = @saved_cs_client;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-11-13 12:43:22
+
+//cambio para que se vean el historial de vigencia
+
+CREATE TABLE sistemaescolar.alumno_periodo (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    Matricula    VARCHAR(20) NOT NULL,
+    idPeriodo    INT NOT NULL,
+    FechaRegistro DATE NOT NULL,
+
+    CONSTRAINT fk_ap_alumno
+        FOREIGN KEY (Matricula) REFERENCES alumno(Matricula),
+
+    CONSTRAINT fk_ap_periodo
+        FOREIGN KEY (idPeriodo) REFERENCES sistemaescolar.periodo(idPeriodo)
+);
+
+
+//Cambios en asistencia
+
+DROP TABLE asistencia;
+
+//sirve los movimientos de los alumnos en su entrada y salida del plantel
+
+CREATE TABLE movimientos (
+    MovimientoID INT AUTO_INCREMENT PRIMARY KEY,
+
+    Alumno_Matricula VARCHAR(20) NOT NULL,
+    Fecha DATE NOT NULL,
+    Hora TIME NOT NULL,
+
+    TipoMovimiento ENUM('Entrada', 'Salida') NOT NULL,
+
+    CONSTRAINT fk_movimientos_alumno FOREIGN KEY (Alumno_Matricula)
+        REFERENCES alumno(Matricula)
+        ON DELETE CASCADE
+);
+
+//sirve para guardar una sola desicion por dia
+
+CREATE TABLE asistencia_diaria (
+    AsistenciaID INT AUTO_INCREMENT PRIMARY KEY,
+
+    Alumno_Matricula VARCHAR(20) NOT NULL,
+    Fecha DATE NOT NULL,
+
+    EstadoAsistencia ENUM('Presente', 'Falta', 'Justificada')
+        NOT NULL DEFAULT 'Presente',
+
+    Observaciones TEXT NULL,
+
+    CONSTRAINT uq_asistencia UNIQUE (Alumno_Matricula, Fecha),
+
+    CONSTRAINT fk_asistencia_alumno FOREIGN KEY (Alumno_Matricula)
+        REFERENCES alumno(Matricula)
+        ON DELETE CASCADE
+);
+
+
+CREATE TABLE director (
+    idDirector  TINYINT      NOT NULL PRIMARY KEY,
+    nombre      VARCHAR(80)  NOT NULL,
+    paterno     VARCHAR(80)  NOT NULL,
+    materno     VARCHAR(80)  NOT NULL,
+    firma       LONGBLOB     NULL
+);
