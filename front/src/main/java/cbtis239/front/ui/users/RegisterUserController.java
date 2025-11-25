@@ -63,14 +63,8 @@ public class RegisterUserController {
         setPasswordVisible(false);
         setConfirmVisible(false);
 
-        // --- Combo roles desde BD ---
-        List<Rol> list = rolBO.findAll();         // usa tu BO/DAO de roles ya funcional
-        roles.setAll(list);
-        cbRol.setItems(roles);
-        cbRol.setConverter(new StringConverter<>() {
-            @Override public String toString(Rol r) { return r == null ? "" : r.getNombre(); }
-            @Override public Rol fromString(String s) { return null; }
-        });
+        // --- Cargar roles (sin rol Docente) ---
+        cargarRoles();
 
         // --- Tabla de usuarios ---
         colUsuario.setCellValueFactory(new PropertyValueFactory<>("usuario"));
@@ -90,6 +84,37 @@ public class RegisterUserController {
                 if (u != null) loadToForm(u);
             }
         });
+    }
+
+    /**
+     * Carga los roles desde BD y quita el rol "Docente" para que
+     * NO se pueda asignar desde esta pantalla.
+     */
+    private void cargarRoles() {
+        try {
+            List<Rol> list = rolBO.findAll(); // tu BO de roles
+
+            // 🔴 Filtrar rol "Docente" para que no aparezca en el combo
+            list.removeIf(r ->
+                    r.getNombre() != null &&
+                    r.getNombre().equalsIgnoreCase("Docente"));
+
+            roles.setAll(list);
+            cbRol.setItems(roles);
+
+            cbRol.setConverter(new StringConverter<>() {
+                @Override
+                public String toString(Rol r) {
+                    return r == null ? "" : r.getNombre();
+                }
+                @Override
+                public Rol fromString(String s) { return null; }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            error("Error", "No se pudieron cargar los roles.", e);
+        }
     }
 
     private void reloadTable() {
@@ -145,7 +170,8 @@ public class RegisterUserController {
             String apPat = trim(txtApPat.getText());
             String apMat = trim(txtApMat.getText());
 
-            if (!pass.equals(conf)) throw new BusinessException("La contraseña y la confirmación no coinciden.");
+            if (!pass.equals(conf))
+                throw new BusinessException("La contraseña y la confirmación no coinciden.");
 
             Usuario u = new Usuario();
             u.setUsuario(user);
@@ -172,7 +198,10 @@ public class RegisterUserController {
     private void onModificar() {
         try {
             Usuario sel = tablaUsuarios.getSelectionModel().getSelectedItem();
-            if (sel == null) { warn("Atención", "Selecciona un usuario de la tabla."); return; }
+            if (sel == null) {
+                warn("Atención", "Selecciona un usuario de la tabla.");
+                return;
+            }
 
             Rol r = cbRol.getValue();
             if (r == null) throw new BusinessException("Selecciona un rol.");
@@ -183,7 +212,8 @@ public class RegisterUserController {
 
             String pass = trim(showingPass ? txtPasswordVisible.getText() : txtPassword.getText());
             String conf = trim(showingConfirm ? txtConfirmVisible.getText() : txtConfirm.getText());
-            if (!pass.equals(conf)) throw new BusinessException("La contraseña y la confirmación no coinciden.");
+            if (!pass.equals(conf))
+                throw new BusinessException("La contraseña y la confirmación no coinciden.");
 
             sel.setContrasena(pass);
             sel.setRolId(r.getIdRol());
@@ -208,7 +238,10 @@ public class RegisterUserController {
     private void onEliminar() {
         try {
             Usuario sel = tablaUsuarios.getSelectionModel().getSelectedItem();
-            if (sel == null) { warn("Atención", "Selecciona un usuario para eliminar."); return; }
+            if (sel == null) {
+                warn("Atención", "Selecciona un usuario para eliminar.");
+                return;
+            }
 
             if (confirm("Eliminar",
                     "¿Eliminar definitivamente el usuario '" + sel.getUsuario() + "'?").getButtonData()
@@ -247,7 +280,6 @@ public class RegisterUserController {
         }
     }
 
-
     // ====== Helpers ======
     private void loadToForm(Usuario u) {
         txtUsuario.setText(u.getUsuario());
@@ -258,9 +290,11 @@ public class RegisterUserController {
         txtApPat.setText(u.getPaterno());
         txtApMat.setText(u.getMaterno());
 
-        // Seleccionar rol
+        // Seleccionar rol (si está disponible en el combo)
         cbRol.getSelectionModel().clearSelection();
-        roles.stream().filter(r -> r.getIdRol() == u.getRolId()).findFirst()
+        roles.stream()
+                .filter(r -> r.getIdRol() == u.getRolId())
+                .findFirst()
                 .ifPresent(r -> cbRol.getSelectionModel().select(r));
     }
 

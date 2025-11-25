@@ -6,6 +6,11 @@ module cbtis239.front {
     requires org.kordamp.ikonli.javafx;
     requires java.sql;
     requires com.zaxxer.hikari;
+    requires com.google.zxing;
+    requires org.apache.fontbox;
+    requires org.apache.pdfbox;
+    requires javafx.swing;
+
 
     opens cbtis239.front to javafx.fxml;
     exports cbtis239.front;
