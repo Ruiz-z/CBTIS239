@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.DirectorController">
+
+    <center>
+        <VBox spacing="15.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="Configuración del Director"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                <GridPane hgap="10" vgap="10">
+                    <padding>
+                        <Insets top="10" right="20" bottom="10" left="20"/>
+                    </padding>
+                    <children>
+                        <Label text="Nombre:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtNombre" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <Label text="Apellido paterno:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtPaterno" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Label text="Apellido materno:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextField fx:id="txtMaterno" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                        <Label text="Firma:" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                        <VBox spacing="5" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                            <children>
+                                <ImageView fx:id="imgFirma"
+                                           fitHeight="120"
+                                           fitWidth="260"
+                                           preserveRatio="true"
+                                           style="-fx-border-color: #cccccc; -fx-border-width: 1;" />
+                                <Button fx:id="btnCambiarFirma"
+                                        text="Cambiar firma..."
+                                        onAction="#onCambiarFirma"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </GridPane>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <padding>
+                        <Insets top="10" right="20" bottom="10" left="20"/>
+                    </padding>
+                    <children>
+                        <Button fx:id="btnGuardar"
+                                text="Guardar"
+                                onAction="#onGuardar" />
+                        <Button fx:id="btnCerrar"
+                                text="Cerrar"
+                                onAction="#onCerrar" />
+
+                        <Button fx:id="btnVolver" text="Volver al Menú" onAction="#onVolverMenu"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>
