@@ -73,6 +73,14 @@
                               VBox.vgrow="ALWAYS">
                     <graphic><FontIcon iconLiteral="fas-book" iconSize="18"/></graphic>
                 </ToggleButton>
+                <ToggleButton text="Director" toggleGroup="$menuGroup"
+                              onAction="#openDirector"
+                              styleClass="nav-btn"
+                              contentDisplay="LEFT" graphicTextGap="10"
+                              VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-user-tie" iconSize="18"/></graphic>
+                </ToggleButton>
+
 
                 <!-- Espaciador para empujar 'Volver' hacia abajo -->
                 <Region VBox.vgrow="ALWAYS"/>

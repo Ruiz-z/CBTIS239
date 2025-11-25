@@ -72,7 +72,10 @@ public class Menu3Controller {
     private void openReticula(ActionEvent event) {
         openFullScreenStage(event, "/cbtis239/front/views/Reticula.fxml", "Retículas");
     }
-
+    @FXML
+    private void openDirector(ActionEvent event) {
+        openFullScreenStage(event, "/cbtis239/front/views/Reticula.fxml", "Retículas");
+    }
     // ==========================================
     //   Abre una nueva ventana fullscreen
     // ==========================================
