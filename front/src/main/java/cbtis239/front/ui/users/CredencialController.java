@@ -5,6 +5,7 @@ import cbtis239.bo.DirectorBO;
 import cbtis239.model.Alumno;
 import cbtis239.model.Director;
 
+import cbtis239.util.AppPaths;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -13,6 +14,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -31,6 +34,7 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
@@ -249,21 +253,24 @@ public class CredencialController {
     @FXML
     private void onGenerarPDF() {
         try {
-            if (trim(txtMatricula.getText()).isEmpty()) {
+            String matricula = trim(txtMatricula.getText());
+            if (matricula.isEmpty()) {
                 warn("Primero busca un alumno.");
                 return;
             }
 
-            FileChooser fc = new FileChooser();
-            fc.setTitle("Guardar credencial en PDF");
-            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
-            fc.setInitialFileName("credencial_" + txtMatricula.getText().trim() + ".pdf");
-            File out = fc.showSaveDialog(getStage());
-            if (out == null) return;
+            // 1) Carpeta fija de credenciales (relativa a la app)
+            Path dirCredenciales = AppPaths.getCredencialesDir();
 
+            // 2) Nombre del archivo
+            String fileName = "credencial_" + matricula + ".pdf";
+            Path outPath = dirCredenciales.resolve(fileName);
+
+            // 3) Construir imágenes de anverso y reverso
             BufferedImage frente = buildAnversoImage();
             BufferedImage reverso = buildReversoImage();
 
+            // 4) Crear PDF con PDFBox
             try (PDDocument doc = new PDDocument()) {
                 PDRectangle size = new PDRectangle(frente.getWidth(), frente.getHeight());
 
@@ -283,15 +290,27 @@ public class CredencialController {
                     cs.drawImage(imgBack, 0, 0, size.getWidth(), size.getHeight());
                 }
 
-                doc.save(out);
+                // 5) Guardar en la ruta calculada
+                doc.save(outPath.toFile());
             }
 
-            info("PDF generado correctamente:\n" + out.getAbsolutePath());
+            // 6) Mensaje con la ruta EXACTA
+            String msg = "PDF generado correctamente.\n\n" +
+                    "Archivo:\n" + outPath.toAbsolutePath() + "\n\n" +
+                    "Carpeta:\n" + dirCredenciales.toAbsolutePath();
+            info(msg);
+
+            // 7) Abrir automáticamente la carpeta en el Explorador
+            abrirCarpetaCredenciales(dirCredenciales);
+
+            // También lo dejamos en consola por si quieres verlo en IntelliJ
+            System.out.println("[CREDENCIAL] Guardado en: " + outPath.toAbsolutePath());
 
         } catch (Exception e) {
             showErr("No se pudo generar el PDF", e);
         }
     }
+
 
     // ================== PLANTILLA (labels de vista) ==================
     private void actualizarPlantilla(Alumno a) {
@@ -714,4 +733,20 @@ public class CredencialController {
         }
         a.showAndWait();
     }
+
+    private void abrirCarpetaCredenciales(Path dirCredenciales) {
+        try {
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(dirCredenciales.toFile());
+            } else {
+                System.out.println("[CREDENCIAL] Desktop no soportado. Carpeta: "
+                        + dirCredenciales.toAbsolutePath());
+            }
+        } catch (Exception e) {
+            // Si falla abrir la carpeta, al menos no truena la app
+            System.out.println("[CREDENCIAL] No se pudo abrir la carpeta de credenciales: "
+                    + e.getMessage());
+        }
+    }
+
 }
