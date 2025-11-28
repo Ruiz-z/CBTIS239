@@ -6,7 +6,6 @@ import cbtis239.util.DB;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class AlumnoDAO {
@@ -26,28 +25,27 @@ public class AlumnoDAO {
 
     public void insert(Alumno a) throws SQLException {
         String sql = """
-        INSERT INTO alumno
-        (CURP, Matricula, GrupoID, Semestre, EstadoInscripcion, Foto, Firma, Telefono, Correo, FechaInscripcion,
-         Nombre, Paterno, Materno, NSS, Carrera, Calle, Numero, Colonia, Estado, Municipio, Localidad,
-         CelPadre, CelMadre, EdoCivil_idEdoCivil, Generos_idGenero, Periodo_idPeriodo)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-    """;
+            INSERT INTO alumno
+            (CURP, Matricula, GrupoID, Semestre, EstadoInscripcion, Foto, Firma, Telefono, Correo, FechaInscripcion,
+             Nombre, Paterno, Materno, NSS, Carrera, Calle, Numero, Colonia, Estado, Municipio, Localidad,
+             CelPadre, CelMadre, EdoCivil_idEdoCivil, Generos_idGenero, Periodo_idPeriodo)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        """;
         try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql)) {
             fillPS(ps, a);
             ps.executeUpdate();
         }
-
     }
 
     public void update(Alumno a) throws SQLException {
         String sql = """
-        UPDATE alumno SET
-          CURP=?, Matricula=?, GrupoID=?, Semestre=?, EstadoInscripcion=?, Foto=?, Firma=?, Telefono=?, Correo=?, FechaInscripcion=?,
-          Nombre=?, Paterno=?, Materno=?, NSS=?, Carrera=?, Calle=?, Numero=?, Colonia=?, Estado=?, Municipio=?, Localidad=?,
-          CelPadre=?, CelMadre=?, EdoCivil_idEdoCivil=?, Generos_idGenero=?, Periodo_idPeriodo=?
-        WHERE Matricula=?
-    """;
+            UPDATE alumno SET
+              CURP=?, Matricula=?, GrupoID=?, Semestre=?, EstadoInscripcion=?, Foto=?, Firma=?, Telefono=?, Correo=?, FechaInscripcion=?,
+              Nombre=?, Paterno=?, Materno=?, NSS=?, Carrera=?, Calle=?, Numero=?, Colonia=?, Estado=?, Municipio=?, Localidad=?,
+              CelPadre=?, CelMadre=?, EdoCivil_idEdoCivil=?, Generos_idGenero=?, Periodo_idPeriodo=?
+            WHERE Matricula=?
+        """;
         try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql)) {
             int i = fillPS(ps, a);
@@ -55,7 +53,6 @@ public class AlumnoDAO {
             ps.executeUpdate();
         }
     }
-
 
     public void deleteByMatricula(String matricula) throws SQLException {
         try (Connection cn = DB.get();
@@ -65,6 +62,7 @@ public class AlumnoDAO {
         }
     }
 
+    /** Versión completa: trae todos los campos del alumno. */
     public Alumno findByMatricula(String mat) throws SQLException {
         String sql = "SELECT * FROM alumno WHERE Matricula=?";
         try (Connection cn = DB.get();
@@ -76,8 +74,8 @@ public class AlumnoDAO {
         }
     }
 
+    /** Para llenar tabla (matrícula, nombre, semestre, grupo). */
     public List<Alumno> listBreve() throws SQLException {
-        // Para llenar la tabla (matricula, nombre, semestre, grupo)
         String sql = "SELECT Matricula, Nombre, Semestre, GrupoID FROM alumno ORDER BY Matricula DESC LIMIT 100";
         try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql);
@@ -98,23 +96,30 @@ public class AlumnoDAO {
         }
     }
 
-    // ===== helpers =====
+    // ===== helpers para INSERT / UPDATE =====
 
+    /**
+     * Llena el PreparedStatement con los campos del alumno.
+     * Devuelve el siguiente índice libre (para usar en WHERE de UPDATE).
+     */
     private int fillPS(PreparedStatement ps, Alumno a) throws SQLException {
-        // Devuelve el siguiente índice libre (para UPDATE)
         int i = 1;
 
         ps.setString(i++, a.getCurp());
         ps.setString(i++, a.getMatricula());
+
         if (a.getGrupoId() == null) ps.setNull(i++, Types.INTEGER);
         else ps.setInt(i++, a.getGrupoId());
+
         if (a.getSemestre() == null) ps.setNull(i++, Types.INTEGER);
         else ps.setInt(i++, a.getSemestre());
+
         ps.setString(i++, a.getEstadoInscripcion());
-        ps.setString(i++, a.getFoto());
-        ps.setString(i++, a.getFirma());
+        ps.setString(i++, a.getFoto());   // Foto: RUTA (VARCHAR)
+        ps.setString(i++, a.getFirma());  // Firma: también ruta/archivo si aplica
         ps.setString(i++, a.getTelefono());
         ps.setString(i++, a.getCorreo());
+
         if (a.getFechaInscripcion() == null) ps.setNull(i++, Types.DATE);
         else ps.setDate(i++, Date.valueOf(a.getFechaInscripcion()));
 
@@ -134,24 +139,32 @@ public class AlumnoDAO {
 
         if (a.getEdoCivilId() == null) ps.setNull(i++, Types.INTEGER);
         else ps.setInt(i++, a.getEdoCivilId());
+
         if (a.getGeneroId() == null) ps.setNull(i++, Types.INTEGER);
         else ps.setInt(i++, a.getGeneroId());
+
         if (a.getPeriodoId() == null) ps.setNull(i++, Types.INTEGER);
         else ps.setInt(i++, a.getPeriodoId());
 
         return i;
     }
 
+    // ===== mapeo ResultSet → Alumno =====
+
     private Alumno map(ResultSet rs) throws SQLException {
         Alumno a = new Alumno();
+
         a.setMatricula(rs.getString("Matricula"));
         a.setCurp(rs.getString("CURP"));
 
-        int gid = rs.getInt("GrupoID");  a.setGrupoId(rs.wasNull()? null : gid);
-        int sem = rs.getInt("Semestre"); a.setSemestre(rs.wasNull()? null : sem);
+        int gid = rs.getInt("GrupoID");
+        a.setGrupoId(rs.wasNull() ? null : gid);
+
+        int sem = rs.getInt("Semestre");
+        a.setSemestre(rs.wasNull() ? null : sem);
 
         a.setEstadoInscripcion(rs.getString("EstadoInscripcion"));
-        a.setFoto(rs.getString("Foto"));
+        a.setFoto(rs.getString("Foto"));   // ✅ Foto como String (ruta)
         a.setFirma(rs.getString("Firma"));
         a.setTelefono(rs.getString("Telefono"));
         a.setEstado(rs.getString("Estado"));
@@ -173,13 +186,20 @@ public class AlumnoDAO {
         a.setCelPadre(rs.getString("CelPadre"));
         a.setCelMadre(rs.getString("CelMadre"));
 
+        int ec = rs.getInt("EdoCivil_idEdoCivil");
+        a.setEdoCivilId(rs.wasNull() ? null : ec);
 
-        int ec = rs.getInt("EdoCivil_idEdoCivil"); a.setEdoCivilId(rs.wasNull()? null : ec);
-        int ge = rs.getInt("Generos_idGenero");    a.setGeneroId(rs.wasNull()? null : ge);
-        int pe = rs.getInt("Periodo_idPeriodo");   a.setPeriodoId(rs.wasNull()? null : pe);
+        int ge = rs.getInt("Generos_idGenero");
+        a.setGeneroId(rs.wasNull() ? null : ge);
+
+        int pe = rs.getInt("Periodo_idPeriodo");
+        a.setPeriodoId(rs.wasNull() ? null : pe);
 
         return a;
     }
+
+    // ===== Actualizaciones de estado/semestre/periodo =====
+
     public int actualizarEstadoSemestreYPeriodo(String matricula,
                                                 String nuevoEstado,
                                                 Integer nuevoSemestre,
@@ -187,12 +207,15 @@ public class AlumnoDAO {
         String sql = "UPDATE alumno SET EstadoInscripcion=?, Semestre=?, Periodo_idPeriodo=? WHERE Matricula=?";
         try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
             ps.setString(1, nuevoEstado);
-            if (nuevoSemestre == null) ps.setNull(2, Types.INTEGER); else ps.setInt(2, nuevoSemestre);
-            if (nuevoPeriodoId == null) ps.setNull(3, Types.INTEGER); else ps.setInt(3, nuevoPeriodoId);
+            if (nuevoSemestre == null) ps.setNull(2, Types.INTEGER);
+            else ps.setInt(2, nuevoSemestre);
+            if (nuevoPeriodoId == null) ps.setNull(3, Types.INTEGER);
+            else ps.setInt(3, nuevoPeriodoId);
             ps.setString(4, matricula);
             return ps.executeUpdate();
         }
     }
+
     public int actualizarTrasPago(Connection cn, String matricula, int nuevoPeriodoId) throws SQLException {
         String sql =
                 """
@@ -224,14 +247,15 @@ public class AlumnoDAO {
         }
     }
 
-    /** Versión cómoda sin transacción externa. */
     public int actualizarTrasPago(String matricula, int nuevoPeriodoId) throws SQLException {
         try (Connection cn = DB.get()) {
             return actualizarTrasPago(cn, matricula, nuevoPeriodoId);
         }
     }
 
-    public int sincronizarEstadoPorPagoVigente(java.sql.Connection cn) throws java.sql.SQLException {
+    // ===== Sincronización de estado según pagos / periodo vigente =====
+
+    public int sincronizarEstadoPorPagoVigente(Connection cn) throws SQLException {
         int total = 0;
 
         // 1) periodo vigente por fecha
@@ -244,7 +268,7 @@ public class AlumnoDAO {
         }
         if (periodoActual == null) return 0;
 
-        // 2) Activar a quienes SÍ pagaron el periodo vigente y fijar Periodo_idPeriodo = vigente
+        // 2) Activar a quienes SÍ pagaron el periodo vigente
         try (var ps = cn.prepareStatement(
                 "UPDATE sistemaescolar.alumno a " +
                         "JOIN sistemaescolar.pago p ON p.Alumno_Matricula = a.Matricula " +
@@ -269,20 +293,22 @@ public class AlumnoDAO {
         return total;
     }
 
-    public int sincronizarEstadoPorPagoVigente() throws java.sql.SQLException {
-        try (var cn = cbtis239.util.DB.get()) {
+    public int sincronizarEstadoPorPagoVigente() throws SQLException {
+        try (var cn = DB.get()) {
             return sincronizarEstadoPorPagoVigente(cn);
         }
     }
-    public int sincronizarEstadoConPeriodoVigente(java.sql.Connection cn) throws java.sql.SQLException {
+
+    public int sincronizarEstadoConPeriodoVigente(Connection cn) throws SQLException {
         return sincronizarEstadoPorPagoVigente(cn);
     }
 
-    public int sincronizarEstadoConPeriodoVigente() throws java.sql.SQLException {
-        try (var cn = cbtis239.util.DB.get()) {
+    public int sincronizarEstadoConPeriodoVigente() throws SQLException {
+        try (var cn = DB.get()) {
             return sincronizarEstadoPorPagoVigente(cn);
         }
     }
+
     public Integer getPeriodoActualId() throws SQLException {
         String sql = "SELECT idPeriodo FROM sistemaescolar.periodo WHERE CURDATE() BETWEEN Inicio AND Fin LIMIT 1";
         try (var cn = DB.get(); var ps = cn.prepareStatement(sql); var rs = ps.executeQuery()) {
@@ -292,7 +318,7 @@ public class AlumnoDAO {
     }
 
     // ============================================================
-    // 🔹 Obtener consecutivo de matrícula por año y especialidad
+    // Consecutivo de matrícula por año y especialidad (según tu diseño)
     // ============================================================
     public int obtenerConsecutivo(int año, int idEspecialidad) throws SQLException {
         String sql = """
@@ -303,22 +329,27 @@ public class AlumnoDAO {
         try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql)) {
             ps.setInt(1, 2000 + año); // ejemplo: 25 → 2025
-            ps.setString(2, String.valueOf(idEspecialidad)); // usa el campo Carrera como identificador
+            ps.setString(2, String.valueOf(idEspecialidad)); // si usas Carrera como identificador numérico
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getInt("total");
             }
         }
         return 0;
     }
-    // AlumnoDAO.java
+
+    // ============================================================
+    // VERSIONES LIGERAS PARA USO EN OTROS MÓDULOS (Asistencia, etc.)
+    // ============================================================
+
+    /** Versión ligera con datos básicos y ruta de foto (para credencial/asistencia). */
     public Alumno obtenerPorMatricula(String matricula) throws SQLException {
         String sql = """
-        SELECT Matricula, Nombre, Paterno, Materno, CURP, NSS, Foto
-        FROM alumno
-        WHERE Matricula = ?
-    """;
+            SELECT Matricula, Nombre, Paterno, Materno, CURP, NSS, Foto
+            FROM alumno
+            WHERE Matricula = ?
+        """;
         try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
-            ps.setString(1, matricula);
+            ps.setString(1, matricula.trim());
             try (var rs = ps.executeQuery()) {
                 if (!rs.next()) return null;
                 var a = new Alumno();
@@ -328,21 +359,44 @@ public class AlumnoDAO {
                 a.setMaterno(rs.getString("Materno"));
                 a.setCurp(rs.getString("CURP"));
                 a.setNss(rs.getString("NSS"));
-                a.setFoto(Arrays.toString(rs.getBytes("Foto"))); // puede ser null
+                a.setFoto(rs.getString("Foto")); // ✅ RUTA STRING
                 return a;
             }
         }
     }
 
-    /* (opcional) Vigencia textual a partir de los periodos cursados.
-       Ajusta el JOIN a tu esquema real (kardex, reinscripcion, alumno_periodo, etc.). */
+    /** Versión muy similar, por si quieres diferenciarlas semánticamente. */
+    public Alumno buscarPorMatricula(String matricula) throws SQLException {
+        String sql = """
+            SELECT Matricula, Nombre, Paterno, Materno, Foto
+            FROM alumno
+            WHERE Matricula = ?
+        """;
+        try (Connection cn = DB.get(); PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, matricula.trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Alumno a = new Alumno();
+                    a.setMatricula(rs.getString("Matricula"));
+                    a.setNombre(rs.getString("Nombre"));
+                    a.setPaterno(rs.getString("Paterno"));
+                    a.setMaterno(rs.getString("Materno"));
+                    a.setFoto(rs.getString("Foto")); // ✅ RUTA STRING
+                    return a;
+                }
+            }
+        }
+        return null;
+    }
+
+
     public String vigenciaPorMatricula(String matricula) throws SQLException {
         String sql = """
-        SELECT MIN(p.Nombre) AS inicio, MAX(p.Nombre) AS fin
-        FROM periodo p
-        JOIN alumno_periodo ap ON ap.idPeriodo = p.idPeriodo
-        WHERE ap.Matricula = ?
-    """;
+            SELECT MIN(p.Nombre) AS inicio, MAX(p.Nombre) AS fin
+            FROM periodo p
+            JOIN alumno_periodo ap ON ap.idPeriodo = p.idPeriodo
+            WHERE ap.Matricula = ?
+        """;
         try (var cn = DB.get(); var ps = cn.prepareStatement(sql)) {
             ps.setString(1, matricula);
             try (var rs = ps.executeQuery()) {
@@ -351,28 +405,8 @@ public class AlumnoDAO {
                 }
             }
         }
-        // fallback si aún no hay historial
         return "Sin historial";
     }
-    public Alumno buscarPorMatricula(String matricula) throws SQLException {
-        String sql = "SELECT Matricula, Nombre, Paterno, Materno, Foto " +
-                "FROM alumno WHERE Matricula = ?";
-
-        try (Connection cn = DB.get(); PreparedStatement ps = cn.prepareStatement(sql)) {
-            ps.setString(1, matricula);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Alumno a = new Alumno();
-                    a.setMatricula(rs.getString("Matricula"));
-                    a.setNombre(rs.getString("Nombre"));
-                    a.setPaterno(rs.getString("Paterno"));
-                    a.setMaterno(rs.getString("Materno"));
-                    a.setFoto(Arrays.toString(rs.getBytes("Foto"))); // byte[]
-                    return a;
-                }
-            }
-        }
-        return null;
-    }
 }
+
 

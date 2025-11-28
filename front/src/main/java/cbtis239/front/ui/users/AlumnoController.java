@@ -235,8 +235,40 @@ public class AlumnoController {
     @FXML public void onSubirFoto()  { pathFoto  = pickImage(imgFoto); }
     @FXML public void onSubirFirma() { pathFirma = pickImage(imgFirma); }
 
-    // ===== helpers =====
+    // === Helpers ===
+    private String pickImage(ImageView target) {
+        // Validaciones para detectar errores de FXML
+        if (target == null) {
+            System.err.println("pickImage(): target es null. Revisa fx:id=\"imgFoto\" en el FXML.");
+            return null;
+        }
+        if (target.getScene() == null || target.getScene().getWindow() == null) {
+            System.err.println("pickImage(): scene o window es null. ¿Estás llamando antes de mostrar la ventana?");
+            return null;
+        }
 
+        FileChooser fc = new FileChooser();
+        fc.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        File f = fc.showOpenDialog(target.getScene().getWindow());
+        if (f != null) {
+            String ruta = f.getAbsolutePath();
+            System.out.println("Imagen seleccionada: " + ruta);
+            loadImage(target, ruta);
+            return ruta;
+        }
+        return null;
+    }
+
+    private void loadImage(ImageView iv, String path) {
+        if (path == null || path.isBlank()) {
+            iv.setImage(null);
+            return;
+        }
+        iv.setImage(new Image(new File(path).toURI().toString(), false));
+    }
     private Alumno buildFromForm() {
         Alumno a = new Alumno();
         a.setMatricula(txtMatricula.getText().trim());
@@ -296,18 +328,18 @@ public class AlumnoController {
         imgFoto.setImage(null); imgFirma.setImage(null); pathFoto=null; pathFirma=null;
     }
 
-    private String pickImage(ImageView target){
-        FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.png","*.jpg","*.jpeg"));
-        File f = fc.showOpenDialog(target.getScene().getWindow());
-        if (f!=null) { loadImage(target, f.getAbsolutePath()); return f.getAbsolutePath(); }
-        return null;
-    }
+//    private String pickImage(ImageView target){
+//        FileChooser fc = new FileChooser();
+//        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.png","*.jpg","*.jpeg"));
+//        File f = fc.showOpenDialog(target.getScene().getWindow());
+//        if (f!=null) { loadImage(target, f.getAbsolutePath()); return f.getAbsolutePath(); }
+//        return null;
+//    }
 
-    private void loadImage(ImageView iv, String path){
-        if (path==null || path.isBlank()) { iv.setImage(null); return; }
-        iv.setImage(new Image(new File(path).toURI().toString(), false));
-    }
+//    private void loadImage(ImageView iv, String path){
+//        if (path==null || path.isBlank()) { iv.setImage(null); return; }
+//        iv.setImage(new Image(new File(path).toURI().toString(), false));
+//    }
 
     private void showError(String m){ new Alert(Alert.AlertType.ERROR, m, ButtonType.OK).showAndWait(); }
     private void showInfo(String m){ new Alert(Alert.AlertType.INFORMATION, m, ButtonType.OK).showAndWait(); }
