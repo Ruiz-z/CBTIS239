@@ -295,16 +295,11 @@ public class CredencialController {
             }
 
             // 6) Mensaje con la ruta EXACTA
-            String msg = "PDF generado correctamente.\n\n" +
-                    "Archivo:\n" + outPath.toAbsolutePath() + "\n\n" +
-                    "Carpeta:\n" + dirCredenciales.toAbsolutePath();
+            String msg = "PDF generado correctamente.\n";
             info(msg);
 
             // 7) Abrir automáticamente la carpeta en el Explorador
             abrirCarpetaCredenciales(dirCredenciales);
-
-            // También lo dejamos en consola por si quieres verlo en IntelliJ
-            System.out.println("[CREDENCIAL] Guardado en: " + outPath.toAbsolutePath());
 
         } catch (Exception e) {
             showErr("No se pudo generar el PDF", e);
