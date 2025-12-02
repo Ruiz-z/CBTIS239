@@ -78,6 +78,12 @@ public class Menu3Controller {
         openFullScreenStage(event, "/cbtis239/front/views/Director.fxml", "Director");
     }
 
+
+    @FXML
+    private void openKardex(ActionEvent event) {
+        openFullScreenStage(event, "/cbtis239/front/views/Kardex.fxml", "Kardex");
+    }
+
         @FXML
     private void openBoletaCalificaciones(ActionEvent event) {
         openFullScreenStage(event, "/cbtis239/front/views/BoletaCalificaciones.fxml", "Boleta de Calificaciones");

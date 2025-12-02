@@ -89,6 +89,15 @@
                     <graphic><FontIcon iconLiteral="fas-user-tie" iconSize="18"/></graphic>
                 </ToggleButton>
 
+                <ToggleButton text="Kardex" toggleGroup="$menuGroup"
+                              onAction="#openKardex"
+                              styleClass="nav-btn"
+                              contentDisplay="LEFT" graphicTextGap="10"
+                              VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-user-tie" iconSize="18"/></graphic>
+                </ToggleButton>
+
+
                 <!-- Espaciador para empujar 'Volver' hacia abajo -->
                 <Region VBox.vgrow="ALWAYS"/>
 
