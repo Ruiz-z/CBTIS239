@@ -50,7 +50,6 @@
                                 <!-- Matrícula -->
                                 <Label text="Matrícula del alumno:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                                 <TextField fx:id="txtMatricula" promptText="Escanee o escriba la matrícula" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                                <Button fx:id="btnRegistrar" onAction="#onRegistrar" text="Registrar" GridPane.columnIndex="4" />
 
                                 <!-- Nombre -->
                                 <Label text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
