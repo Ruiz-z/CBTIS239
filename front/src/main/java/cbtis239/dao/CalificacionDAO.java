@@ -61,7 +61,6 @@ public class CalificacionDAO {
         return lista;
     }
 
-
     // ============================================================
     // LISTAR CALIFICACIONES DE UN CURSO (con Alumno completo)
     // ============================================================
@@ -117,7 +116,10 @@ public class CalificacionDAO {
     public void actualizar(Calificacion c) throws SQLException {
         String sql = """
             UPDATE calificacion
-               SET Parcial1 = ?, Parcial2 = ?, Parcial3 = ?, ExamenFinal = ?, 
+               SET Parcial1 = ?, 
+                   Parcial2 = ?, 
+                   Parcial3 = ?, 
+                   ExamenFinal = ?, 
                    FechaActualizacion = CURRENT_TIMESTAMP
              WHERE CalificacionID = ?
         """;
@@ -128,7 +130,7 @@ public class CalificacionDAO {
             ps.setObject(1, c.getParcial1() == 0 ? null : c.getParcial1(), Types.DECIMAL);
             ps.setObject(2, c.getParcial2() == 0 ? null : c.getParcial2(), Types.DECIMAL);
             ps.setObject(3, c.getParcial3() == 0 ? null : c.getParcial3(), Types.DECIMAL);
-            ps.setObject(4, c.getPromedio() == 0 ? null : c.getPromedio(), Types.DECIMAL);
+            ps.setObject(4, c.getExamenFinal() == 0 ? null : c.getExamenFinal(), Types.DECIMAL); // FIX
             ps.setInt(5, c.getCalificacionId());
             ps.executeUpdate();
         }
@@ -136,6 +138,7 @@ public class CalificacionDAO {
 
     // ============================================================
     // CALCULAR PROMEDIO GENERAL DE UN CURSO
+    //  (sigue usando solo parciales como lo tenías)
     // ============================================================
     public double promedioGeneral(int cursoId) throws SQLException {
         String sql = """
@@ -160,7 +163,6 @@ public class CalificacionDAO {
 
     // ============================================================
     // INSERTAR REGISTROS VACÍOS SI NO EXISTEN PARA UN CURSO
-    // (por si la sigues usando en otro lado)
     // ============================================================
     public void insertarSiNoExiste(int cursoId, String matricula) throws SQLException {
         String checkSql = "SELECT 1 FROM calificacion WHERE CursoID = ? AND Alumno_Matricula = ?";
@@ -181,6 +183,4 @@ public class CalificacionDAO {
             }
         }
     }
-
-    
 }

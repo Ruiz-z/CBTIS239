@@ -27,6 +27,11 @@ dependencies {
   implementation 'com.google.zxing:core:3.5.3'
   implementation 'org.apache.pdfbox:pdfbox:2.0.30'
   implementation "org.openjfx:javafx-swing:21"
+
+  //para el pdf de la boleta
+
+  implementation 'com.github.librepdf:openpdf:1.3.39'
+
 }
 
 javafx {
