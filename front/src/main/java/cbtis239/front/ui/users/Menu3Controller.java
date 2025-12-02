@@ -77,6 +77,11 @@ public class Menu3Controller {
     private void openDirector(ActionEvent event) {
         openFullScreenStage(event, "/cbtis239/front/views/Director.fxml", "Director");
     }
+
+        @FXML
+    private void openBoletaCalificaciones(ActionEvent event) {
+        openFullScreenStage(event, "/cbtis239/front/views/BoletaCalificaciones.fxml", "Boleta de Calificaciones");
+    }
     // ==========================================
     //   Abre una nueva ventana fullscreen
     // ==========================================

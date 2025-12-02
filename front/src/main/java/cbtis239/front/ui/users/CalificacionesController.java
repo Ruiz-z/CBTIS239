@@ -35,6 +35,7 @@ public class CalificacionesController {
     @FXML private TableColumn<Calificacion, Double> colParcial1;
     @FXML private TableColumn<Calificacion, Double> colParcial2;
     @FXML private TableColumn<Calificacion, Double> colParcial3;
+    @FXML private TableColumn<Calificacion, Double> colExamenFinal; // NUEVA COLUMNA
     @FXML private TableColumn<Calificacion, Double> colFinal;
 
     private final CalificacionBO califBO = new CalificacionBO();
@@ -90,11 +91,14 @@ public class CalificacionesController {
         colParcial1.setCellValueFactory(c -> c.getValue().parcial1Property().asObject());
         colParcial2.setCellValueFactory(c -> c.getValue().parcial2Property().asObject());
         colParcial3.setCellValueFactory(c -> c.getValue().parcial3Property().asObject());
+        colExamenFinal.setCellValueFactory(c -> c.getValue().examenFinalProperty().asObject()); // NUEVA
         colFinal.setCellValueFactory(c -> c.getValue().promedioProperty().asObject());
 
+        // Columnas editables
         configurarColumnaEditable(colParcial1, "Parcial 1");
         configurarColumnaEditable(colParcial2, "Parcial 2");
         configurarColumnaEditable(colParcial3, "Parcial 3");
+        configurarColumnaEditable(colExamenFinal, "Examen Final"); // NUEVA
 
         tblCalificaciones.setEditable(true);
     }
@@ -116,6 +120,7 @@ public class CalificacionesController {
                 case "Parcial 1" -> cal.setParcial1(nuevoValor);
                 case "Parcial 2" -> cal.setParcial2(nuevoValor);
                 case "Parcial 3" -> cal.setParcial3(nuevoValor);
+                case "Examen Final" -> cal.setExamenFinal(nuevoValor); // NUEVO CASO
             }
 
             cal.recalcularPromedio();
