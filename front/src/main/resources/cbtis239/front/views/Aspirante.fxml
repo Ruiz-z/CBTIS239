@@ -3,6 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="cbtis239.front.ui.users.AspiranteController">
@@ -55,7 +57,23 @@
                         <TextField fx:id="txtNss" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
                         <Label text="Tipo de Sangre:" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
-                        <TextField fx:id="txtTipoSangre" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
+                        <ComboBox fx:id="cmbTipoSangre"
+                                  GridPane.rowIndex="3"
+                                  GridPane.columnIndex="3">
+                            <items>
+                                <FXCollections fx:factory="observableArrayList">
+                                    <String fx:value="A+" />
+                                    <String fx:value="A-" />
+                                    <String fx:value="B+" />
+                                    <String fx:value="B-" />
+                                    <String fx:value="AB+" />
+                                    <String fx:value="AB-" />
+                                    <String fx:value="O+" />
+                                    <String fx:value="O-" />
+                                </FXCollections>
+                            </items>
+                        </ComboBox>
+
 
                         <Label text="Altura (m):" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
                         <TextField fx:id="txtAltura" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
