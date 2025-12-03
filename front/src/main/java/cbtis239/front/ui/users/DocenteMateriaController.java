@@ -36,7 +36,7 @@ public class DocenteMateriaController {
         tblRelaciones.setItems(data);
         recargarTabla();
 
-        // Selección de fila → selecciona en combos para eliminar rápido
+        // Selección de fila → seleccionar en combos
         tblRelaciones.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
             if (n != null) {
                 seleccionarDocente(n.getDocenteId());
@@ -55,10 +55,13 @@ public class DocenteMateriaController {
     }
 
     private void seleccionarDocente(int docenteId) {
-        for (Opcion op : cmbDocente.getItems()) if (op.getId() == docenteId) { cmbDocente.getSelectionModel().select(op); return; }
+        for (Opcion op : cmbDocente.getItems())
+            if (op.getId() == docenteId) { cmbDocente.getSelectionModel().select(op); return; }
     }
+
     private void seleccionarMateria(String clave) {
-        for (OpcionStr op : cmbMateria.getItems()) if (op.getId().equals(clave)) { cmbMateria.getSelectionModel().select(op); return; }
+        for (OpcionStr op : cmbMateria.getItems())
+            if (op.getId().equals(clave)) { cmbMateria.getSelectionModel().select(op); return; }
     }
 
     private void recargarTabla() {
@@ -71,15 +74,24 @@ public class DocenteMateriaController {
         }
     }
 
+    // ============================
+    //  ASIGNAR
+    // ============================
     @FXML
     private void onAsignar() {
         Opcion d = cmbDocente.getValue();
         OpcionStr m = cmbMateria.getValue();
+
         try {
-            if (d == null || m == null) throw new IllegalArgumentException("Selecciona docente y materia.");
+            if (d == null || m == null)
+                throw new IllegalArgumentException("Selecciona docente y materia.");
+
             bo.asignar(d.getId(), m.getId());
             recargarTabla();
+            limpiarCampos();   // 🔥 LIMPIA LOS COMBOS
+
             mostrarInfo("Éxito", "Materia asignada al docente.");
+
         } catch (IllegalArgumentException iae) {
             mostrarAdvertencia("Validación", iae.getMessage());
         } catch (SQLException e) {
@@ -87,27 +99,45 @@ public class DocenteMateriaController {
         }
     }
 
+    // ============================
+    //  ELIMINAR
+    // ============================
     @FXML
     private void onEliminar() {
         DocenteMateria sel = tblRelaciones.getSelectionModel().getSelectedItem();
+
         try {
             if (sel == null) {
-                // Si no hay fila seleccionada, intenta con los combos
+                // intentar con combos
                 Opcion d = cmbDocente.getValue();
                 OpcionStr m = cmbMateria.getValue();
+
                 if (d == null || m == null)
                     throw new IllegalArgumentException("Selecciona una fila o docente y materia.");
+
                 bo.eliminar(d.getId(), m.getId());
             } else {
                 bo.eliminar(sel.getDocenteId(), sel.getMateriaClave());
             }
+
             recargarTabla();
+            limpiarCampos();  // 🔥 LIMPIA DESPUÉS DE ELIMINAR
             mostrarInfo("Éxito", "Relación eliminada.");
+
         } catch (IllegalArgumentException iae) {
             mostrarAdvertencia("Validación", iae.getMessage());
         } catch (SQLException e) {
             mostrarError("BD", e.getMessage());
         }
+    }
+
+    // ============================
+    //  LIMPIAR CAMPOS
+    // ============================
+    private void limpiarCampos() {
+        cmbDocente.getSelectionModel().clearSelection();
+        cmbMateria.getSelectionModel().clearSelection();
+        tblRelaciones.getSelectionModel().clearSelection();
     }
 
     @FXML
@@ -126,40 +156,38 @@ public class DocenteMateriaController {
             Stage currentStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             currentStage.close();
         } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
-            alert.setHeaderText("Error");
-            alert.showAndWait();
+            mostrarError("Error", e.getMessage());
         }
     }
 
- // En DocenteMateriaController
-private Stage getStage() {
-    return (Stage) tblRelaciones.getScene().getWindow(); // cualquier nodo de la vista sirve
-}
+    // ============================
+    //  ALERTAS
+    // ============================
+    private Stage getStage() {
+        return (Stage) tblRelaciones.getScene().getWindow();
+    }
 
-private void mostrarAdvertencia(String h, String c) {
-    Alert a = new Alert(Alert.AlertType.WARNING, c, ButtonType.OK);
-    a.setHeaderText(h);
-    a.initOwner(getStage());
-    a.initModality(javafx.stage.Modality.WINDOW_MODAL);
-    a.showAndWait();
-}
+    private void mostrarAdvertencia(String h, String c) {
+        Alert a = new Alert(Alert.AlertType.WARNING, c, ButtonType.OK);
+        a.setHeaderText(h);
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        a.showAndWait();
+    }
 
-private void mostrarError(String h, String c) {
-    Alert a = new Alert(Alert.AlertType.ERROR, c, ButtonType.OK);
-    a.setHeaderText(h);
-    a.initOwner(getStage());
-    a.initModality(javafx.stage.Modality.WINDOW_MODAL);
-    a.showAndWait();
-}
+    private void mostrarError(String h, String c) {
+        Alert a = new Alert(Alert.AlertType.ERROR, c, ButtonType.OK);
+        a.setHeaderText(h);
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        a.showAndWait();
+    }
 
-private void mostrarInfo(String h, String c) {
-    Alert a = new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK);
-    a.setHeaderText(h);
-    a.initOwner(getStage());
-    a.initModality(javafx.stage.Modality.WINDOW_MODAL);
-    a.showAndWait();
-}
-
+    private void mostrarInfo(String h, String c) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION, c, ButtonType.OK);
+        a.setHeaderText(h);
+        a.initOwner(getStage());
+        a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        a.showAndWait();
+    }
 }

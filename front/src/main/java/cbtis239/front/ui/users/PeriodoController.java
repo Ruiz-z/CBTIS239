@@ -45,7 +45,6 @@ public class PeriodoController {
 
     @FXML
     private void initialize() {
-        // Columnas
         colNombre.setCellValueFactory(c ->
                 Bindings.createStringBinding(c.getValue()::getNombre));
         colInicio.setCellValueFactory(c ->
@@ -55,28 +54,25 @@ public class PeriodoController {
                 Bindings.createStringBinding(() ->
                         c.getValue().getFechaFin() != null ? c.getValue().getFechaFin().format(DATE_FORMAT) : ""));
 
-        // Datos
         reloadTable();
 
         SortedList<Periodo> sorted = new SortedList<>(data);
         sorted.comparatorProperty().bind(tablaPeriodos.comparatorProperty());
         tablaPeriodos.setItems(sorted);
 
-        // Estados de botones
         btnEliminar.disableProperty().bind(tablaPeriodos.getSelectionModel().selectedItemProperty().isNull());
         btnAgregar.disableProperty().bind(editing);
         btnModificar.disableProperty().bind(editing.not());
 
-        // Doble clic fila => editar
         tablaPeriodos.setOnMouseClicked(this::onTableDoubleClick);
 
-        // Estado inicial
         setCreateMode();
         onCancelar();
     }
 
-    // ==== Acciones UI ====
-
+    // =========================================================
+    // AGREGAR
+    // =========================================================
     @FXML
     private void onAgregar() {
         try {
@@ -84,6 +80,9 @@ public class PeriodoController {
             p.setNombre(txtNombre.getText());
             p.setFechaInicio(dpInicio.getValue());
             p.setFechaFin(dpFin.getValue());
+
+            // 🔥 VALIDACIÓN DE FECHAS
+            validarFechas(p, null);
 
             long id = periodoBO.create(p);
             showInfo("Periodo creado", "Se creó el periodo con ID: " + id);
@@ -98,9 +97,13 @@ public class PeriodoController {
         }
     }
 
+    // =========================================================
+    // MODIFICAR
+    // =========================================================
     @FXML
     private void onModificar() {
         if (selectedId == null) return;
+
         try {
             Periodo p = new Periodo();
             p.setIdPeriodo(selectedId);
@@ -108,7 +111,11 @@ public class PeriodoController {
             p.setFechaInicio(dpInicio.getValue());
             p.setFechaFin(dpFin.getValue());
 
+            // 🔥 VALIDACIÓN DE FECHAS
+            validarFechas(p, selectedId);
+
             periodoBO.update(p);
+
             showInfo("Periodo actualizado", "Se actualizó el periodo con ID: " + selectedId);
 
             reloadTable();
@@ -121,6 +128,9 @@ public class PeriodoController {
         }
     }
 
+    // =========================================================
+    // ELIMINAR
+    // =========================================================
     @FXML
     private void onEliminar() {
         Periodo sel = tablaPeriodos.getSelectionModel().getSelectedItem();
@@ -173,7 +183,6 @@ public class PeriodoController {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR, "No se pudo volver al Menú\n\n" + e.getMessage());
             alert.setHeaderText("Error");
-            // === Ajuste: owner y modalidad para no cerrar/ocultar la pantalla ===
             alert.initOwner(getStage());
             alert.initModality(javafx.stage.Modality.WINDOW_MODAL);
             alert.showAndWait();
@@ -190,14 +199,49 @@ public class PeriodoController {
         }
     }
 
-    // ==== Helpers ====
+    // =========================================================
+    // VALIDACIÓN DE FECHAS (LO QUE PEDISTE)
+    // =========================================================
+    private void validarFechas(Periodo nuevo, Integer idEditar) throws BusinessException {
 
-    private void reloadTable() {
-        try {
-            data.setAll(periodoBO.findAll());
-        } catch (Exception ex) {
-            showError("Error al cargar", "No se pudieron cargar los periodos.", ex);
+        if (nuevo.getFechaInicio() == null || nuevo.getFechaFin() == null) {
+            throw new BusinessException("Debes seleccionar fecha de inicio y fin.");
         }
+
+        if (nuevo.getFechaFin().isBefore(nuevo.getFechaInicio())) {
+            throw new BusinessException("La fecha fin no puede ser menor que la fecha inicio.");
+        }
+
+        for (Periodo p : data) {
+
+            // Ignorar cuando es el mismo periodo (modificación)
+            if (idEditar != null && p.getIdPeriodo() == idEditar) {
+                continue;
+            }
+
+            // ❌ VALIDAR QUE NO SE TRASLAPEN
+            boolean traslape =
+                    !(nuevo.getFechaFin().isBefore(p.getFechaInicio())
+                            || nuevo.getFechaInicio().isAfter(p.getFechaFin()));
+
+            if (traslape) {
+                throw new BusinessException(
+                        "El periodo se traslapa con el periodo existente:\n" +
+                                p.getNombre() + " (" +
+                                p.getFechaInicio().format(DATE_FORMAT) + " - " +
+                                p.getFechaFin().format(DATE_FORMAT) + ")"
+                );
+            }
+        }
+    }
+
+
+    // =========================================================
+    // HELPERS
+    // =========================================================
+    private void reloadTable() {
+        try { data.setAll(periodoBO.findAll()); }
+        catch (Exception ex) { showError("Error al cargar", "No se pudieron cargar los periodos.", ex); }
     }
 
     private void cargarEnFormulario(Periodo p) {
@@ -215,8 +259,6 @@ public class PeriodoController {
         selectedId = id;
         editing.set(true);
     }
-
-    // ==== Diálogo unificado seguro (con owner y modalidad) ====
 
     private Stage getStage() {
         javafx.stage.Window w = javafx.stage.Window.getWindows().stream()
@@ -281,5 +323,4 @@ public class PeriodoController {
         }
         return a.showAndWait();
     }
-
 }
