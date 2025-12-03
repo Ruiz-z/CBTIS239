@@ -1,5 +1,6 @@
 package cbtis239.front.ui.users;
 
+import cbtis239.front.MainApp;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +12,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class Menu2Controller {
 
@@ -58,20 +60,35 @@ public class Menu2Controller {
     @FXML
     private void onCerrarSesion(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Login.fxml"));
-            Parent root = loader.load();
+            // 1. Obtener el Stage actual
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            Stage stage = new Stage();
+            // 2. Cargar de nuevo el Login.fxml usando la MISMA ruta que en MainApp
+            Parent root = FXMLLoader.load(
+                    Objects.requireNonNull(
+                            MainApp.class.getResource("/cbtis239/front/views/Login.fxml"),
+                            "No se encontró Login.fxml"
+                    )
+            );
+
+            // 3. Crear la nueva escena y asignarla al mismo stage
+            Scene scene = new Scene(root);
             stage.setTitle("Inicio de Sesión");
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
+            stage.setResizable(false);
+
             stage.show();
 
-            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
-
-        } catch (IOException e) {
-            showError("No se pudo volver al inicio de sesión.\n" + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setTitle("Error al cerrar sesión");
+            a.setHeaderText(e.getClass().getSimpleName() + ": " + e.getMessage());
+            a.setContentText(e.toString());
+            a.showAndWait();
         }
     }
+
     @FXML
     private void openGrupo(ActionEvent event) {
         openFullScreenStage(event, "/cbtis239/front/views/Grupo.fxml", "Gestión de Grupos");

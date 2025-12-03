@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.PrintWriter;
@@ -29,18 +30,30 @@ public class MainApp extends Application {
             );
 
             FXMLLoader loader = new FXMLLoader(url);
-            Parent root = loader.load(); // <- si truena aquí, casi siempre es: fx:controller mal, falta 'opens' del paquete, o error en <fx:.../>
+            Parent root = loader.load(); // <- si truena aquí, es error en el FXML
 
             Scene scene = new Scene(root);
             stage.setTitle("Inicio de sesión");
             stage.setResizable(false);
+
+            // ============================
+            //     ÍCONO DEL CBTIS 239
+            // ============================
+            stage.getIcons().add(
+                    new Image(Objects.requireNonNull(
+                            MainApp.class.getResourceAsStream(
+                                    "/cbtis239/front/logo.png"
+                            ),
+                            "No se encontró el icono /cbtis239/front/img/cbtis239_logo.png"
+                    ))
+            );
+            // ============================
+
             stage.setScene(scene);
             stage.show();
 
         } catch (Throwable ex) {
-            // Cae aquí lo que provoca “Exception in Application start method”
             showCrash(ex);
-            // re-lanzamos para que termine la JVM si quieres
             throw new RuntimeException(ex);
         }
     }
@@ -52,9 +65,11 @@ public class MainApp extends Application {
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setTitle("Error al iniciar");
         a.setHeaderText(ex.getClass().getSimpleName() + ": " + String.valueOf(ex.getMessage()));
-        a.setContentText(sw.toString().substring(0, Math.min(2000, sw.toString().length()))); // evita alert infinito
+        a.setContentText(sw.toString().substring(0, Math.min(2000, sw.toString().length())));
         a.showAndWait();
     }
 
-    public static void main(String[] args) { launch(args); }
+    public static void main(String[] args) {
+        launch(args);
+    }
 }

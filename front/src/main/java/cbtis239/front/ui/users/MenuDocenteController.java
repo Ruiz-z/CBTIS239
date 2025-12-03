@@ -1,5 +1,6 @@
 package cbtis239.front.ui.users;
 
+import cbtis239.front.MainApp;
 import cbtis239.model.Docente;
 import cbtis239.model.Usuario;
 import cbtis239.session.SesionActual;
@@ -16,6 +17,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class MenuDocenteController {
 
@@ -152,22 +154,34 @@ public class MenuDocenteController {
     @FXML
     private void onCerrarSesion(ActionEvent event) {
         try {
-            // Limpiamos la sesión global al cerrar
-            cbtis239.session.SesionActual.limpiar();
+            // 1. Obtener el Stage actual
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Login.fxml"));
-            Parent root = loader.load();
+            // 2. Cargar de nuevo el Login.fxml usando la MISMA ruta que en MainApp
+            Parent root = FXMLLoader.load(
+                    Objects.requireNonNull(
+                            MainApp.class.getResource("/cbtis239/front/views/Login.fxml"),
+                            "No se encontró Login.fxml"
+                    )
+            );
 
-            Stage stage = new Stage();
+            // 3. Crear la nueva escena y asignarla al mismo stage
+            Scene scene = new Scene(root);
             stage.setTitle("Inicio de Sesión");
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
+            stage.setResizable(false);
+
+            // ⚠️ IMPORTANTE: NO cierres el stage, solo cambia la escena
             stage.show();
 
-            // Cierra el menú docente actual
-            ((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
-
-        } catch (IOException e) {
-            showError("No se pudo volver al inicio de sesión.\n" + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setTitle("Error al cerrar sesión");
+            a.setHeaderText(e.getClass().getSimpleName() + ": " + e.getMessage());
+            a.setContentText(e.toString());
+            a.showAndWait();
         }
     }
+
 }
