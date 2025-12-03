@@ -299,8 +299,8 @@ public class RegisterUserController {
     }
 
     private void clearForm() {
+        // Limpieza de campos
         txtUsuario.clear();
-        txtUsuario.setDisable(false);
         txtPassword.clear();
         txtPasswordVisible.clear();
         txtConfirm.clear();
@@ -308,9 +308,26 @@ public class RegisterUserController {
         txtNombres.clear();
         txtApPat.clear();
         txtApMat.clear();
+
+        // Habilitar PK otra vez
+        txtUsuario.setDisable(false);
+
+        // Deseleccionar rol
         cbRol.getSelectionModel().clearSelection();
+
+        // Deseleccionar tabla
         tablaUsuarios.getSelectionModel().clearSelection();
+
+        // Reset de visibilidad de passwords
+        showingPass = false;
+        showingConfirm = false;
+        setPasswordVisible(false);
+        setConfirmVisible(false);
+
+        // Foco al primer campo
+        txtUsuario.requestFocus();
     }
+
 
     private String trim(String s) { return s == null ? "" : s.trim(); }
 

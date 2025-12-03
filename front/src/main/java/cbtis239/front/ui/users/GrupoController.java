@@ -63,40 +63,65 @@ public class GrupoController {
         }
     }
 
-    // 👉 ACTUALIZADO: limpia SIEMPRE después de registrar
+    // ==========================================
+    //          REGISTRAR
+    // ==========================================
     @FXML
     private void onRegistrar() {
         try {
+            String nombre = txtNombreGrupo.getText().trim();
+            String capStr = txtCapacidad.getText().trim();
             Especialidad esp = cbEspecialidad.getValue();
 
-            if (esp == null) {
-                throw new IllegalArgumentException("Selecciona una especialidad.");
+            if (nombre.isEmpty()) throw new IllegalArgumentException("El nombre no puede estar vacío.");
+            if (capStr.isEmpty()) throw new IllegalArgumentException("La capacidad no puede estar vacía.");
+            if (esp == null) throw new IllegalArgumentException("Selecciona una especialidad.");
+
+            // 🔒 VALIDACIÓN — NO repetir nombres de grupo
+            boolean existe = listaGrupos.stream()
+                    .anyMatch(g -> g.getNombreGrupo().equalsIgnoreCase(nombre));
+            if (existe) {
+                throw new IllegalArgumentException("El nombre del grupo ya existe.");
             }
 
             Grupo g = bo.crear(
-                    txtNombreGrupo.getText(),
-                    txtCapacidad.getText(),
+                    nombre,
+                    capStr,
                     esp.getClave()
             );
 
             listaGrupos.add(0, g);
-
-            // 🔥 Limpia los campos después de registrar
             limpiar();
-
             showInfo("Grupo registrado.");
+
         } catch (Exception e) {
             showError(e.getMessage());
         }
     }
 
+    // ==========================================
+    //          MODIFICAR
+    // ==========================================
     @FXML
     private void onModificar() {
         Grupo sel = tablaGrupos.getSelectionModel().getSelectedItem();
         if (sel == null) { showError("Selecciona un grupo en la tabla."); return; }
 
         try {
-            sel.setNombreGrupo(txtNombreGrupo.getText());
+            String nombreNuevo = txtNombreGrupo.getText().trim();
+
+            if (nombreNuevo.isEmpty())
+                throw new IllegalArgumentException("El nombre no puede estar vacío.");
+
+            // 🔒 VALIDACIÓN — NO duplicar nombre, ignorando a sí mismo
+            boolean existe = listaGrupos.stream()
+                    .anyMatch(g -> g != sel && g.getNombreGrupo().equalsIgnoreCase(nombreNuevo));
+
+            if (existe) {
+                throw new IllegalArgumentException("El nombre del grupo ya existe.");
+            }
+
+            sel.setNombreGrupo(nombreNuevo);
 
             try {
                 sel.setCapacidad(Integer.parseInt(txtCapacidad.getText().trim()));
@@ -113,6 +138,7 @@ public class GrupoController {
             bo.modificar(sel);
             tablaGrupos.refresh();
             showInfo("Grupo actualizado.");
+
         } catch (Exception e) {
             showError(e.getMessage());
         }

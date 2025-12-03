@@ -35,7 +35,7 @@ public class AsignaturaController {
         colNombre.setCellValueFactory(c -> c.getValue().nombreProperty());
         colCreditos.setCellValueFactory(c -> c.getValue().creditosProperty());
 
-        // Solo números en créditos (permite vacío)
+        // Solo números en créditos
         txtCreditos.textProperty().addListener((obs, old, val) -> {
             if (val != null && !val.matches("\\d*")) {
                 txtCreditos.setText(val.replaceAll("[^\\d]", ""));
@@ -58,12 +58,11 @@ public class AsignaturaController {
         recargarTabla();
     }
 
-    // ===== Helpers =====
     private void recargarTabla() {
         try {
-            data.clear();                 // limpia lista actual
-            data.addAll(bo.listar());     // recarga desde BD
-            tblMaterias.refresh();        // fuerza repintado
+            data.clear();
+            data.addAll(bo.listar());
+            tblMaterias.refresh();
         } catch (SQLException ex) {
             mostrarError("Error al cargar materias", ex.getMessage());
         }
@@ -79,7 +78,7 @@ public class AsignaturaController {
 
     private int parseCreditos() {
         String t = txtCreditos.getText();
-        if (t == null || t.isBlank()) return 0;  // en tu BD es NULL/0 permitido
+        if (t == null || t.isBlank()) return 0;
         try {
             int c = Integer.parseInt(t);
             if (c < 0) throw new NumberFormatException();
@@ -89,18 +88,38 @@ public class AsignaturaController {
         }
     }
 
-    // ===== Acciones =====
+    // ====================================================
+    // AGREGAR — con validación de CLAVE y NOMBRE únicos
+    // ====================================================
     @FXML
     private void onAgregar() {
         try {
-            String clave = txtClave.getText();
-            String nombre = txtNombre.getText();
+            String clave = txtClave.getText().trim();
+            String nombre = txtNombre.getText().trim();
             int creditos = parseCreditos();
 
+            if (clave.isEmpty()) throw new IllegalArgumentException("La clave no puede estar vacía.");
+            if (nombre.isEmpty()) throw new IllegalArgumentException("El nombre no puede estar vacío.");
+
+            // ❗ VALIDACIÓN: clave duplicada
+            boolean claveExiste = data.stream()
+                    .anyMatch(m -> m.getClave().equalsIgnoreCase(clave));
+
+            if (claveExiste)
+                throw new IllegalArgumentException("Ya existe una materia con esa clave.");
+
+            // ❗ VALIDACIÓN: nombre duplicado
+            boolean nombreExiste = data.stream()
+                    .anyMatch(m -> m.getNombre().equalsIgnoreCase(nombre));
+
+            if (nombreExiste)
+                throw new IllegalArgumentException("Ya existe una materia con ese nombre.");
+
             bo.agregar(new Materia(clave, nombre, creditos));
-            recargarTabla();          // << refresca inmediatamente
+            recargarTabla();
             limpiarFormulario();
             mostrarInfo("Éxito", "Materia agregada correctamente.");
+
         } catch (IllegalArgumentException iae) {
             mostrarAdvertencia("Validación", iae.getMessage());
         } catch (Exception ex) {
@@ -108,6 +127,9 @@ public class AsignaturaController {
         }
     }
 
+    // ====================================================
+    // ELIMINAR
+    // ====================================================
     @FXML
     private void onEliminar() {
         Materia sel = tblMaterias.getSelectionModel().getSelectedItem();
@@ -117,7 +139,7 @@ public class AsignaturaController {
         }
         try {
             bo.eliminar(sel.getClave());
-            recargarTabla();          // << refresca inmediatamente
+            recargarTabla();
             limpiarFormulario();
             mostrarInfo("Éxito", "Materia eliminada.");
         } catch (Exception ex) {
@@ -125,6 +147,9 @@ public class AsignaturaController {
         }
     }
 
+    // ====================================================
+    // MODIFICAR — con validación de NOMBRE único
+    // ====================================================
     @FXML
     private void onModificar() {
         Materia sel = tblMaterias.getSelectionModel().getSelectedItem();
@@ -133,14 +158,25 @@ public class AsignaturaController {
             return;
         }
         try {
-            String nombre = txtNombre.getText();
+            String nombre = txtNombre.getText().trim();
             int creditos = parseCreditos();
 
+            if (nombre.isEmpty())
+                throw new IllegalArgumentException("El nombre no puede estar vacío.");
+
+            // ❗ VALIDACIÓN: nombre repetido (ignorando el propio seleccionado)
+            boolean nombreExiste = data.stream()
+                    .anyMatch(m -> m != sel && m.getNombre().equalsIgnoreCase(nombre));
+
+            if (nombreExiste)
+                throw new IllegalArgumentException("Ya existe una materia con ese nombre.");
+
             bo.modificar(new Materia(sel.getClave(), nombre, creditos));
-            recargarTabla();          // << refresca inmediatamente
-            // (opcionalmente podrías actualizar solo el objeto sel y hacer tblMaterias.refresh())
+
+            recargarTabla();
             limpiarFormulario();
             mostrarInfo("Éxito", "Materia modificada.");
+
         } catch (IllegalArgumentException iae) {
             mostrarAdvertencia("Validación", iae.getMessage());
         } catch (Exception ex) {
@@ -153,23 +189,32 @@ public class AsignaturaController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/Menu2.fxml"));
             Parent root = loader.load();
-
             Stage newStage = new Stage();
             newStage.setTitle("Menú 2");
             newStage.setScene(new Scene(root));
-            newStage.setMaximized(true);
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            newStage.setFullScreen(true);
+            newStage.setFullScreenExitHint("");
             newStage.show();
-
-            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Stage currentStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             currentStage.close();
-
         } catch (Exception e) {
-            // === Ajuste: usar alerta modal con owner de la ventana actual ===
-            mostrarError("No se pudo volver al menú", e.getMessage());
+            showError("No se pudo volver al menú:\n" + e.getMessage());
         }
     }
+    private void showError(String c) {
+        Alert a = new Alert(Alert.AlertType.ERROR, c, ButtonType.OK);
+        a.setHeaderText("Error");
+        Stage owner = getStage();
+        if (owner != null) {
+            a.initOwner(owner);
+            a.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        }
+        a.showAndWait();
+    }
 
-    // ====== Helpers de Alert con owner y modalidad ======
+
+    // ======== Helpers Alert ========
     private Stage getStage() {
         javafx.stage.Window w = javafx.stage.Window.getWindows().stream()
                 .filter(javafx.stage.Window::isFocused)

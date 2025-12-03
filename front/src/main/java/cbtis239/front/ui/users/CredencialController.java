@@ -73,18 +73,14 @@ public class CredencialController {
             "/cbtis239/front/credencial_reverso.png"
     };
 
-    // Firma estática de respaldo del director
     private static final String FIRMA_DIRECTOR_PATH =
             "/cbtis239/front/firmadirector.png";
 
-    // ===== Tamaño del canvas PDF =====
     private static final int W = 1000, H = 560;
 
-    // ===== Foto y código de barras (anverso) =====
     private static final int FOTO_X = 110, FOTO_Y = 240, FOTO_W = 160, FOTO_H = 190;
     private static final int BAR_X  = 80,  BAR_Y  = 460, BAR_W  = 230, BAR_H  = 30;
 
-    // ===== Posiciones de texto negro (anverso) =====
     private static final int TXT_X        = 340;
     private static final int Y_NOMBRE1    = 265;
     private static final int Y_NOMBRE2    = 299;
@@ -92,27 +88,21 @@ public class CredencialController {
     private static final int Y_NSS        = 420;
     private static final int Y_NOCONTROL  = 470;
 
-    // ===== Posiciones reverso =====
     private static final int REV_FECHA_X = 700, REV_FECHA_Y = 120;
     private static final int REV_VIG_X   = 100, REV_VIG_Y   = 240;
 
-    // Firmas en reverso
     private static final int FIRMA_ALUMNO_X = 160,  FIRMA_ALUMNO_Y = 310,
             FIRMA_ALUMNO_W = 200, FIRMA_ALUMNO_H = 80;
     private static final int FIRMA_DIR_X    = 500, FIRMA_DIR_Y    = 310,
             FIRMA_DIR_W    = 360, FIRMA_DIR_H    = 80;
 
-    // Texto del nombre del director en el reverso
-    // Ajusta estos valores según tu diseño
     private static final int DIR_NOMBRE_X = 500;
     private static final int DIR_NOMBRE_Y = 410;
     private static final int DIR_NOMBRE_MAX_W = 360;
 
-    // ===== BOs =====
     private final CredencialBO bo = new CredencialBO();
     private final DirectorBO directorBO = new DirectorBO();
 
-    // ===== Director actual =====
     private Director directorActual;
 
     // ================== INIT ==================
@@ -207,7 +197,6 @@ public class CredencialController {
             txtCurp.setText(nvl(a.getCurp()));
             txtNss.setText(nvl(a.getNss()));
 
-            // Foto y firma desde BD
             setImageFromString(a.getFoto());
             setFirmaFromString(a.getFirma());
 
@@ -215,8 +204,8 @@ public class CredencialController {
                 dpFechaEmision.setValue(LocalDate.now());
             txtVigencia.setText(bo.calcularVigencia(m));
 
-            // Código de barras en la vista
             imgBarcode.setImage(generarCodigoBarrasFX(m, 600, 180));
+
             if (imgBarcodePlantilla != null)
                 imgBarcodePlantilla.setImage(generarCodigoBarrasFX(m, 210, 70));
 
@@ -250,6 +239,7 @@ public class CredencialController {
         limpiar();
     }
 
+    // ================== GENERAR PDF ==================
     @FXML
     private void onGenerarPDF() {
         try {
@@ -259,22 +249,16 @@ public class CredencialController {
                 return;
             }
 
-            // 1) Carpeta fija de credenciales (relativa a la app)
             Path dirCredenciales = AppPaths.getCredencialesDir();
-
-            // 2) Nombre del archivo
             String fileName = "credencial_" + matricula + ".pdf";
             Path outPath = dirCredenciales.resolve(fileName);
 
-            // 3) Construir imágenes de anverso y reverso
             BufferedImage frente = buildAnversoImage();
             BufferedImage reverso = buildReversoImage();
 
-            // 4) Crear PDF con PDFBox
             try (PDDocument doc = new PDDocument()) {
                 PDRectangle size = new PDRectangle(frente.getWidth(), frente.getHeight());
 
-                // Página 1 - anverso
                 PDPage p1 = new PDPage(size);
                 doc.addPage(p1);
                 var imgFront = LosslessFactory.createFromImage(doc, frente);
@@ -282,7 +266,6 @@ public class CredencialController {
                     cs.drawImage(imgFront, 0, 0, size.getWidth(), size.getHeight());
                 }
 
-                // Página 2 - reverso
                 PDPage p2 = new PDPage(size);
                 doc.addPage(p2);
                 var imgBack = LosslessFactory.createFromImage(doc, reverso);
@@ -290,22 +273,20 @@ public class CredencialController {
                     cs.drawImage(imgBack, 0, 0, size.getWidth(), size.getHeight());
                 }
 
-                // 5) Guardar en la ruta calculada
                 doc.save(outPath.toFile());
             }
 
-            // 6) Mensaje con la ruta EXACTA
-            String msg = "PDF generado correctamente.\n";
-            info(msg);
+            info("PDF generado correctamente.");
 
-            // 7) Abrir automáticamente la carpeta en el Explorador
             abrirCarpetaCredenciales(dirCredenciales);
+
+            // 🔹 LIMPIEZA AUTOMÁTICA DESPUÉS DE GENERAR LA CREDENCIAL
+            limpiar();
 
         } catch (Exception e) {
             showErr("No se pudo generar el PDF", e);
         }
     }
-
 
     // ================== PLANTILLA (labels de vista) ==================
     private void actualizarPlantilla(Alumno a) {
@@ -341,7 +322,6 @@ public class CredencialController {
         g.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING,
                 java.awt.RenderingHints.VALUE_RENDER_QUALITY);
 
-        // Fondo
         g.setColor(java.awt.Color.WHITE);
         g.fillRect(0, 0, W, H);
         boolean fondoPintado = false;
@@ -368,12 +348,12 @@ public class CredencialController {
                 }
             }
         }
+
         if (!fondoPintado) {
             g.setColor(java.awt.Color.LIGHT_GRAY);
             g.drawString("FONDO NO ENCONTRADO", 20, 30);
         }
 
-        // Foto
         BufferedImage fotoBI = null;
         try {
             if (imgFotoPlantilla != null && imgFotoPlantilla.getImage() != null)
@@ -387,7 +367,6 @@ public class CredencialController {
         if (fotoBI != null)
             g.drawImage(fotoBI, FOTO_X, FOTO_Y, FOTO_W, FOTO_H, null);
 
-        // Código de barras
         try {
             String noCtrl = nvl(lblNoControl.getText());
             if (!noCtrl.isBlank()) {
@@ -406,7 +385,6 @@ public class CredencialController {
             }
         } catch (Exception ignore) { }
 
-        // Texto negro
         java.awt.Font f = new java.awt.Font("SansSerif", java.awt.Font.BOLD, 24);
         g.setColor(java.awt.Color.BLACK);
         g.setFont(f);
@@ -433,7 +411,6 @@ public class CredencialController {
         g.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING,
                 java.awt.RenderingHints.VALUE_RENDER_QUALITY);
 
-        // Fondo
         g.setColor(java.awt.Color.WHITE);
         g.fillRect(0, 0, W, H);
         boolean fondoPintado = false;
@@ -453,7 +430,6 @@ public class CredencialController {
             g.drawString("FONDO REVERSO NO ENCONTRADO", 20, 30);
         }
 
-        // Datos dinámicos
         String vigencia = nvl(txtVigencia.getText());
         String fechaStr = "";
         if (dpFechaEmision.getValue() != null) {
@@ -463,15 +439,12 @@ public class CredencialController {
 
         g.setColor(java.awt.Color.BLACK);
 
-        // Fecha de emisión
         g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 20));
         drawTextClipped(g, fechaStr, REV_FECHA_X, REV_FECHA_Y, 230);
 
-        // Vigencia (texto más pequeño)
         g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 12));
         drawTextClipped(g, vigencia, REV_VIG_X, REV_VIG_Y, 600);
 
-        // Firma del alumno
         if (firmaActual != null && firmaActual.length > 0) {
             try {
                 Image fx = new Image(new ByteArrayInputStream(firmaActual));
@@ -483,7 +456,6 @@ public class CredencialController {
             } catch (Exception ignore) { }
         }
 
-        // Firma del director (dinámica, desde BD; si no hay, usa la imagen estática)
         try {
             BufferedImage firmaDirBI = null;
 
@@ -504,11 +476,10 @@ public class CredencialController {
             }
         } catch (Exception ignore) { }
 
-        // Nombre del director en texto
         if (directorActual != null) {
             String nombreDir = directorActual.getNombreCompleto().toUpperCase();
             g.setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, 16));
-            g.setColor(java.awt.Color.RED); // si lo quieres rojo como en el ejemplo
+            g.setColor(java.awt.Color.RED);
             drawTextClipped(g, nombreDir, DIR_NOMBRE_X, DIR_NOMBRE_Y, DIR_NOMBRE_MAX_W);
         }
 
@@ -583,7 +554,6 @@ public class CredencialController {
     private static String trim(String s) { return s == null ? "" : s.trim(); }
     private static String nvl(String s)   { return Objects.toString(s, ""); }
 
-    // ---------- Foto desde String ----------
     private void setImageFromString(String fotoStr) {
         try {
             if (fotoStr == null || fotoStr.isBlank()) {
@@ -641,7 +611,6 @@ public class CredencialController {
         }
     }
 
-    // ---------- Firma desde String (alumno) ----------
     private void setFirmaFromString(String firmaStr) {
         try {
             if (firmaStr == null || firmaStr.isBlank()) {
@@ -686,7 +655,6 @@ public class CredencialController {
         }
     }
 
-    // ---------- Limpieza y mensajes ----------
     private void limpiar() {
         txtMatricula.clear();
         txtNombre.clear();
@@ -738,7 +706,6 @@ public class CredencialController {
                         + dirCredenciales.toAbsolutePath());
             }
         } catch (Exception e) {
-            // Si falla abrir la carpeta, al menos no truena la app
             System.out.println("[CREDENCIAL] No se pudo abrir la carpeta de credenciales: "
                     + e.getMessage());
         }
