@@ -23,34 +23,185 @@ import java.util.Objects;
 public class AspiranteController {
 
     // ===== Campos del formulario =====
-    @FXML private TextField txtFolio, txtNombre, txtPaterno, txtMaterno, txtCurp;
-    @FXML private TextField txtCorreo, txtCorreoAspirante, txtTelefono, txtCelAspirante;
-    @FXML private TextField txtNss, txtTipoSangre, txtAltura, txtPeso;
-    @FXML private TextField txtEstado, txtMunicipio, txtLocalidad, txtCalle, txtNumero, txtColonia;
-    @FXML private TextField txtCelPadre, txtCelMadre, txtContactoEmergencia;
-    @FXML private TextField txtTutor1, txtTutor2, txtSecundaria, txtEstadoSec, txtMunicipioSec, txtNombreSec;
-    @FXML private TextField txtPromedio, txtCalificacion;
-    @FXML private ComboBox<String> cmbEstatusPago, cmbEstatusInscripcion;
-    @FXML private ComboBox<Catalogo> cmbEdoCivil, cmbGenero, cmbEsp1, cmbEsp2, cmbEsp3, cmbEsp4;
-    @FXML private DatePicker dpFechaNac, dpFechaReg;
+    @FXML
+    private TextField txtFolio, txtNombre, txtPaterno, txtMaterno, txtCurp;
+    @FXML
+    private TextField txtCorreo, txtCorreoAspirante, txtTelefono, txtCelAspirante;
+    @FXML
+    private TextField txtNss, txtAltura, txtPeso;
+    @FXML
+    private TextField txtEstado, txtMunicipio, txtLocalidad, txtCalle, txtNumero, txtColonia;
+    @FXML
+    private TextField txtCelPadre, txtCelMadre, txtContactoEmergencia;
+    @FXML
+    private TextField txtTutor1, txtTutor2, txtSecundaria, txtEstadoSec, txtMunicipioSec, txtNombreSec;
+    @FXML
+    private TextField txtPromedio, txtCalificacion;
+    @FXML
+    private ComboBox<String> cmbEstatusPago, cmbEstatusInscripcion, cmbTipoSangre;
+    @FXML
+    private ComboBox<Catalogo> cmbEdoCivil, cmbGenero, cmbEsp1, cmbEsp2, cmbEsp3, cmbEsp4;
+    @FXML
+    private DatePicker dpFechaNac, dpFechaReg;
 
     // ===== Tabla =====
-    @FXML private TableView<Aspirante> tblAspirantes;
-    @FXML private TableColumn<Aspirante, Integer> colFolio;
-    @FXML private TableColumn<Aspirante, String> colNombre, colPaterno, colMaterno, colEstatus;
+    @FXML
+    private TableView<Aspirante> tblAspirantes;
+    @FXML
+    private TableColumn<Aspirante, Integer> colFolio;
+    @FXML
+    private TableColumn<Aspirante, String> colNombre, colPaterno, colMaterno, colEstatus;
 
     private final AspiranteBO aspiranteBO = new AspiranteBO();
     private final CatalogoDAO catalogoDAO = new CatalogoDAO();
 
+    // ============================================================
+    // ===================== VALIDACIONES AGREGADAS ===============
+    // ============================================================
+
+    /**
+     * Solo números enteros
+     */
+    private void soloEnteros(TextField txt) {
+        txt.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) txt.setText(oldValue);
+        });
+    }
+
+    /**
+     * Solo decimal con X decimales
+     */
+    private void soloDecimal(TextField txt, int decimales) {
+        txt.textProperty().addListener((obs, oldValue, newValue) -> {
+            String regex = "^\\d*(\\.\\d{0," + decimales + "})?$";
+            if (!newValue.matches(regex)) txt.setText(oldValue);
+        });
+    }
+
+    /**
+     * Solo letras y espacios (para nombre y apellidos)
+     */
+    private void soloLetras(TextField txt) {
+        txt.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (!newValue.matches("[a-zA-ZÁÉÍÓÚáéíóúÑñ\\s]*")) {
+                txt.setText(oldValue);
+            }
+        });
+    }
+
+    /**
+     * Limitar longitud máxima según la BD
+     */
+    private void limitarLongitud(TextField txt, int max) {
+        txt.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue != null && newValue.length() > max) {
+                txt.setText(oldValue);
+            }
+        });
+    }
+
+    private boolean validarCurpFormato(String curp) {
+        return curp != null && curp.matches("^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[A-Z0-9][0-9]$");
+    }
+
+    private void validarObligatorios(Aspirante a) {
+
+        if (a.getCurp() == null || a.getCurp().isBlank())
+            throw new RuntimeException("La CURP es obligatoria");
+
+        if (!validarCurpFormato(a.getCurp()))
+            throw new RuntimeException("La CURP no tiene un formato válido");
+
+        if (a.getNombre() == null || a.getNombre().isBlank())
+            throw new RuntimeException("El nombre es obligatorio");
+
+        if (a.getPaterno() == null || a.getPaterno().isBlank())
+            throw new RuntimeException("El apellido paterno es obligatorio");
+
+        if (a.getFechaNacimiento() == null)
+            throw new RuntimeException("La fecha de nacimiento es obligatoria");
+
+        if (a.getTelefono() == null || a.getTelefono().isBlank())
+            throw new RuntimeException("El teléfono es obligatorio");
+
+        if (a.getCorreo() == null || a.getCorreo().isBlank())
+            throw new RuntimeException("El correo es obligatorio");
+    }
+
+    // ============================================================
+    // ======================= FOLIO AUTOMÁTICO ===================
+    // ============================================================
+
+    /**
+     * Calcula el siguiente folio con base en la tabla (max + 1)
+     */
+    private int obtenerSiguienteFolioLocal() {
+        if (tblAspirantes == null || tblAspirantes.getItems() == null || tblAspirantes.getItems().isEmpty()) {
+            return 1;
+        }
+        return tblAspirantes.getItems()
+                .stream()
+                .mapToInt(Aspirante::getFolio)
+                .max()
+                .orElse(0) + 1;
+    }
+
+    /**
+     * Asigna el folio nuevo al textbox, formateado con 3 dígitos (001, 002, ...)
+     */
+    private void asignarFolioNuevo() {
+        int siguiente = obtenerSiguienteFolioLocal();
+        txtFolio.setText(String.format("%03d", siguiente));
+    }
+
+    // ============================================================
+    // =========================== initialize ======================
+    // ============================================================
     @FXML
     public void initialize() {
+        // =====================================================
+// === FORMATO AUTOMÁTICO DECIMALES ====================
+// =====================================================
+        agregarFormatoDecimal(txtAltura, 2);
+        agregarFormatoDecimal(txtPeso, 2);
+        agregarFormatoDecimal(txtCalificacion, 2);
+        agregarFormatoDecimal(txtPromedio, 2);
+
+// =====================================================
+// === VALIDAR QUE EL CORREO TENGA '@' =================
+// =====================================================
+        validarCorreo(txtCorreo);
+        validarCorreo(txtCorreoAspirante);
+
+// SOLO LETRAS en muchos campos
+        soloLetras(txtEstado);
+        soloLetras(txtMunicipio);
+        soloLetras(txtLocalidad);
+        soloLetras(txtCalle);
+        soloLetras(txtTutor1);
+        soloLetras(txtTutor2);
+        soloLetras(txtSecundaria);
+        soloLetras(txtEstadoSec);
+        soloLetras(txtMunicipioSec);
+        soloLetras(txtNombreSec);
+
+// =====================================================
+// === BLOQUEO DE ESPECIALIDADES REPETIDAS ============
+// =====================================================
+        cmbEsp1.valueProperty().addListener((o, oldVal, newVal) -> actualizarEspecialidades(oldVal, newVal, cmbEsp1));
+        cmbEsp2.valueProperty().addListener((o, oldVal, newVal) -> actualizarEspecialidades(oldVal, newVal, cmbEsp2));
+        cmbEsp3.valueProperty().addListener((o, oldVal, newVal) -> actualizarEspecialidades(oldVal, newVal, cmbEsp3));
+        cmbEsp4.valueProperty().addListener((o, oldVal, newVal) -> actualizarEspecialidades(oldVal, newVal, cmbEsp4));
+
 
         // === Combos fijos ===
         cmbEstatusPago.getItems().addAll("Pendiente", "Pagado");
         cmbEstatusInscripcion.getItems().addAll("Pendiente", "Aceptado", "Rechazado");
+        cmbTipoSangre.setItems(FXCollections.observableArrayList(
+                "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"
+        ));
 
         try {
-            // === Carga de catálogos desde BD ===
             cmbEdoCivil.getItems().setAll(catalogoDAO.edoCivil());
             cmbGenero.getItems().setAll(catalogoDAO.generos());
             cmbEsp1.getItems().setAll(catalogoDAO.especialidades());
@@ -68,7 +219,7 @@ public class AspiranteController {
         colMaterno.setCellValueFactory(new PropertyValueFactory<>("materno"));
         colEstatus.setCellValueFactory(new PropertyValueFactory<>("estatusInscripcion"));
 
-        // === Colores de estatus (opcional) ===
+        // === Colores de estatus ===
         colEstatus.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -88,27 +239,132 @@ public class AspiranteController {
             }
         });
 
+        // =====================================================
+        // === RESTRICCIONES NUMÉRICAS ========================
+        // =====================================================
+
+        // ENTEROS estrictos
+        soloEnteros(txtFolio);
+        soloEnteros(txtNss);
+        soloEnteros(txtTelefono);
+        soloEnteros(txtCelAspirante);
+        soloEnteros(txtCelPadre);
+        soloEnteros(txtCelMadre);
+        soloEnteros(txtContactoEmergencia);
+        soloEnteros(txtNumero);
+
+        // DECIMALES
+        soloDecimal(txtAltura, 2);
+        soloDecimal(txtPeso, 2);
+        soloDecimal(txtCalificacion, 2);
+        soloDecimal(txtPromedio, 2);
+
+        // =====================================================
+        // === LÍMITES DE LONGITUD SEGÚN LA TABLA ==============
+        // =====================================================
+
+        // clave primaria (int) – límite razonable de dígitos
+        limitarLongitud(txtFolio, 11);
+
+        // varchar(18)
+        limitarLongitud(txtCurp, 18);
+
+        // varchar(11)
+        limitarLongitud(txtNss, 11);
+
+        // varchar(15)
+        limitarLongitud(txtTelefono, 15);
+
+        // varchar(100)
+        limitarLongitud(txtCorreo, 100);
+
+        // varchar(45)
+        limitarLongitud(txtCorreoAspirante, 45);
+        limitarLongitud(txtNombre, 45);
+        limitarLongitud(txtPaterno, 45);
+        limitarLongitud(txtMaterno, 45);
+        limitarLongitud(txtCalle, 45);
+        limitarLongitud(txtColonia, 45);
+        limitarLongitud(txtContactoEmergencia, 45);
+        limitarLongitud(txtTutor1, 45);
+        limitarLongitud(txtTutor2, 45);
+        limitarLongitud(txtSecundaria, 45);
+        limitarLongitud(txtEstadoSec, 45);
+        limitarLongitud(txtMunicipioSec, 45);
+        limitarLongitud(txtNombreSec, 45);
+
+        // varchar(50)
+        limitarLongitud(txtEstado, 50);
+        limitarLongitud(txtMunicipio, 50);
+        limitarLongitud(txtLocalidad, 50);
+
+        // varchar(10)
+        limitarLongitud(txtNumero, 10);
+
+        // varchar(12)
+        limitarLongitud(txtCelPadre, 12);
+        limitarLongitud(txtCelMadre, 12);
+        limitarLongitud(txtCelAspirante, 12);
+
+        // decimales: longitud total (enteros + '.' + decimales)
+        // decimal(3,2) -> 3 enteros + '.' + 2 decimales = 6
+        limitarLongitud(txtAltura, 6);
+
+        // decimal(5,2) y float -> 5 enteros + '.' + 2 decimales = 8
+        limitarLongitud(txtPeso, 8);
+        limitarLongitud(txtCalificacion, 8);
+        limitarLongitud(txtPromedio, 8);
+
+        // =====================================================
+        // === SOLO LETRAS EN NOMBRE Y APELLIDOS ===============
+        // =====================================================
+        soloLetras(txtNombre);
+        soloLetras(txtPaterno);
+        soloLetras(txtMaterno);
+
+        // =====================================================
+        // === CURP SIEMPRE EN MAYÚSCULAS ======================
+        // =====================================================
+        txtCurp.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue != null) {
+                String upper = newValue.toUpperCase();
+                if (!upper.equals(newValue)) {
+                    txtCurp.setText(upper);
+                }
+            }
+        });
+
+        // =====================================================
+        // === FECHAS SOLO MEDIANTE CALENDARIO =================
+        // =====================================================
+        dpFechaNac.setEditable(false);
+        dpFechaNac.getEditor().setDisable(true);
+        dpFechaReg.setEditable(false);
+        dpFechaReg.getEditor().setDisable(true);
+
         // === Cargar lista de aspirantes existentes ===
         recargarTabla();
+
+        // === Asignar folio automático para nuevo registro ===
+        asignarFolioNuevo();
 
         // === Doble clic en tabla ===
         tblAspirantes.setRowFactory(tv -> {
             TableRow<Aspirante> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && !row.isEmpty()) {
-                    Aspirante seleccionado = row.getItem();
-                    if (seleccionado != null) {
-                        cargarAspirante(seleccionado.getFolio());
-                    }
+                    cargarAspirante(row.getItem().getFolio());
                 }
             });
             return row;
         });
 
-        // === Mensaje si no hay datos ===
         tblAspirantes.setPlaceholder(new Label("No hay aspirantes registrados."));
     }
 
+    // ============================================================
+    // ======================== recargar tabla =====================
+    // ============================================================
     private void recargarTabla() {
         try {
             List<Aspirante> data = aspiranteBO.listarBreve();
@@ -119,8 +375,9 @@ public class AspiranteController {
         }
     }
 
-    // ======== Eventos ========
-
+    // ============================================================
+    // ======================== onBuscarFolio ======================
+    // ============================================================
     @FXML
     public void onBuscarFolio() {
         String f = txtFolio.getText();
@@ -141,17 +398,19 @@ public class AspiranteController {
         }
     }
 
+    // ============================================================
+    // =========================== onInscribir =====================
+    // ============================================================
     @FXML
     private void onInscribir() {
         try {
-            // 1️⃣ Validar selección
+
             Aspirante selTabla = tblAspirantes.getSelectionModel().getSelectedItem();
             if (selTabla == null) {
                 showWarning("Selecciona un aspirante de la tabla para inscribir.");
                 return;
             }
 
-            // 🔹 Recargar datos completos del aspirante (con sus opciones de especialidad)
             AspiranteBO aspiranteBO = new AspiranteBO();
             Aspirante sel = aspiranteBO.buscar(selTabla.getFolio());
             if (sel == null) {
@@ -159,13 +418,11 @@ public class AspiranteController {
                 return;
             }
 
-            // 2️⃣ Validar pago
             if (sel.getEstatusPago() == null || !sel.getEstatusPago().equalsIgnoreCase("Pagado")) {
-                showWarning("El aspirante aún no ha completado el pago. Solo los aspirantes con estatus 'Pagado' pueden ser inscritos.");
+                showWarning("El aspirante NO ha pagado. Solo los aspirantes con pago pueden inscribirse.");
                 return;
             }
 
-            // 3️⃣ Buscar grupo disponible según las opciones de especialidad
             GrupoDao grupoDAO = new GrupoDao();
             AlumnoDAO alumnoDAO = new AlumnoDAO();
 
@@ -179,53 +436,33 @@ public class AspiranteController {
             Integer idEspecialidadFinal = null;
             Integer idGrupoAsignado = null;
 
-            System.out.println("=== Inicio búsqueda de grupo disponible ===");
             for (Integer idEsp : opciones) {
                 if (idEsp == null || idEsp == 0) continue;
 
-                System.out.println("Buscando grupo disponible para especialidad ID: " + idEsp);
                 Integer grupoDisponible = grupoDAO.grupoDisponible(idEsp);
-
                 if (grupoDisponible != null) {
                     idEspecialidadFinal = idEsp;
                     idGrupoAsignado = grupoDisponible;
-                    System.out.println("✅ Grupo asignado: " + grupoDisponible + " (especialidad " + idEsp + ")");
                     break;
-                } else {
-                    System.out.println("❌ No hay cupo en especialidad " + idEsp);
                 }
             }
-            System.out.println("=== Fin búsqueda ===");
 
-            if (idGrupoAsignado == null || idEspecialidadFinal == null) {
-                showError("❌ No hay cupo en ninguna de las especialidades seleccionadas.");
+            if (idGrupoAsignado == null) {
+                showError("No hay cupo en ninguna de las especialidades seleccionadas.");
                 return;
             }
 
-            // 4️⃣ Generar matrícula numérica
-
-            // 4️⃣ Generar matrícula automática (evita duplicados)
             AlumnoDAO alumnoDAO2 = new AlumnoDAO();
+            int año = LocalDate.now().getYear() % 100;
+            int consecutivo = alumnoDAO2.obtenerConsecutivo(año, idEspecialidadFinal) + 1;
+            String matricula = String.format("%02d%02d%03d", año, idEspecialidadFinal, consecutivo);
 
-            int año = LocalDate.now().getYear() % 100; // ejemplo: 2025 → 25
-            int idEsp = idEspecialidadFinal;
-
-// Obtener consecutivo actual
-            int consecutivo = alumnoDAO2.obtenerConsecutivo(año, idEsp) + 1;
-
-// Construir matrícula (AAEECCC → Año + Especialidad + Consecutivo)
-            String matricula = String.format("%02d%02d%03d", año, idEsp, consecutivo);
-
-// Verificar si ya existe, por seguridad
             while (alumnoDAO2.existe(matricula)) {
                 consecutivo++;
-                matricula = String.format("%02d%02d%03d", año, idEsp, consecutivo);
+                matricula = String.format("%02d%02d%03d", año, idEspecialidadFinal, consecutivo);
             }
 
-            System.out.println("✅ Matrícula generada automáticamente: " + matricula);
-
-
-            // 5️⃣ Construir nuevo alumno desde el aspirante
+            // Crear alumno
             Alumno nuevo = new Alumno();
             nuevo.setMatricula(matricula);
             nuevo.setCurp(sel.getCurp());
@@ -245,8 +482,6 @@ public class AspiranteController {
             nuevo.setCelMadre(sel.getCelMadre());
             nuevo.setEdoCivilId(sel.getEdoCivilId());
             nuevo.setGeneroId(sel.getGeneroId());
-
-            // Datos del nuevo alumno
             nuevo.setSemestre(1);
             nuevo.setEstadoInscripcion("Activo");
             nuevo.setFechaInscripcion(LocalDate.now());
@@ -255,23 +490,14 @@ public class AspiranteController {
             int periodoPago = new cbtis239.dao.PagoDAO().getPeriodoActualId();
             nuevo.setPeriodoId(periodoPago);
 
-            // 6️⃣ Insertar alumno
             alumnoDAO.insert(nuevo);
 
-            // 7️⃣ Eliminar pagos y aspirante (transacción)
             try (var cn = cbtis239.util.DB.get()) {
                 cn.setAutoCommit(false);
                 try {
                     int folio = sel.getFolio();
-
-                    // Eliminar pagos
-                    int borrados = new cbtis239.dao.PagoDAO().deleteByAspiranteFolio(cn, folio);
-                    System.out.println("Pagos borrados para aspirante " + folio + ": " + borrados);
-
-                    // Eliminar aspirante
-                    int rows = new cbtis239.dao.AspiranteDAO().deleteByFolio(cn, folio);
-                    if (rows == 0) throw new SQLException("No existe aspirante con folio " + folio);
-
+                    new PagoDAO().deleteByAspiranteFolio(cn, folio);
+                    new AspiranteDAO().deleteByFolio(cn, folio);
                     cn.commit();
                 } catch (SQLException ex) {
                     cn.rollback();
@@ -279,57 +505,61 @@ public class AspiranteController {
                 } finally {
                     cn.setAutoCommit(true);
                 }
-            } catch (SQLException de) {
-                showWarning("El alumno fue inscrito, pero no se pudo eliminar al aspirante:\n" + de.getMessage());
             }
 
-            // 8️⃣ Registrar pago del nuevo alumno
             try {
                 new PagoBO().registrarPago(matricula);
-            } catch (Exception pe) {
-                showWarning("El alumno fue inscrito, pero no se pudo registrar su pago automático:\n" + pe.getMessage());
+            } catch (Exception ignored) {
             }
 
-            showInfo("✅ El aspirante fue inscrito correctamente.\nMatrícula: " + matricula);
+            showInfo("Aspirante inscrito correctamente.\nMatrícula: " + matricula);
             recargarTabla();
+            limpiar(true);
 
-        } catch (SQLException e) {
-            showError("Error SQL al inscribir aspirante:\n" + e.getMessage());
-            e.printStackTrace();
         } catch (Exception e) {
-            showError("Error inesperado: " + e.getMessage());
-            e.printStackTrace();
+            showError("Error al inscribir:\n" + e.getMessage());
         }
     }
 
-
-    // 🔹 Generar matrícula numérica: año + especialidad + consecutivo
+    // ============================================================
+    // ======================== generarMatricula ===================
+    // ============================================================
     private String generarMatricula(int idEspecialidad) throws SQLException {
-        // Año actual (solo los dos últimos dígitos)
         int año = LocalDate.now().getYear() % 100;
-
-        // Obtener cuántos alumnos hay ya en esa especialidad este año
         AlumnoDAO alumnoDAO = new AlumnoDAO();
         int consecutivo = alumnoDAO.obtenerConsecutivo(año, idEspecialidad) + 1;
-
-        // Formato final: AAEECCC → año, especialidad, consecutivo
-        // Ejemplo: 2501005 = año 2025, especialidad 01, alumno 005
         return String.format("%02d%02d%03d", año, idEspecialidad, consecutivo);
     }
 
-
+    // ============================================================
+    // ============================= onGuardar =====================
+    // ============================================================
     @FXML
     public void onGuardar() {
         try {
             Aspirante a = buildFromForm();
+            validarObligatorios(a);
+
+            // Validar que el folio no exista ya (no duplicado)
+            Aspirante existente = aspiranteBO.buscar(a.getFolio());
+            if (existente != null) {
+                showError("Ya existe un aspirante con el folio " + a.getFolio());
+                return;
+            }
+
             aspiranteBO.guardar(a);
             showInfo("Aspirante guardado correctamente");
             recargarTabla();
+            limpiar(true);
+
         } catch (Exception e) {
             showError("No se pudo guardar:\n" + e.getMessage());
         }
     }
 
+    // ============================================================
+    // =========================== onModificar =====================
+    // ============================================================
     @FXML
     private void onModificar() {
         try {
@@ -342,26 +572,32 @@ public class AspiranteController {
             Aspirante actualizado = buildFromForm();
 
             if (!Objects.equals(actualizado.getFolio(), seleccionado.getFolio())) {
-                showError("No puedes cambiar el Folio (clave primaria). Debes modificar los datos del aspirante seleccionado.");
+                showError("No puedes cambiar el Folio (clave primaria).");
                 return;
             }
 
+            validarObligatorios(actualizado);
             aspiranteBO.guardar(actualizado);
+
             showInfo("Aspirante modificado correctamente: " + actualizado.getNombre());
             recargarTabla();
             limpiar(true);
 
-        } catch (SQLException e) {
-            showError("Error de base de datos al modificar:\n" + e.getMessage());
         } catch (Exception e) {
-            showError("No se pudo modificar el aspirante:\n" + e.getMessage());
+            showError("No se pudo modificar:\n" + e.getMessage());
         }
     }
 
+    // ============================================================
+    // ============================= onEliminar ====================
+    // ============================================================
     @FXML
     public void onEliminar() {
         String f = txtFolio.getText();
-        if (f == null || f.isBlank()) { showError("Indica el folio a eliminar"); return; }
+        if (f == null || f.isBlank()) {
+            showError("Indica el folio a eliminar");
+            return;
+        }
         try {
             aspiranteBO.eliminar(Integer.parseInt(f.trim()));
             showInfo("Aspirante eliminado");
@@ -372,8 +608,17 @@ public class AspiranteController {
         }
     }
 
-    @FXML public void onCancelar() { limpiar(true); }
+    // ============================================================
+    // ============================= onCancelar ====================
+    // ============================================================
+    @FXML
+    public void onCancelar() {
+        limpiar(true);
+    }
 
+    // ============================================================
+    // =============================== onVolver ====================
+    // ============================================================
     @FXML
     public void onVolver() {
         try {
@@ -389,18 +634,22 @@ public class AspiranteController {
         }
     }
 
-    // ===== helpers =====
-
+    // ============================================================
+    // =========================== buildFromForm ===================
+    // ============================================================
     private Aspirante buildFromForm() {
         Aspirante a = new Aspirante();
         a.setFolio(Integer.parseInt(txtFolio.getText().trim()));
-        a.setCurp(v(txtCurp));
+
+        // CURP siempre en mayúsculas
+        String curp = v(txtCurp);
+        a.setCurp(curp == null ? null : curp.toUpperCase());
+
         a.setNombre(v(txtNombre));
         a.setPaterno(v(txtPaterno));
         a.setMaterno(v(txtMaterno));
         a.setFechaNacimiento(dpFechaNac.getValue());
         a.setNss(v(txtNss));
-        a.setTipoSangre(v(txtTipoSangre));
         a.setAltura(parseDouble(txtAltura));
         a.setPeso(parseDouble(txtPeso));
         a.setTelefono(v(txtTelefono));
@@ -438,15 +687,17 @@ public class AspiranteController {
         return a;
     }
 
+    // ============================================================
+    // =========================== rellenarCampos ==================
+    // ============================================================
     private void rellenarCampos(Aspirante a) {
-        txtFolio.setText(String.valueOf(a.getFolio()));
+        txtFolio.setText(String.format("%03d", a.getFolio()));
         txtCurp.setText(a.getCurp());
         txtNombre.setText(a.getNombre());
         txtPaterno.setText(a.getPaterno());
         txtMaterno.setText(a.getMaterno());
         dpFechaNac.setValue(a.getFechaNacimiento());
         txtNss.setText(a.getNss());
-        txtTipoSangre.setText(a.getTipoSangre());
         txtAltura.setText(String.valueOf(a.getAltura()));
         txtPeso.setText(String.valueOf(a.getPeso()));
         txtTelefono.setText(a.getTelefono());
@@ -484,15 +735,39 @@ public class AspiranteController {
         txtNombreSec.setText(a.getNombreSEC());
     }
 
+    // ============================================================
+    // =============================== limpiar =====================
+    // ============================================================
     private void limpiar(boolean clearFolio) {
         if (clearFolio) txtFolio.clear();
-        txtCurp.clear(); txtNombre.clear(); txtPaterno.clear(); txtMaterno.clear();
-        txtCorreo.clear(); txtCorreoAspirante.clear(); txtTelefono.clear(); txtCelAspirante.clear();
-        txtNss.clear(); txtTipoSangre.clear(); txtAltura.clear(); txtPeso.clear();
-        txtEstado.clear(); txtMunicipio.clear(); txtLocalidad.clear(); txtCalle.clear(); txtNumero.clear(); txtColonia.clear();
-        txtCelPadre.clear(); txtCelMadre.clear(); txtContactoEmergencia.clear();
-        txtTutor1.clear(); txtTutor2.clear(); txtSecundaria.clear(); txtEstadoSec.clear(); txtMunicipioSec.clear(); txtNombreSec.clear();
-        txtPromedio.clear(); txtCalificacion.clear();
+        txtCurp.clear();
+        txtNombre.clear();
+        txtPaterno.clear();
+        txtMaterno.clear();
+        txtCorreo.clear();
+        txtCorreoAspirante.clear();
+        txtTelefono.clear();
+        txtCelAspirante.clear();
+        txtNss.clear();
+        txtAltura.clear();
+        txtPeso.clear();
+        txtEstado.clear();
+        txtMunicipio.clear();
+        txtLocalidad.clear();
+        txtCalle.clear();
+        txtNumero.clear();
+        txtColonia.clear();
+        txtCelPadre.clear();
+        txtCelMadre.clear();
+        txtContactoEmergencia.clear();
+        txtTutor1.clear();
+        txtTutor2.clear();
+        txtSecundaria.clear();
+        txtEstadoSec.clear();
+        txtMunicipioSec.clear();
+        txtNombreSec.clear();
+        txtPromedio.clear();
+        txtCalificacion.clear();
         cmbEstatusPago.getSelectionModel().clearSelection();
         cmbEstatusInscripcion.getSelectionModel().clearSelection();
         cmbEdoCivil.getSelectionModel().clearSelection();
@@ -503,22 +778,49 @@ public class AspiranteController {
         cmbEsp4.getSelectionModel().clearSelection();
         dpFechaNac.setValue(null);
         dpFechaReg.setValue(null);
+
+        // Si se limpia todo para un nuevo registro, asignar folio automático
+        if (clearFolio) {
+            asignarFolioNuevo();
+        }
     }
 
-    private String v(TextField t) { return t.getText() == null ? null : t.getText().trim(); }
-    private Double parseDouble(TextField t) { return t.getText().isBlank() ? null : Double.valueOf(t.getText()); }
-    private Float parseFloat(TextField t) { return t.getText().isBlank() ? null : Float.valueOf(t.getText()); }
+    // ============================================================
+    // =============================== helpers =====================
+    // ============================================================
+    private String v(TextField t) {
+        return t.getText() == null ? null : t.getText().trim();
+    }
 
-    private Integer getId(ComboBox<Catalogo> cb) { return cb.getValue() == null ? null : cb.getValue().getId(); }
+    private Double parseDouble(TextField t) {
+        return t.getText().isBlank() ? null : Double.valueOf(t.getText());
+    }
+
+    private Float parseFloat(TextField t) {
+        return t.getText().isBlank() ? null : Float.valueOf(t.getText());
+    }
+
+    private Integer getId(ComboBox<Catalogo> cb) {
+        return cb.getValue() == null ? null : cb.getValue().getId();
+    }
+
     private Catalogo matchId(ComboBox<Catalogo> cb, Integer id) {
         if (id == null) return null;
         for (Catalogo c : cb.getItems()) if (c.getId() == id) return c;
         return null;
     }
 
-    private void showError(String m) { new Alert(Alert.AlertType.ERROR, m, ButtonType.OK).showAndWait(); }
-    private void showInfo(String m) { new Alert(Alert.AlertType.INFORMATION, m, ButtonType.OK).showAndWait(); }
-    private void showWarning(String m) { new Alert(Alert.AlertType.WARNING, m, ButtonType.OK).showAndWait(); }
+    private void showError(String m) {
+        new Alert(Alert.AlertType.ERROR, m, ButtonType.OK).showAndWait();
+    }
+
+    private void showInfo(String m) {
+        new Alert(Alert.AlertType.INFORMATION, m, ButtonType.OK).showAndWait();
+    }
+
+    private void showWarning(String m) {
+        new Alert(Alert.AlertType.WARNING, m, ButtonType.OK).showAndWait();
+    }
 
     private void cargarAspirante(int folio) {
         try {
@@ -532,4 +834,66 @@ public class AspiranteController {
             showError("Error al cargar aspirante:\n" + e.getMessage());
         }
     }
+
+    private void agregarFormatoDecimal(TextField txt, int decimales) {
+        txt.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) { // cuando pierde el foco
+                if (!txt.getText().isBlank()) {
+                    try {
+                        double d = Double.parseDouble(txt.getText());
+                        txt.setText(String.format("%." + decimales + "f", d));
+                    } catch (Exception e) {
+                        txt.setText(String.format("%." + decimales + "f", 0.0));
+                    }
+                }
+            }
+        });
+    }
+
+    private void validarCorreo(TextField txt) {
+        txt.focusedProperty().addListener((obs, oldV, newV) -> {
+            if (!newV) { // pierde foco
+                String c = txt.getText();
+                if (c != null && !c.isBlank() && !c.contains("@")) {
+                    showWarning("El correo \"" + c + "\" no es válido. Debe contener '@'");
+                    txt.requestFocus();
+                }
+            }
+        });
+    }
+
+    // =============================================
+// === EVITAR ESPECIALIDADES REPETIDAS CORREGIDO
+// =============================================
+    private List<Catalogo> especialidadesOriginales;
+
+    // =============================================
+// === EVITAR ESPECIALIDADES REPETIDAS CORREGIDO
+// =============================================
+    private void actualizarEspecialidades(Catalogo oldVal, Catalogo newVal, ComboBox<Catalogo> origen) {
+
+        // Si no eligió nada, no hacemos nada.
+        if (newVal == null) return;
+
+        int id = newVal.getId();
+
+        // Verificamos si está repetida
+        boolean repetida =
+                (cmbEsp1 != origen && cmbEsp1.getValue() != null && cmbEsp1.getValue().getId() == id) ||
+                        (cmbEsp2 != origen && cmbEsp2.getValue() != null && cmbEsp2.getValue().getId() == id) ||
+                        (cmbEsp3 != origen && cmbEsp3.getValue() != null && cmbEsp3.getValue().getId() == id) ||
+                        (cmbEsp4 != origen && cmbEsp4.getValue() != null && cmbEsp4.getValue().getId() == id);
+
+        if (repetida) {
+
+            showWarning("La especialidad seleccionada ya fue elegida en otra opción.");
+
+            // 🔥 Solución: limpiar el ComboBox pero SIN gatillar conflicto interno
+            javafx.application.Platform.runLater(() -> {
+                origen.getSelectionModel().clearSelection();
+                origen.setValue(null);
+            });
+        }
+    }
+
 }
