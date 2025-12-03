@@ -36,9 +36,7 @@ public class MainApp extends Application {
             stage.setTitle("Inicio de sesión");
             stage.setResizable(false);
 
-            // ============================
-            //     ÍCONO DEL CBTIS 239
-            // ============================
+
             stage.getIcons().add(
                     new Image(Objects.requireNonNull(
                             MainApp.class.getResourceAsStream(
