@@ -109,6 +109,9 @@ public class AspiranteController {
         if (a.getCurp() == null || a.getCurp().isBlank())
             throw new RuntimeException("La CURP es obligatoria");
 
+        if (a.getTipoSangre() == null || a.getTipoSangre().isBlank())
+            throw new RuntimeException("El tipo de sangre es obligatorio");
+
         if (!validarCurpFormato(a.getCurp()))
             throw new RuntimeException("La CURP no tiene un formato válido");
 
@@ -664,6 +667,7 @@ public class AspiranteController {
         a.setFechaRegistro(dpFechaReg.getValue());
         a.setEdoCivilId(getId(cmbEdoCivil));
         a.setGeneroId(getId(cmbGenero));
+        a.setTipoSangre(cmbTipoSangre.getValue());
 
         a.setOpcionEspecialidad1(getId(cmbEsp1));
         a.setOpcionEspecialidad2(getId(cmbEsp2));
@@ -713,6 +717,7 @@ public class AspiranteController {
 
         cmbEdoCivil.getSelectionModel().select(matchId(cmbEdoCivil, a.getEdoCivilId()));
         cmbGenero.getSelectionModel().select(matchId(cmbGenero, a.getGeneroId()));
+        cmbTipoSangre.setValue(a.getTipoSangre());
 
         cmbEsp1.getSelectionModel().select(matchId(cmbEsp1, a.getOpcionEspecialidad1()));
         cmbEsp2.getSelectionModel().select(matchId(cmbEsp2, a.getOpcionEspecialidad2()));
@@ -752,6 +757,7 @@ public class AspiranteController {
         txtAltura.clear();
         txtPeso.clear();
         txtEstado.clear();
+        cmbTipoSangre.getSelectionModel().clearSelection();
         txtMunicipio.clear();
         txtLocalidad.clear();
         txtCalle.clear();
