@@ -21,13 +21,11 @@ import java.util.Optional;
 
 public class RolesController {
 
-    // --------- UI (coincidir con RolesView.fxml) ---------
-    //@FXML private TextField txtId;            // solo lectura <-- ELIMINADO
+    // --------- UI ---------
     @FXML private TextField txtNombre;
-    @FXML private TextArea  txtDescripcion;
+    @FXML private TextArea txtDescripcion;
 
     @FXML private TableView<Rol> tblRoles;
-    //@FXML private TableColumn<Rol, Number> colId; <-- ELIMINADO
     @FXML private TableColumn<Rol, String> colNombre;
     @FXML private TableColumn<Rol, String> colDescripcion;
 
@@ -37,52 +35,89 @@ public class RolesController {
     @FXML private Button btnEliminar;
     @FXML private Button btnVolver;
 
-    // --------- Estado / Servicios ---------
+    // --------- Estado ---------
     private final RolBO rolBO = new RolBO();
     private final ObservableList<Rol> data = FXCollections.observableArrayList();
     private final BooleanProperty editing = new SimpleBooleanProperty(false);
     private Integer selectedId = null;
 
     // =====================================================
-    // init
-    // =====================================================
     @FXML
     private void initialize() {
-        // columnas
-        // colId.setCellValueFactory(c -> Bindings.createIntegerBinding(c.getValue()::getIdRol)); <-- ELIMINADO
-        colNombre.setCellValueFactory(c -> Bindings.createStringBinding(c.getValue()::getNombre));
-        colDescripcion.setCellValueFactory(c -> Bindings.createStringBinding(() -> {
-            String d = c.getValue().getDescripcion();
-            return d == null ? "" : d;
-        }));
 
-        // datos
+        // ====== VALIDACIONES AÑADIDAS ======
+        soloLetras(txtNombre, 50);           // NombreRol VARCHAR(50)
+        soloLetrasMulti(txtDescripcion, 500); // Descripcion tipo TEXT, límite lógico 500
+
+        // columnas
+        colNombre.setCellValueFactory(c ->
+                Bindings.createStringBinding(c.getValue()::getNombre));
+
+        colDescripcion.setCellValueFactory(c ->
+                Bindings.createStringBinding(() -> {
+                    String d = c.getValue().getDescripcion();
+                    return d == null ? "" : d;
+                })
+        );
+
         reloadTable();
 
-        // ordenar con encabezados
         SortedList<Rol> sorted = new SortedList<>(data);
         sorted.comparatorProperty().bind(tblRoles.comparatorProperty());
         tblRoles.setItems(sorted);
 
-        // bindings de botones (sin setDisable manual)
         btnEliminar.disableProperty().bind(tblRoles.getSelectionModel().selectedItemProperty().isNull());
-        btnGuardar.disableProperty().bind(editing);           // Guardar solo en modo crear
-        btnActualizar.disableProperty().bind(editing.not());  // Actualizar solo en modo edición
+        btnGuardar.disableProperty().bind(editing);
+        btnActualizar.disableProperty().bind(editing.not());
 
-        // doble clic para editar
         tblRoles.setOnMouseClicked(this::onTableDoubleClick);
 
-        // estado inicial
         setCreateMode();
         limpiarForm();
     }
 
     // =====================================================
-    // Acciones UI
+    // VALIDACIONES
     // =====================================================
+
+    /**
+     * Solo letras y espacios (fortísimo)
+     */
+    private void soloLetras(TextField txt, int maxLen) {
+        txt.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal.matches("[A-Za-zÁÉÍÓÚáéíóúÑñ ]*")) {
+                txt.setText(oldVal);
+                return;
+            }
+            if (newVal.length() > maxLen) {
+                txt.setText(oldVal);
+            }
+        });
+    }
+
+    /**
+     * Solo letras y espacios en TextArea
+     */
+    private void soloLetrasMulti(TextArea txt, int maxLen) {
+        txt.textProperty().addListener((obs, oldVal, newVal) -> {
+            // Solo letras, espacios, saltos de línea, puntos y comas
+            if (!newVal.matches("[A-Za-zÁÉÍÓÚáéíóúÑñ .,\\n]*")) {
+                txt.setText(oldVal);
+                return;
+            }
+            if (newVal.length() > maxLen) {
+                txt.setText(oldVal);
+            }
+        });
+    }
+
+
+    // =====================================================
+    // ACCIONES
+    // =====================================================
+
     @FXML
     private void onGuardar() {
-        // crear
         try {
             Rol r = new Rol();
             r.setNombre(safe(txtNombre.getText()));
@@ -94,16 +129,16 @@ public class RolesController {
             reloadTable();
             setCreateMode();
             limpiarForm();
+
         } catch (BusinessException be) {
             warn("Validación", be.getMessage());
         } catch (Exception ex) {
-            error("Error", "Ocurrió un error al guardar el rol.", ex);
+            error("Error", "Error al guardar.", ex);
         }
     }
 
     @FXML
     private void onActualizar() {
-        // actualizar
         if (selectedId == null) return;
         try {
             Rol r = new Rol();
@@ -112,15 +147,16 @@ public class RolesController {
             r.setDescripcion(safe(txtDescripcion.getText()));
 
             rolBO.update(r);
-            info("Rol actualizado", "Se actualizó el rol con ID: " + selectedId);
+            info("Rol actualizado", "Rol ID: " + selectedId);
 
             reloadTable();
             setCreateMode();
             limpiarForm();
+
         } catch (BusinessException be) {
             warn("Validación", be.getMessage());
         } catch (Exception ex) {
-            error("Error", "Ocurrió un error al actualizar el rol.", ex);
+            error("Error", "Error al actualizar.", ex);
         }
     }
 
@@ -131,19 +167,20 @@ public class RolesController {
 
         Optional<ButtonType> resp = confirm(
                 "Eliminar rol",
-                "¿Seguro que deseas eliminar el rol \"" + sel.getNombre() + "\" (ID " + sel.getIdRol() + ")?"
+                "¿Eliminar el rol \"" + sel.getNombre() + "\"?"
         );
+
         if (resp.isPresent() && resp.get() == ButtonType.OK) {
             try {
                 rolBO.delete(sel.getIdRol());
                 reloadTable();
                 setCreateMode();
                 limpiarForm();
-                info("Eliminado", "Rol eliminado correctamente.");
+                info("Rol eliminado", "Eliminación correcta.");
             } catch (BusinessException be) {
                 warn("No se puede eliminar", be.getMessage());
             } catch (Exception ex) {
-                error("Error", "Ocurrió un error al eliminar el rol.", ex);
+                error("Error", "Error al eliminar.", ex);
             }
         }
     }
@@ -154,14 +191,16 @@ public class RolesController {
         setCreateMode();
     }
 
-    // Volver al menú principal
     @FXML
     private void onVolverMenu() {
         try {
             Stage current = (Stage) btnVolver.getScene().getWindow();
             current.close();
+
             var url = getClass().getResource("/cbtis239/front/views/Menu.fxml");
-            if (url == null) throw new IllegalStateException("No se encontró /cbtis239/front/views/Menu.fxml");
+            if (url == null)
+                throw new IllegalStateException("No se encontró Menu.fxml");
+
             Parent root = FXMLLoader.load(url);
             Stage menu = new Stage();
             menu.setTitle("Menú Principal");
@@ -170,38 +209,23 @@ public class RolesController {
             menu.setFullScreen(true);
             menu.setFullScreenExitHint("");
             menu.show();
+
         } catch (Exception e) {
-            e.printStackTrace();
-            error("Error al volver al menú", "No se pudo cargar el menú.", e);
-        }
-    }
-
-
-    private void onTableDoubleClick(MouseEvent e) {
-        if (e.getClickCount() == 2) {
-            Rol sel = tblRoles.getSelectionModel().getSelectedItem();
-            if (sel != null) {
-                cargarEnFormulario(sel);
-                setEditMode(sel.getIdRol());
-            }
+            error("Error", "No se pudo abrir el menú", e);
         }
     }
 
     // =====================================================
     // Helpers
     // =====================================================
-    private void reloadTable() {
-        data.setAll(rolBO.findAll());
-    }
+    private void reloadTable() { data.setAll(rolBO.findAll()); }
 
     private void cargarEnFormulario(Rol r) {
-        // txtId.setText(String.valueOf(r.getIdRol())); <-- ELIMINADO
         txtNombre.setText(r.getNombre());
         txtDescripcion.setText(r.getDescripcion() == null ? "" : r.getDescripcion());
     }
 
     private void limpiarForm() {
-        // txtId.clear(); <-- ELIMINADO
         txtNombre.clear();
         txtDescripcion.clear();
         tblRoles.getSelectionModel().clearSelection();
@@ -219,38 +243,43 @@ public class RolesController {
 
     private static String safe(String s) { return s == null ? "" : s.trim(); }
 
+    private void onTableDoubleClick(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+            Rol sel = tblRoles.getSelectionModel().getSelectedItem();
+            if (sel != null) {
+                cargarEnFormulario(sel);
+                setEditMode(sel.getIdRol());
+            }
+        }
+    }
+
     // =====================================================
     // Alerts
     // =====================================================
     private void info(String title, String msg) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle(title);
+        Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
         a.setHeaderText(null);
-        a.setContentText(msg);
+        a.setTitle(title);
         a.showAndWait();
     }
 
     private void warn(String title, String msg) {
-        Alert a = new Alert(Alert.AlertType.WARNING);
-        a.setTitle(title);
+        Alert a = new Alert(Alert.AlertType.WARNING, msg, ButtonType.OK);
         a.setHeaderText(null);
-        a.setContentText(msg);
+        a.setTitle(title);
         a.showAndWait();
     }
 
     private void error(String title, String msg, Exception ex) {
-        Alert a = new Alert(Alert.AlertType.ERROR);
-        a.setTitle(title);
-        a.setHeaderText(msg);
-        a.setContentText(ex.getMessage());
+        Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
+        a.setHeaderText(title);
         a.showAndWait();
+        ex.printStackTrace();
     }
 
     private Optional<ButtonType> confirm(String title, String msg) {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-        a.setTitle(title);
-        a.setHeaderText(null);
-        a.setContentText(msg);
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION, msg, ButtonType.OK, ButtonType.CANCEL);
+        a.setHeaderText(title);
         return a.showAndWait();
     }
 }
