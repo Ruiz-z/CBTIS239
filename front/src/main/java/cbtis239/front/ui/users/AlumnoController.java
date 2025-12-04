@@ -56,27 +56,35 @@ public class AlumnoController {
     /** Solo números enteros */
     private void soloEnteros(TextField txt) {
         txt.textProperty().addListener((obs, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) txt.setText(oldValue);
+            if (newValue == null) return;     // ★ CORRECCIÓN
+            if (!newValue.matches("\\d*")) {
+                txt.setText(oldValue);
+            }
         });
     }
 
-    /** Solo letras (con acentos) y espacios, con longitud máxima */
     private void soloLetras(TextField txt, int max) {
         txt.textProperty().addListener((obs, oldValue, newValue) -> {
+
+            if (newValue == null) return;     // ★ CORRECCIÓN
+
             if (!newValue.matches("[A-Za-zÁÉÍÓÚáéíóúÑñ ]*")) {
                 txt.setText(oldValue);
                 return;
             }
+
             if (newValue.length() > max) {
                 txt.setText(oldValue);
             }
         });
     }
 
-    /** Limita longitud máxima */
     private void limitarLongitud(TextField txt, int max) {
         txt.textProperty().addListener((obs, oldValue, newValue) -> {
-            if (newValue != null && newValue.length() > max) {
+
+            if (newValue == null) return;      // ★ CORRECCIÓN
+
+            if (newValue.length() > max) {
                 txt.setText(oldValue);
             }
         });

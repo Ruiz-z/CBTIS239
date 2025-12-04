@@ -96,15 +96,17 @@ public class GrupoDao {
         }
         return list;
     }
+    public Integer grupoDisponible(int idEspecialidad) throws SQLException {
 
-    public Integer grupoDisponible(int especialidadClave) throws SQLException {
         String sql = """
         SELECT g.GrupoID
-        FROM sistemaescolar.Grupo g
-        LEFT JOIN sistemaescolar.Alumno a ON a.GrupoID = g.GrupoID
+        FROM Grupo g
         WHERE g.Especialidad_Clave = ?
-        GROUP BY g.GrupoID, g.Capacidad
-        HAVING COUNT(a.GrupoID) < g.Capacidad
+          AND g.Capacidad > (
+                SELECT COUNT(*) 
+                FROM Alumno a 
+                WHERE a.GrupoID = g.GrupoID
+          )
         ORDER BY g.GrupoID
         LIMIT 1
     """;
@@ -112,20 +114,24 @@ public class GrupoDao {
         try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql)) {
 
-            ps.setInt(1, especialidadClave);
+            ps.setInt(1, idEspecialidad);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    int grupo = rs.getInt("GrupoID");
-                    System.out.println("✅ [grupoDisponible] Grupo con cupo encontrado: " + grupo + " para especialidad " + especialidadClave);
-                    return grupo;
+                    int gid = rs.getInt(1);
+                    System.out.println("✔ grupoDisponible() → GrupoID = " + gid);
+                    return gid;
                 } else {
-                    System.out.println("❌ [grupoDisponible] Sin cupo para especialidad " + especialidadClave);
+                    System.out.println("✖ No hay cupo disponible para especialidad " + idEspecialidad);
+                    return null;
                 }
             }
         }
-        return null;
     }
+
+
+
+
 
 
 }

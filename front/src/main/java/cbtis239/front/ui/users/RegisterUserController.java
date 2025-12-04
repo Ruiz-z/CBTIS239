@@ -433,6 +433,43 @@ public class RegisterUserController {
 
     private void showError(String m){
         new Alert(Alert.AlertType.ERROR, m, ButtonType.OK).showAndWait();
+    }@FXML
+    private void onLimpiar() {
+
+        // ---- Habilitar el campo usuario (PK) ----
+        txtUsuario.setDisable(false);
+
+        // ---- Limpiar textos ----
+        txtUsuario.clear();
+        txtPassword.clear();
+        txtPasswordVisible.clear();
+        txtConfirm.clear();
+        txtConfirmVisible.clear();
+        txtNombres.clear();
+        txtApPat.clear();
+        txtApMat.clear();
+
+        // ---- Limpiar selección de roles ----
+        cbRol.getSelectionModel().clearSelection();
+
+        // ---- Deseleccionar tabla ----
+        tablaUsuarios.getSelectionModel().clearSelection();
+
+        // ---- Resetear visibilidad de passwords ----
+        showingPass = false;
+        showingConfirm = false;
+
+        setPasswordVisible(false);
+        setConfirmVisible(false);
+
+        txtPasswordVisible.setManaged(false);
+        txtConfirmVisible.setManaged(false);
+
+        // ---- Enfocar primer campo ----
+        txtUsuario.requestFocus();
     }
+
+
+
 
 }

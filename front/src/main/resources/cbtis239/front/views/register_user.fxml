@@ -98,6 +98,8 @@
             <HBox spacing="15" alignment="CENTER">
                 <Button text="Modificar" fx:id="btnModificar" onAction="#onModificar" styleClass="btn-secondary"/>
                 <Button text="Eliminar" fx:id="btnEliminar" onAction="#onEliminar" styleClass="btn-danger"/>
+                <Button fx:id="btnLimpiar" text="Limpiar" onAction="#onLimpiar"
+                        style="-fx-background-color:#ffc107; -fx-text-fill:black; -fx-font-weight:bold;"/>
             </HBox>
         </VBox>
     </center>
