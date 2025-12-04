@@ -6,6 +6,9 @@ import cbtis239.model.AsistenciaBoletaResumen;
 import cbtis239.model.BoletaCalificacion;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -124,8 +127,27 @@ public class BoletaCalificacionesController {
 
     @FXML
     private void onVolverMenu() {
-        getStage().close();
+        try {
+            var url = getClass().getResource("/cbtis239/front/views/Menu3.fxml");
+            if (url == null) {
+                throw new IllegalStateException("No se encontró Menu3.fxml");
+            }
+
+            Parent root = FXMLLoader.load(url);
+
+            // Reusar el mismo Stage de la pantalla actual
+            Stage stage = (Stage) txtMatricula.getScene().getWindow();
+            stage.setTitle("Menú Principal");
+            stage.setScene(new Scene(root));
+            stage.setMaximized(true);              // como tus demás pantallas
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            error("Error al abrir el menú", e.getMessage());
+        }
     }
+
 
     // ============================================================
     // RESUMEN ASISTENCIA
