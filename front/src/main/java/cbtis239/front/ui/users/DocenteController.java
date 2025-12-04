@@ -45,7 +45,7 @@ public class DocenteController {
     private void initialize() {
         configurarValidacionesTexto();
 
-        // Columna: nombre completo
+        // Columna nombre completo
         colNombreCompleto.setCellValueFactory(c ->
                 Bindings.createStringBinding(() -> nombreCompleto(c.getValue()))
         );
@@ -53,7 +53,7 @@ public class DocenteController {
         tblDocentes.setItems(data);
         tblDocentes.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // Al cambiar selección en la tabla -> llenar formulario
+        // Selección en tabla
         tblDocentes.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
             if (n != null) {
                 seleccionado = n;
@@ -61,7 +61,7 @@ public class DocenteController {
             }
         });
 
-        // Doble clic también
+        // Doble clic
         tblDocentes.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
                 Docente d = tblDocentes.getSelectionModel().getSelectedItem();
@@ -111,7 +111,7 @@ public class DocenteController {
     private void onModificar() {
         try {
             if (seleccionado == null) {
-                warn("Selección", "Selecciona un docente de la tabla para modificar.");
+                warn("Selección", "Selecciona un docente para modificar.");
                 return;
             }
 
@@ -142,7 +142,7 @@ public class DocenteController {
     private void onEliminar() {
         try {
             if (seleccionado == null) {
-                warn("Selección", "Selecciona un docente de la tabla para eliminar.");
+                warn("Selección", "Selecciona un docente para eliminar.");
                 return;
             }
 
@@ -150,7 +150,7 @@ public class DocenteController {
             boolean ok = confirm(
                     "Confirmar eliminación",
                     "¿Seguro que deseas eliminar al docente:\n\n" + nombre +
-                    "\n\nEsto también eliminará su usuario vinculado (si existe)."
+                            "\n\nEsto también eliminará su usuario vinculado."
             );
             if (!ok) return;
 
@@ -182,7 +182,7 @@ public class DocenteController {
             Stage currentStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             currentStage.close();
         } catch (Exception e) {
-          throw new IllegalArgumentException("No se pudo volver al menú:\n" + e.getMessage());
+            throw new IllegalArgumentException("No se pudo volver al menú:\n" + e.getMessage());
         }
     }
 
@@ -231,31 +231,20 @@ public class DocenteController {
         txtTelefono.setText(nullSafe(d.getTelefono()));
         txtCelular.setText(nullSafe(d.getCelular()));
 
-        // Seleccionar estado civil
+        // Estado Civil
         if (d.getEdoCivilId() > 0) {
-            for (Opcion op : cmbEdoCivil.getItems()) {
-                if (op.getId() == d.getEdoCivilId()) {
+            for (Opcion op : cmbEdoCivil.getItems())
+                if (op.getId() == d.getEdoCivilId())
                     cmbEdoCivil.getSelectionModel().select(op);
-                    break;
-                }
-            }
-        } else {
-            cmbEdoCivil.getSelectionModel().clearSelection();
-        }
+        } else cmbEdoCivil.getSelectionModel().clearSelection();
 
-        // Seleccionar género
+        // Género
         if (d.getGeneroId() > 0) {
-            for (Opcion op : cmbGenero.getItems()) {
-                if (op.getId() == d.getGeneroId()) {
+            for (Opcion op : cmbGenero.getItems())
+                if (op.getId() == d.getGeneroId())
                     cmbGenero.getSelectionModel().select(op);
-                    break;
-                }
-            }
-        } else {
-            cmbGenero.getSelectionModel().clearSelection();
-        }
+        } else cmbGenero.getSelectionModel().clearSelection();
 
-        // Usuario/contraseñas solo para alta
         txtUsuario.clear();
         txtPass.clear();
         txtPass2.clear();
@@ -286,32 +275,75 @@ public class DocenteController {
         seleccionado = null;
     }
 
-    // ====================== Validaciones con TextFormatter ======================
+    // ====================== Validaciones TextFormatter ======================
 
     private void configurarValidacionesTexto() {
-        // CURP: 18 chars, mayúsculas y dígitos
-        txtCurp.setTextFormatter(createFormatter(18, "[A-Z0-9]*", true));
 
-        // Correo: hasta 100 caracteres, cualquier cosa
-        txtCorreo.setTextFormatter(createFormatter(100, ".*", false));
+        // ========= CURP =========
+        // TextFormatter: solo permite A-Z y 0-9, hasta 18 caracteres, y fuerza MAYÚSCULAS
+        txtCurp.setTextFormatter(createFormatter(
+                18,
+                "[A-Z0-9]*",
+                true
+        ));
 
-        // NSS: solo dígitos, 11
+        // Al perder el foco: validar el CURP COMPLETO con regex oficial
+        txtCurp.focusedProperty().addListener((obs, oldV, newV) -> {
+            if (!newV) { // pierde foco
+                String curp = txtCurp.getText();
+                if (curp != null && !curp.isBlank()) {
+                    if (!curp.matches("^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[A-Z0-9][0-9]$")) {
+                        warn("CURP inválida",
+                                "La CURP no cumple el formato oficial.\n" +
+                                        "Ejemplo: ABCD001122HCLLNS09");
+                        txtCurp.requestFocus();
+                    }
+                }
+            }
+        });
+
+        // ========= Correo (validación estricta con regex) =========
+        txtCorreo.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.length() > 100)
+                return null;
+            return change;
+        }));
+
+        txtCorreo.focusedProperty().addListener((obs, oldV, newV) -> {
+            if (!newV) { // pierde foco
+                String email = txtCorreo.getText();
+
+                if (email != null && !email.isBlank()) {
+                    // regex profesional para correo
+                    if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                        warn("Correo inválido",
+                                "El correo debe tener un formato válido. Ejemplos:\n" +
+                                        "usuario@gmail.com\n" +
+                                        "nombre.apellido@empresa.com.mx");
+                        txtCorreo.requestFocus();
+                    }
+                }
+            }
+        });
+
+        // ========= NSS: solo dígitos =========
         txtNss.setTextFormatter(createFormatter(11, "\\d*", false));
 
-        // Nombre / Apellidos: letras y espacios, 45
+        // ========= Nombre / Apellidos =========
         String letras = "[A-Za-zÁÉÍÓÚÑáéíóúñ ]*";
         txtNombre.setTextFormatter(createFormatter(45, letras, false));
         txtPaterno.setTextFormatter(createFormatter(45, letras, false));
         txtMaterno.setTextFormatter(createFormatter(45, letras, false));
 
-        // Teléfono: dígitos, 15
+        // ========= Teléfono =========
         txtTelefono.setTextFormatter(createFormatter(15, "\\d*", false));
 
-        // Celular: dígitos, 12
+        // ========= Celular =========
         txtCelular.setTextFormatter(createFormatter(12, "\\d*", false));
 
-        // Usuario: letras, números, ._- , 20
-        txtUsuario.setTextFormatter(createFormatter(20, "[A-Za-z0-9._-]*", false));
+        // ========= Usuario SOLO LETRAS =========
+        txtUsuario.setTextFormatter(createFormatter(20, "[A-Za-z]*", false));
     }
 
     private TextFormatter<String> createFormatter(int maxLen, String regex, boolean upper) {
@@ -319,24 +351,19 @@ public class DocenteController {
             String newText = change.getControlNewText();
             if (newText.length() > maxLen) return null;
             if (!newText.matches(regex)) return null;
-            if (upper) {
-                change.setText(change.getText().toUpperCase());
-            }
+            if (upper) change.setText(change.getText().toUpperCase());
             return change;
         };
         return new TextFormatter<>(filter);
     }
 
-    // ========= Alerts con owner =========
+    // ========= Alerts =========
+
     private Stage getStage() {
         javafx.stage.Window w = javafx.stage.Window.getWindows().stream()
                 .filter(javafx.stage.Window::isFocused)
                 .findFirst()
-                .orElseGet(() ->
-                        javafx.stage.Window.getWindows().stream()
-                                .filter(javafx.stage.Window::isShowing)
-                                .findFirst()
-                                .orElse(null));
+                .orElse(null);
         return (w instanceof Stage) ? (Stage) w : null;
     }
 
