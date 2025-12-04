@@ -49,6 +49,93 @@ public class AlumnoController {
 
     private String pathFoto, pathFirma;
 
+    // ============================================================
+    // ================== VALIDACIONES GENERALES ==================
+    // ============================================================
+
+    /** Solo números enteros */
+    private void soloEnteros(TextField txt) {
+        txt.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) txt.setText(oldValue);
+        });
+    }
+
+    /** Solo letras (con acentos) y espacios, con longitud máxima */
+    private void soloLetras(TextField txt, int max) {
+        txt.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (!newValue.matches("[A-Za-zÁÉÍÓÚáéíóúÑñ ]*")) {
+                txt.setText(oldValue);
+                return;
+            }
+            if (newValue.length() > max) {
+                txt.setText(oldValue);
+            }
+        });
+    }
+
+    /** Limita longitud máxima */
+    private void limitarLongitud(TextField txt, int max) {
+        txt.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue != null && newValue.length() > max) {
+                txt.setText(oldValue);
+            }
+        });
+    }
+
+    /** CURP formato oficial */
+    private boolean validarCurpFormato(String curp) {
+        return curp != null && curp.matches("^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[A-Z0-9][0-9]$");
+    }
+
+    /** Reglas de campos obligatorios */
+    private void validarObligatorios(Alumno a) {
+        if (a.getMatricula() == null || a.getMatricula().isBlank())
+            throw new RuntimeException("La matrícula es obligatoria");
+
+        if (a.getCurp() == null || a.getCurp().isBlank())
+            throw new RuntimeException("La CURP es obligatoria");
+
+        if (!validarCurpFormato(a.getCurp()))
+            throw new RuntimeException("La CURP no tiene un formato válido");
+
+        if (a.getNombre() == null || a.getNombre().isBlank())
+            throw new RuntimeException("El nombre es obligatorio");
+
+        if (a.getPaterno() == null || a.getPaterno().isBlank())
+            throw new RuntimeException("El apellido paterno es obligatorio");
+
+        if (a.getEstadoInscripcion() == null || a.getEstadoInscripcion().isBlank())
+            throw new RuntimeException("El estado de inscripción es obligatorio");
+
+        if (a.getSemestre() == null)
+            throw new RuntimeException("El semestre es obligatorio");
+
+        if (a.getTelefono() == null || a.getTelefono().isBlank())
+            throw new RuntimeException("El teléfono es obligatorio");
+
+        if (a.getCorreo() == null || a.getCorreo().isBlank())
+            throw new RuntimeException("El correo es obligatorio");
+
+        if (a.getFechaInscripcion() == null)
+            throw new RuntimeException("La fecha de inscripción es obligatoria");
+    }
+
+    /** Validación básica de correo (@) */
+    private void validarCorreo(TextField txt) {
+        txt.focusedProperty().addListener((obs, oldV, newV) -> {
+            if (!newV) { // pierde foco
+                String c = txt.getText();
+                if (c != null && !c.isBlank() && !c.contains("@")) {
+                    showError("El correo \"" + c + "\" no es válido. Debe contener '@'");
+                    txt.requestFocus();
+                }
+            }
+        });
+    }
+
+    // ============================================================
+    // =========================== INIT ============================
+    // ============================================================
     @FXML
     public void initialize() {
         try {
@@ -108,6 +195,62 @@ public class AlumnoController {
             });
             return row;
         });
+
+        // =====================================================
+        // ====== RESTRICCIONES / LÍMITES DE CAMPOS ============
+        // =====================================================
+
+        // LONGITUDES (según tu tabla)
+        limitarLongitud(txtCurp,      18);   // CURP
+        limitarLongitud(txtMatricula, 20);   // Matricula
+        limitarLongitud(txtTelefono,  15);   // Telefono
+        limitarLongitud(txtCorreo,   100);   // Correo
+        limitarLongitud(txtNombre,    45);   // Nombre
+        limitarLongitud(txtPaterno,   45);   // Paterno
+        limitarLongitud(txtMaterno,   45);   // Materno
+        limitarLongitud(txtNss,       45);   // NSS
+        limitarLongitud(txtCalle,     45);   // Calle
+        limitarLongitud(txtNumero,    45);   // Numero
+        limitarLongitud(txtColonia,   45);   // Colonia
+        limitarLongitud(txtEstado,    45);   // Estado
+        limitarLongitud(txtMunicipio, 45);   // Municipio
+        limitarLongitud(txtLocalidad, 45);   // Localidad
+        limitarLongitud(txtCelPadre,  12);   // CelPadre
+        limitarLongitud(txtCelMadre,  12);   // CelMadre
+
+        // SOLO LETRAS (con acentos y espacios)
+        soloLetras(txtNombre,   45);
+        soloLetras(txtPaterno,  45);
+        soloLetras(txtMaterno,  45);
+        soloLetras(txtCalle,    45);
+        soloLetras(txtColonia,  45);
+        soloLetras(txtEstado,   45);
+        soloLetras(txtMunicipio,45);
+        soloLetras(txtLocalidad,45);
+
+        // SOLO NÚMEROS
+        soloEnteros(txtTelefono);
+        soloEnteros(txtCelPadre);
+        soloEnteros(txtCelMadre);
+        soloEnteros(txtNumero);
+        soloEnteros(txtNss); // tu campo está como varchar(45) pero lógicamente es numérico
+
+        // CURP siempre mayúsculas
+        txtCurp.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue != null) {
+                String upper = newValue.toUpperCase();
+                if (!upper.equals(newValue)) {
+                    txtCurp.setText(upper);
+                }
+            }
+        });
+
+        // Validación básica de correo
+        validarCorreo(txtCorreo);
+
+        // DatePicker solo mediante calendario
+        dpFechaInscripcion.setEditable(false);
+        dpFechaInscripcion.getEditor().setDisable(true);
     }
 
     private void recargarTabla() {
@@ -198,12 +341,13 @@ public class AlumnoController {
     public void onGuardar() {
         try {
             Alumno a = buildFromForm();
+            validarObligatorios(a);
             alumnoBO.guardar(a);
 
             showInfo("Alumno guardado correctamente");
 
-            limpiar(true);     // 🔹 LIMPIA TODO EL FORMULARIO
-            recargarTabla();   // 🔹 ACTUALIZA TABLA
+            limpiar(true);
+            recargarTabla();
 
         } catch (Exception e) {
             showError("No se pudo guardar:\n" + e.getMessage());
@@ -284,7 +428,10 @@ public class AlumnoController {
     private Alumno buildFromForm() {
         Alumno a = new Alumno();
         a.setMatricula(txtMatricula.getText().trim());
-        a.setCurp(v(txtCurp));
+
+        String curp = v(txtCurp);
+        a.setCurp(curp == null ? null : curp.toUpperCase());
+
         a.setNombre(v(txtNombre));
         a.setPaterno(v(txtPaterno));
         a.setMaterno(v(txtMaterno));
@@ -343,7 +490,7 @@ public class AlumnoController {
         txtCorreo.clear();
         txtNss.clear();
 
-        cmbEstatus.setValue("Activo");
+        cmbEstatus.getSelectionModel().clearSelection();
         cmbSemestre.getSelectionModel().clearSelection();
         cmbPeriodo.getSelectionModel().clearSelection();
         cmbEdoCivil.getSelectionModel().clearSelection();

@@ -108,7 +108,7 @@
             <padding>
                 <Insets top="10" right="20" bottom="10" left="20"/>
             </padding>
-            <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-secondary"/>
+
             <Button text="Volver" onAction="#onVolver" styleClass="btn-primary"/>
         </HBox>
     </bottom>
