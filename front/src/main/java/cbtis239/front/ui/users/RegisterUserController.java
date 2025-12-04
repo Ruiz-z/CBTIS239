@@ -21,31 +21,48 @@ import java.util.List;
 
 public class RegisterUserController {
 
-    // ====== FXML ids (según tu archivo) ======
-    @FXML private TextField txtUsuario;
-    @FXML private PasswordField txtPassword;
-    @FXML private TextField txtPasswordVisible;
-    @FXML private PasswordField txtConfirm;
-    @FXML private TextField txtConfirmVisible;
-    @FXML private Button btnVerPass;
-    @FXML private Button btnVerConfirm;
+    // ====== FXML ids ======
+    @FXML
+    private TextField txtUsuario;
+    @FXML
+    private PasswordField txtPassword;
+    @FXML
+    private TextField txtPasswordVisible;
+    @FXML
+    private PasswordField txtConfirm;
+    @FXML
+    private TextField txtConfirmVisible;
+    @FXML
+    private Button btnVerPass;
+    @FXML
+    private Button btnVerConfirm;
 
-    @FXML private TextField txtNombres;
-    @FXML private TextField txtApPat;
-    @FXML private TextField txtApMat;
+    @FXML
+    private TextField txtNombres;
+    @FXML
+    private TextField txtApPat;
+    @FXML
+    private TextField txtApMat;
 
-    @FXML private ComboBox<Rol> cbRol;
+    @FXML
+    private ComboBox<Rol> cbRol;
 
-    @FXML private Button btnRegistrar;
+    @FXML
+    private Button btnRegistrar;
 
-    @FXML private TableView<Usuario> tablaUsuarios;
-    @FXML private TableColumn<Usuario, String> colUsuario;
-    @FXML private TableColumn<Usuario, String> colNombre;
-    @FXML private TableColumn<Usuario, String> colApPat;
-    @FXML private TableColumn<Usuario, String> colApMat;
-    @FXML private TableColumn<Usuario, String> colRol;
+    @FXML
+    private TableView<Usuario> tablaUsuarios;
+    @FXML
+    private TableColumn<Usuario, String> colUsuario;
+    @FXML
+    private TableColumn<Usuario, String> colNombre;
+    @FXML
+    private TableColumn<Usuario, String> colApPat;
+    @FXML
+    private TableColumn<Usuario, String> colApMat;
+    @FXML
+    private TableColumn<Usuario, String> colRol;
 
-    // ====== Servicios / estado ======
     private final UsuarioBO usuarioBO = new UsuarioBO();
     private final RolBO rolBO = new RolBO();
 
@@ -57,27 +74,34 @@ public class RegisterUserController {
 
     @FXML
     private void initialize() {
-        // --- Password toggles (enlaza textos) ---
+
+        // =============== PASSWORD VISIBILITY ===============
         txtPasswordVisible.textProperty().bindBidirectional(txtPassword.textProperty());
         txtConfirmVisible.textProperty().bindBidirectional(txtConfirm.textProperty());
         setPasswordVisible(false);
         setConfirmVisible(false);
 
-        // --- Cargar roles (sin rol Docente) ---
+        // =============== VALIDACIONES DE INPUT ===============
+
+        // SOLO LETRAS (100%)
+        soloLetras(txtUsuario, 20);
+        soloLetras(txtNombres, 100);
+        soloLetras(txtApPat, 45);
+        soloLetras(txtApMat, 45);
+
+        // Cargar roles
         cargarRoles();
 
-        // --- Tabla de usuarios ---
+        // ---- Tabla usuarios ----
         colUsuario.setCellValueFactory(new PropertyValueFactory<>("usuario"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colApPat.setCellValueFactory(new PropertyValueFactory<>("paterno"));
         colApMat.setCellValueFactory(new PropertyValueFactory<>("materno"));
-        // Mostramos el nombre del rol (propiedad adicional en el modelo)
         colRol.setCellValueFactory(new PropertyValueFactory<>("rolNombre"));
 
         tablaUsuarios.setItems(usuarios);
         reloadTable();
 
-        // Doble clic para cargar en formulario
         tablaUsuarios.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
                 Usuario u = tablaUsuarios.getSelectionModel().getSelectedItem();
@@ -86,18 +110,35 @@ public class RegisterUserController {
         });
     }
 
+    // ========================================================================
+    // =========================== VALIDADORES ================================
+    // ========================================================================
+
     /**
-     * Carga los roles desde BD y quita el rol "Docente" para que
-     * NO se pueda asignar desde esta pantalla.
+     * Solo letras y espacios, y limitar longitud máxima
      */
+    private void soloLetras(TextField txt, int maxLength) {
+        txt.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (!newValue.matches("[A-Za-zÁÉÍÓÚáéíóúÑñ ]*")) {
+                txt.setText(oldValue);
+                return;
+            }
+            if (newValue.length() > maxLength) {
+                txt.setText(oldValue);
+            }
+        });
+    }
+
+    // ========================================================================
+    // ======================= CARGA DE ROLES =================================
+    // ========================================================================
     private void cargarRoles() {
         try {
-            List<Rol> list = rolBO.findAll(); // tu BO de roles
+            List<Rol> list = rolBO.findAll();
 
-            // 🔴 Filtrar rol "Docente" para que no aparezca en el combo
             list.removeIf(r ->
                     r.getNombre() != null &&
-                    r.getNombre().equalsIgnoreCase("Docente"));
+                            r.getNombre().equalsIgnoreCase("Docente"));
 
             roles.setAll(list);
             cbRol.setItems(roles);
@@ -107,8 +148,11 @@ public class RegisterUserController {
                 public String toString(Rol r) {
                     return r == null ? "" : r.getNombre();
                 }
+
                 @Override
-                public Rol fromString(String s) { return null; }
+                public Rol fromString(String s) {
+                    return null;
+                }
             });
 
         } catch (Exception e) {
@@ -121,8 +165,9 @@ public class RegisterUserController {
         usuarios.setAll(usuarioBO.listAllWithRol());
     }
 
-    // ====== Handlers UI ======
-
+    // ========================================================================
+    // ======================= HANDLERS UI ====================================
+    // ========================================================================
     @FXML
     private void onTogglePassword() {
         showingPass = !showingPass;
@@ -166,6 +211,7 @@ public class RegisterUserController {
             String user = trim(txtUsuario.getText());
             String pass = trim(showingPass ? txtPasswordVisible.getText() : txtPassword.getText());
             String conf = trim(showingConfirm ? txtConfirmVisible.getText() : txtConfirm.getText());
+
             String nombre = trim(txtNombres.getText());
             String apPat = trim(txtApPat.getText());
             String apMat = trim(txtApMat.getText());
@@ -173,9 +219,15 @@ public class RegisterUserController {
             if (!pass.equals(conf))
                 throw new BusinessException("La contraseña y la confirmación no coinciden.");
 
+            // Validación de vacíos
+            if (user.isEmpty()) throw new BusinessException("El usuario es obligatorio.");
+            if (nombre.isEmpty()) throw new BusinessException("El nombre es obligatorio.");
+            if (apPat.isEmpty()) throw new BusinessException("El apellido paterno es obligatorio.");
+            if (pass.isEmpty()) throw new BusinessException("La contraseña es obligatoria.");
+
             Usuario u = new Usuario();
             u.setUsuario(user);
-            u.setContrasena(pass);            // (si luego agregas hash, este es el punto)
+            u.setContrasena(pass);
             u.setRolId(r.getIdRol());
             u.setNombre(nombre);
             u.setPaterno(apPat);
@@ -199,21 +251,18 @@ public class RegisterUserController {
         try {
             Usuario sel = tablaUsuarios.getSelectionModel().getSelectedItem();
             if (sel == null) {
-                warn("Atención", "Selecciona un usuario de la tabla.");
+                warn("Atención", "Selecciona un usuario.");
                 return;
             }
 
             Rol r = cbRol.getValue();
             if (r == null) throw new BusinessException("Selecciona un rol.");
 
-            String user = trim(txtUsuario.getText());
-            if (!user.equals(sel.getUsuario()))
-                throw new BusinessException("No puedes cambiar la PK 'Usuario'. Selecciona la fila correspondiente.");
-
             String pass = trim(showingPass ? txtPasswordVisible.getText() : txtPassword.getText());
             String conf = trim(showingConfirm ? txtConfirmVisible.getText() : txtConfirm.getText());
+
             if (!pass.equals(conf))
-                throw new BusinessException("La contraseña y la confirmación no coinciden.");
+                throw new BusinessException("La contraseña no coincide.");
 
             sel.setContrasena(pass);
             sel.setRolId(r.getIdRol());
@@ -222,15 +271,15 @@ public class RegisterUserController {
             sel.setMaterno(trim(txtApMat.getText()));
 
             usuarioBO.update(sel);
-            info("Usuario modificado", "Se actualizó: " + sel.getUsuario());
 
+            info("Usuario modificado", "Se actualizó: " + sel.getUsuario());
             reloadTable();
             clearForm();
 
         } catch (BusinessException be) {
             warn("Validación", be.getMessage());
         } catch (Exception ex) {
-            error("Error", "No se pudo modificar el usuario.", ex);
+            error("Error", "No se pudo modificar.", ex);
         }
     }
 
@@ -239,7 +288,7 @@ public class RegisterUserController {
         try {
             Usuario sel = tablaUsuarios.getSelectionModel().getSelectedItem();
             if (sel == null) {
-                warn("Atención", "Selecciona un usuario para eliminar.");
+                warn("Atención", "Selecciona un usuario.");
                 return;
             }
 
@@ -248,6 +297,7 @@ public class RegisterUserController {
                     != ButtonBar.ButtonData.OK_DONE) return;
 
             usuarioBO.delete(sel.getUsuario());
+
             info("Eliminado", "Usuario eliminado.");
             reloadTable();
             clearForm();
@@ -255,51 +305,19 @@ public class RegisterUserController {
         } catch (BusinessException be) {
             warn("Validación", be.getMessage());
         } catch (Exception ex) {
-            error("Error", "No se pudo eliminar el usuario.", ex);
+            error("Error", "No se pudo eliminar.", ex);
         }
     }
 
-    @FXML
-    private void onCancelar() { clearForm(); }
-
-    @FXML
-    private void onVolver() {
-        try {
-            Stage current = (Stage) txtUsuario.getScene().getWindow();
-            current.close();
-            var url = getClass().getResource("/cbtis239/front/views/Menu.fxml");
-            Parent root = FXMLLoader.load(url);
-            Stage menu = new Stage();
-            menu.setTitle("Menú Principal");
-            menu.setScene(new Scene(root, 900, 600));
-            menu.initStyle(javafx.stage.StageStyle.UNDECORATED);
-            menu.setMaximized(true);
-            menu.show();
-        } catch (Exception e) {
-            error("Error", "No se pudo volver al menú.", e);
-        }
-    }
-
-    // ====== Helpers ======
-    private void loadToForm(Usuario u) {
-        txtUsuario.setText(u.getUsuario());
-        txtUsuario.setDisable(true);  // PK no editable
-        txtPassword.setText(u.getContrasena());
-        txtConfirm.setText(u.getContrasena());
-        txtNombres.setText(u.getNombre());
-        txtApPat.setText(u.getPaterno());
-        txtApMat.setText(u.getMaterno());
-
-        // Seleccionar rol (si está disponible en el combo)
-        cbRol.getSelectionModel().clearSelection();
-        roles.stream()
-                .filter(r -> r.getIdRol() == u.getRolId())
-                .findFirst()
-                .ifPresent(r -> cbRol.getSelectionModel().select(r));
-    }
-
+    // ========================================================================
+    // ============================ HELPERS ===================================
+    // ========================================================================
     private void clearForm() {
-        // Limpieza de campos
+
+        // ---- Habilitar PK otra vez ----
+        txtUsuario.setDisable(false);
+
+        // ---- Limpiar todos los textos ----
         txtUsuario.clear();
         txtPassword.clear();
         txtPasswordVisible.clear();
@@ -309,27 +327,30 @@ public class RegisterUserController {
         txtApPat.clear();
         txtApMat.clear();
 
-        // Habilitar PK otra vez
-        txtUsuario.setDisable(false);
-
-        // Deseleccionar rol
+        // ---- Resetear ComboBox Roles ----
         cbRol.getSelectionModel().clearSelection();
 
-        // Deseleccionar tabla
+        // ---- Deseleccionar tabla ----
         tablaUsuarios.getSelectionModel().clearSelection();
 
-        // Reset de visibilidad de passwords
+        // ---- Reset de visibilidad de passwords ----
         showingPass = false;
         showingConfirm = false;
+
         setPasswordVisible(false);
         setConfirmVisible(false);
 
-        // Foco al primer campo
+        // ---- Romper el contenido visible del toggle ----
+        txtPasswordVisible.setManaged(false);
+        txtConfirmVisible.setManaged(false);
+
+        // ---- Enfocar primer campo ----
         txtUsuario.requestFocus();
     }
 
-
-    private String trim(String s) { return s == null ? "" : s.trim(); }
+    private String trim(String s) {
+        return s == null ? "" : s.trim();
+    }
 
     private String generatePassword(int len) {
         String abc = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789@#%*";
@@ -339,23 +360,79 @@ public class RegisterUserController {
         return sb.toString();
     }
 
-    // ---- Alerts ----
+    private void loadToForm(Usuario u) {
+        txtUsuario.setText(u.getUsuario());
+        txtUsuario.setDisable(true);
+
+        txtPassword.setText(u.getContrasena());
+        txtConfirm.setText(u.getContrasena());
+
+        txtNombres.setText(u.getNombre());
+        txtApPat.setText(u.getPaterno());
+        txtApMat.setText(u.getMaterno());
+
+        cbRol.getSelectionModel().clearSelection();
+        roles.stream()
+                .filter(r -> r.getIdRol() == u.getRolId())
+                .findFirst()
+                .ifPresent(r -> cbRol.getSelectionModel().select(r));
+    }
+
+    // Alerts
+
     private void info(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
-        a.setTitle(title); a.setHeaderText(null); a.showAndWait();
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.showAndWait();
     }
+
     private void warn(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.WARNING, msg, ButtonType.OK);
-        a.setTitle(title); a.setHeaderText(null); a.showAndWait();
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.showAndWait();
     }
+
     private void error(String title, String header, Exception ex) {
         Alert a = new Alert(Alert.AlertType.ERROR, ex.getMessage(), ButtonType.OK);
-        a.setTitle("Error"); a.setHeaderText(header); a.showAndWait();
+        a.setTitle("Error");
+        a.setHeaderText(header);
+        a.showAndWait();
         ex.printStackTrace();
     }
+
     private ButtonType confirm(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.CONFIRMATION, msg, ButtonType.OK, ButtonType.CANCEL);
-        a.setTitle(title); a.setHeaderText(null);
+        a.setTitle(title);
+        a.setHeaderText(null);
         return a.showAndWait().orElse(ButtonType.CANCEL);
     }
+
+    @FXML
+    public void onVolver() {
+        try {
+            // Cargar menú
+            Parent root = FXMLLoader.load(getClass().getResource("/cbtis239/front/views/Menu.fxml"));
+            Stage st = new Stage();
+            st.setTitle("Menú");
+            st.setScene(new Scene(root));
+            st.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            st.setFullScreen(true);
+            st.setFullScreenExitHint("");
+            st.show();
+
+            // 🔥 Cerrar la ventana actual
+            Stage actual = (Stage) txtUsuario.getScene().getWindow();
+            actual.close();
+
+        } catch (Exception e) {
+            showError("No se pudo abrir el menú:\n" + e.getMessage());
+        }
+    }
+
+    private void showError(String m){
+        new Alert(Alert.AlertType.ERROR, m, ButtonType.OK).showAndWait();
+    }
+
 }
