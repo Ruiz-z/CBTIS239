@@ -321,21 +321,35 @@ public class AlumnoDAO {
     // Consecutivo de matrícula por año y especialidad (según tu diseño)
     // ============================================================
     public int obtenerConsecutivo(int año, int idEspecialidad) throws SQLException {
+
         String sql = """
-            SELECT COUNT(*) AS total
-            FROM sistemaescolar.alumno
-            WHERE YEAR(FechaInscripcion) = ? AND Carrera = ?
-        """;
+        SELECT MAX(CAST(RIGHT(Matricula, 3) AS UNSIGNED)) AS ultimo
+        FROM alumno
+        WHERE LEFT(Matricula, 2) = LPAD(?, 2, '0')
+          AND SUBSTRING(Matricula, 3, 2) = LPAD(?, 2, '0')
+    """;
+
         try (Connection cn = DB.get();
              PreparedStatement ps = cn.prepareStatement(sql)) {
-            ps.setInt(1, 2000 + año); // ejemplo: 25 → 2025
-            ps.setString(2, String.valueOf(idEspecialidad)); // si usas Carrera como identificador numérico
+
+            ps.setString(1, String.valueOf(año));            // "25"
+            ps.setString(2, String.valueOf(idEspecialidad)); // "01"
+
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt("total");
+                if (rs.next()) {
+
+                    int ultimo = rs.getInt("ultimo");
+
+                    // Si es null o 0 → empezar en 0
+                    if (rs.wasNull()) ultimo = 0;
+
+                    return ultimo;
+                }
             }
         }
         return 0;
     }
+
 
     // ============================================================
     // VERSIONES LIGERAS PARA USO EN OTROS MÓDULOS (Asistencia, etc.)

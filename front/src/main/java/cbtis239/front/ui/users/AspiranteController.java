@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -83,11 +84,14 @@ public class AspiranteController {
      */
     private void soloLetras(TextField txt) {
         txt.textProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue == null) return; // ← evita NullPointerException
+
             if (!newValue.matches("[a-zA-ZÁÉÍÓÚáéíóúÑñ\\s]*")) {
                 txt.setText(oldValue);
             }
         });
     }
+
 
     /**
      * Limitar longitud máxima según la BD
@@ -401,71 +405,120 @@ public class AspiranteController {
         }
     }
 
-    // ============================================================
-    // =========================== onInscribir =====================
-    // ============================================================
     @FXML
     private void onInscribir() {
         try {
 
+            // ================================
+            // 1) VALIDAR SELECCIÓN
+            // ================================
             Aspirante selTabla = tblAspirantes.getSelectionModel().getSelectedItem();
             if (selTabla == null) {
                 showWarning("Selecciona un aspirante de la tabla para inscribir.");
                 return;
             }
 
-            AspiranteBO aspiranteBO = new AspiranteBO();
             Aspirante sel = aspiranteBO.buscar(selTabla.getFolio());
             if (sel == null) {
                 showError("No se encontró el aspirante en la base de datos.");
                 return;
             }
 
-            if (sel.getEstatusPago() == null || !sel.getEstatusPago().equalsIgnoreCase("Pagado")) {
+            // ================================
+            // 2) VALIDAR PAGO
+            // ================================
+            if (sel.getEstatusPago() == null ||
+                    !sel.getEstatusPago().equalsIgnoreCase("Pagado")) {
                 showWarning("El aspirante NO ha pagado. Solo los aspirantes con pago pueden inscribirse.");
                 return;
             }
 
-            GrupoDao grupoDAO = new GrupoDao();
-            AlumnoDAO alumnoDAO = new AlumnoDAO();
-
-            Integer[] opciones = {
+            // =====================================================
+            // 3) EXTRAER ESPECIALIDADES EVITANDO NULOS
+            // =====================================================
+            Integer[] opcionesBrutas = {
                     sel.getOpcionEspecialidad1(),
                     sel.getOpcionEspecialidad2(),
                     sel.getOpcionEspecialidad3(),
                     sel.getOpcionEspecialidad4()
             };
 
-            Integer idEspecialidadFinal = null;
+            List<Integer> opcionesValidas = new ArrayList<>();
+            for (Integer op : opcionesBrutas) {
+                if (op != null && op > 0) opcionesValidas.add(op);
+            }
+
+            if (opcionesValidas.isEmpty()) {
+                showError("El aspirante no tiene ninguna especialidad válida seleccionada.");
+                return;
+            }
+
+            GrupoDao grupoDAO = new GrupoDao();
+            AlumnoDAO alumnoDAO = new AlumnoDAO();
+
+            // =====================================================
+            // 4) BUSCAR PRIMER GRUPO CON CUPO
+            // =====================================================
             Integer idGrupoAsignado = null;
+            Integer idEspecialidadFinal = null;
 
-            for (Integer idEsp : opciones) {
-                if (idEsp == null || idEsp == 0) continue;
+            for (Integer idEsp : opcionesValidas) {
 
-                Integer grupoDisponible = grupoDAO.grupoDisponible(idEsp);
-                if (grupoDisponible != null) {
+                System.out.println("Probando especialidad: " + idEsp);
+
+                Integer grupoDisp = grupoDAO.grupoDisponible(idEsp);
+
+                System.out.println("grupoDisponible() regresó: " + grupoDisp);
+
+                if (grupoDisp != null && grupoDisp > 0) {
                     idEspecialidadFinal = idEsp;
-                    idGrupoAsignado = grupoDisponible;
+                    idGrupoAsignado = grupoDisp;
+                    System.out.println("✔ Especialidad asignada: " + idEspecialidadFinal);
+                    System.out.println("✔ Grupo asignado: " + idGrupoAsignado);
                     break;
                 }
             }
 
             if (idGrupoAsignado == null) {
-                showError("No hay cupo en ninguna de las especialidades seleccionadas.");
+                showError("No hay cupo disponible en ninguna especialidad seleccionada.");
                 return;
             }
 
-            AlumnoDAO alumnoDAO2 = new AlumnoDAO();
+            // =====================================================
+            // 5) GENERAR MATRÍCULA
+            // =====================================================
             int año = LocalDate.now().getYear() % 100;
-            int consecutivo = alumnoDAO2.obtenerConsecutivo(año, idEspecialidadFinal) + 1;
+
+            if (idEspecialidadFinal == null) {
+                showError("Error interno: No se pudo determinar la especialidad final.");
+                return;
+            }
+
+            int consecutivo = alumnoDAO.obtenerConsecutivo(año, idEspecialidadFinal);
+            if (consecutivo < 0) consecutivo = 0;
+            consecutivo++;
+
             String matricula = String.format("%02d%02d%03d", año, idEspecialidadFinal, consecutivo);
 
-            while (alumnoDAO2.existe(matricula)) {
+            // Evitar colisiones
+            while (alumnoDAO.existe(matricula)) {
                 consecutivo++;
                 matricula = String.format("%02d%02d%03d", año, idEspecialidadFinal, consecutivo);
             }
 
-            // Crear alumno
+            // =====================================================
+            // 6) PERIODO ACTUAL (CORREGIDO — A PRUEBA DE NULOS)
+            // =====================================================
+            Integer periodoPago = new cbtis239.dao.PagoDAO().getPeriodoActualId();
+
+            if (periodoPago == null) {
+                showError("No existe un periodo actual vigente en el sistema.\nNo se puede inscribir.");
+                return;
+            }
+
+            // =====================================================
+            // 7) CREAR NUEVO ALUMNO
+            // =====================================================
             Alumno nuevo = new Alumno();
             nuevo.setMatricula(matricula);
             nuevo.setCurp(sel.getCurp());
@@ -488,13 +541,18 @@ public class AspiranteController {
             nuevo.setSemestre(1);
             nuevo.setEstadoInscripcion("Activo");
             nuevo.setFechaInscripcion(LocalDate.now());
+
+            // La carrera es la especialidad asignada
             nuevo.setCarrera(String.valueOf(idEspecialidadFinal));
+
             nuevo.setGrupoId(idGrupoAsignado);
-            int periodoPago = new cbtis239.dao.PagoDAO().getPeriodoActualId();
             nuevo.setPeriodoId(periodoPago);
 
             alumnoDAO.insert(nuevo);
 
+            // =====================================================
+            // 8) ELIMINAR ASPIRANTE Y SUS PAGOS
+            // =====================================================
             try (var cn = cbtis239.util.DB.get()) {
                 cn.setAutoCommit(false);
                 try {
@@ -510,10 +568,10 @@ public class AspiranteController {
                 }
             }
 
+            // Registrar pago inicial
             try {
                 new PagoBO().registrarPago(matricula);
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
 
             showInfo("Aspirante inscrito correctamente.\nMatrícula: " + matricula);
             recargarTabla();
@@ -523,6 +581,7 @@ public class AspiranteController {
             showError("Error al inscribir:\n" + e.getMessage());
         }
     }
+
 
     // ============================================================
     // ======================== generarMatricula ===================
@@ -690,46 +749,49 @@ public class AspiranteController {
         a.setNombreSEC(v(txtNombreSec));
         return a;
     }
-
-    // ============================================================
-    // =========================== rellenarCampos ==================
-    // ============================================================
     private void rellenarCampos(Aspirante a) {
+
         txtFolio.setText(String.format("%03d", a.getFolio()));
         txtCurp.setText(a.getCurp());
         txtNombre.setText(a.getNombre());
         txtPaterno.setText(a.getPaterno());
         txtMaterno.setText(a.getMaterno());
         dpFechaNac.setValue(a.getFechaNacimiento());
-        txtNss.setText(a.getNss());
-        txtAltura.setText(String.valueOf(a.getAltura()));
-        txtPeso.setText(String.valueOf(a.getPeso()));
+
         txtTelefono.setText(a.getTelefono());
         txtCorreo.setText(a.getCorreo());
         txtCorreoAspirante.setText(a.getCorreoAspirante());
         txtCelAspirante.setText(a.getCelAspirante());
         txtContactoEmergencia.setText(a.getContactoEmergencia());
+
+        txtNss.setText(a.getNss());
+        txtAltura.setText(String.valueOf(a.getAltura()));
+        txtPeso.setText(String.valueOf(a.getPeso()));
         txtCalificacion.setText(String.valueOf(a.getCalificacionExamenIngreso()));
         txtPromedio.setText(String.valueOf(a.getPromedioFinal()));
+
         cmbEstatusPago.setValue(a.getEstatusPago());
         cmbEstatusInscripcion.setValue(a.getEstatusInscripcion());
         dpFechaReg.setValue(a.getFechaRegistro());
 
+        cmbTipoSangre.setValue(a.getTipoSangre());
         cmbEdoCivil.getSelectionModel().select(matchId(cmbEdoCivil, a.getEdoCivilId()));
         cmbGenero.getSelectionModel().select(matchId(cmbGenero, a.getGeneroId()));
-        cmbTipoSangre.setValue(a.getTipoSangre());
 
+        // ESPECIALIDADES
         cmbEsp1.getSelectionModel().select(matchId(cmbEsp1, a.getOpcionEspecialidad1()));
         cmbEsp2.getSelectionModel().select(matchId(cmbEsp2, a.getOpcionEspecialidad2()));
         cmbEsp3.getSelectionModel().select(matchId(cmbEsp3, a.getOpcionEspecialidad3()));
         cmbEsp4.getSelectionModel().select(matchId(cmbEsp4, a.getOpcionEspecialidad4()));
 
+        // ✔ AQUÍ SE CARGAN LOS VALORES CORRECTOS
         txtCalle.setText(a.getCalle());
         txtNumero.setText(a.getNumero());
         txtColonia.setText(a.getColonia());
         txtEstado.setText(a.getEstado());
         txtMunicipio.setText(a.getMunicipio());
         txtLocalidad.setText(a.getLocalidad());
+
         txtCelPadre.setText(a.getCelPadre());
         txtCelMadre.setText(a.getCelMadre());
         txtTutor1.setText(a.getTutor1());
@@ -739,6 +801,7 @@ public class AspiranteController {
         txtMunicipioSec.setText(a.getMunicipioSec());
         txtNombreSec.setText(a.getNombreSEC());
     }
+
 
     // ============================================================
     // =============================== limpiar =====================
