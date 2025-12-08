@@ -55,7 +55,7 @@ public class Menu2Controller {
 
     @FXML
     private void openExpediente(ActionEvent event) {
-        openFullScreenStage(event, "/cbtis239/front/views/Expediente.fxml", "Gestión de Expediente");
+        openFullScreenStage(event, "/cbtis239/front/views/Kardex.fxml", "Kardex");
     }
     @FXML
     private void onCerrarSesion(ActionEvent event) {
