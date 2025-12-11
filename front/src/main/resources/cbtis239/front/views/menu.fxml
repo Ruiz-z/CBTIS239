@@ -15,9 +15,9 @@
     <top>
         <StackPane styleClass="topbar" prefHeight="50">
             <!-- 🔹 Movido más a la derecha con padding -->
-            <Label text="Menu Servicios Escolares"
-                   styleClass="topbar-title"
-                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 0 0 0 300;"/>
+<!--            <Label text="Menu Servicios Escolares"-->
+<!--                   styleClass="topbar-title"-->
+<!--                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 0 0 0 300;"/>-->
         </StackPane>
     </top>
 

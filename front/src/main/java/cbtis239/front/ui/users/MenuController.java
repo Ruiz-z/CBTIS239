@@ -1,6 +1,8 @@
 package cbtis239.front.ui.users;
 
 import cbtis239.front.MainApp;
+import cbtis239.model.Usuario;
+import cbtis239.session.SesionActual;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,18 +14,48 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Objects;
-import java.util.ResourceBundle;
 
 public class MenuController {
 
     @FXML private StackPane contentArea;
-    @FXML
-    private Label lblBienvenida;
+    @FXML private Label lblBienvenida;
 
+    // ================== INICIALIZACIÓN ==================
+    @FXML
+    private void initialize() {
+        aplicarBienvenidaDesdeSesion();
+    }
+
+    /** Construye el mensaje "¡Bienvenido de vuelta, NOMBRE PATERNO MATERNO!" */
+    private void aplicarBienvenidaDesdeSesion() {
+        Usuario u = SesionActual.getUsuario();
+        if (u == null) {
+            lblBienvenida.setText("");
+            return;
+        }
+
+        String nombre  = nvl(u.getNombre());
+        String paterno = nvl(u.getPaterno());
+        String materno = nvl(u.getMaterno());
+
+        String nombreCompleto = (nombre + " " + paterno + " " + materno)
+                .trim()
+                .replaceAll(" +", " ");
+
+        if (nombreCompleto.isEmpty()) {
+            lblBienvenida.setText("¡Bienvenido de vuelta!");
+        } else {
+            lblBienvenida.setText("¡Bienvenido de vuelta, " + nombreCompleto.toUpperCase() + "!");
+        }
+    }
+
+    private String nvl(String s) {
+        return s == null ? "" : s;
+    }
 
     // ===== Helper para cargar vistas dentro del contentArea =====
     private void loadContent(String fxmlResource) {
@@ -37,9 +69,6 @@ public class MenuController {
         }
     }
 
-
-
-
     private void showError(String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setHeaderText("Error");
@@ -47,12 +76,12 @@ public class MenuController {
         a.show();
     }
 
-
     // ===== Botón "Más Opciones" → cambia a Menu2 (pantalla completa) =====
     @FXML
     private void openMenu2(ActionEvent event) {
         openFullScreenStage(event, "/cbtis239/front/views/Menu2.fxml", "Menu2");
     }
+
     private void openFullScreenStage(ActionEvent event, String fxml, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
@@ -64,6 +93,15 @@ public class MenuController {
             newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
             newStage.setFullScreen(true);
             newStage.setFullScreenExitHint("");
+
+            // 🔹 Icono del CBTis en el nuevo Stage
+            newStage.getIcons().add(
+                    new Image(Objects.requireNonNull(
+                            MainApp.class.getResourceAsStream("/cbtis239/front/logo.png"),
+                            "No se encontró el icono del CBTis"
+                    ))
+            );
+
             newStage.show();
 
             Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -76,7 +114,9 @@ public class MenuController {
             alert.showAndWait();
         }
     }
-    // ===== Botones de la pantalla de bienvenida =====
+
+
+    // ===== Botones de la pantalla de bienvenida (si los usas) =====
     @FXML private void onActualizarPagado() {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setHeaderText(null);
@@ -85,7 +125,6 @@ public class MenuController {
     }
 
     @FXML private void onCancelar() {
-        // Cierra ventana
         contentArea.getScene().getWindow().hide();
     }
 
@@ -110,10 +149,8 @@ public class MenuController {
     @FXML
     private void onCerrarSesion(ActionEvent event) {
         try {
-            // 1. Obtener el Stage actual
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            // 2. Cargar de nuevo el Login.fxml usando la MISMA ruta que en MainApp
             Parent root = FXMLLoader.load(
                     Objects.requireNonNull(
                             MainApp.class.getResource("/cbtis239/front/views/Login.fxml"),
@@ -121,13 +158,10 @@ public class MenuController {
                     )
             );
 
-            // 3. Crear la nueva escena y asignarla al mismo stage
             Scene scene = new Scene(root);
             stage.setTitle("Inicio de Sesión");
             stage.setScene(scene);
             stage.setResizable(false);
-
-            // ⚠️ IMPORTANTE: NO cierres el stage, solo cambia la escena
             stage.show();
 
         } catch (Exception e) {
@@ -223,4 +257,4 @@ public class MenuController {
             t.printStackTrace();
         }
     }
-    }
+}
