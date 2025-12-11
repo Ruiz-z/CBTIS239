@@ -60,7 +60,7 @@
 .btn-secondary {
     -fx-background-color: #f2f2f2;
     -fx-border-color: #666;
-    -fx-text-fill: #111;
+    -fx-text-fill: white;
 }
 .btn-secondary:hover { -fx-background-color: #e6e6e6; }
 
