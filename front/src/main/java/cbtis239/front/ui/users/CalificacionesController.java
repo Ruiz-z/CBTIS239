@@ -1,6 +1,7 @@
 package cbtis239.front.ui.users;
 
 import cbtis239.bo.CalificacionBO;
+import cbtis239.front.MainApp;
 import cbtis239.model.Calificacion;
 import cbtis239.model.Catalogo;
 import cbtis239.model.Docente;
@@ -21,22 +22,34 @@ import javafx.util.converter.DoubleStringConverter;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 public class CalificacionesController {
 
     // ====== Controles ======
-    @FXML private ComboBox<Catalogo> cmbCurso;
-    @FXML private TextField txtBuscarMatricula;
-    @FXML private TextField txtPromedioGeneral;
+    @FXML
+    private ComboBox<Catalogo> cmbCurso;
+    @FXML
+    private TextField txtBuscarMatricula;
+    @FXML
+    private TextField txtPromedioGeneral;
 
-    @FXML private TableView<Calificacion> tblCalificaciones;
-    @FXML private TableColumn<Calificacion, String>  colNombre;
-    @FXML private TableColumn<Calificacion, String>  colMatricula;
-    @FXML private TableColumn<Calificacion, Double> colParcial1;
-    @FXML private TableColumn<Calificacion, Double> colParcial2;
-    @FXML private TableColumn<Calificacion, Double> colParcial3;
-    @FXML private TableColumn<Calificacion, Double> colExamenFinal; // NUEVA COLUMNA
-    @FXML private TableColumn<Calificacion, Double> colFinal;
+    @FXML
+    private TableView<Calificacion> tblCalificaciones;
+    @FXML
+    private TableColumn<Calificacion, String> colNombre;
+    @FXML
+    private TableColumn<Calificacion, String> colMatricula;
+    @FXML
+    private TableColumn<Calificacion, Double> colParcial1;
+    @FXML
+    private TableColumn<Calificacion, Double> colParcial2;
+    @FXML
+    private TableColumn<Calificacion, Double> colParcial3;
+    @FXML
+    private TableColumn<Calificacion, Double> colExamenFinal; // NUEVA COLUMNA
+    @FXML
+    private TableColumn<Calificacion, Double> colFinal;
 
     private final CalificacionBO califBO = new CalificacionBO();
     private int cursoSeleccionado = -1;
@@ -133,7 +146,9 @@ public class CalificacionesController {
     // EVENTOS
     // ============================================================
 
-    /** Botón Buscar: carga los alumnos del curso seleccionado. */
+    /**
+     * Botón Buscar: carga los alumnos del curso seleccionado.
+     */
     @FXML
     private void onBuscar() {
         Catalogo cursoCat = cmbCurso.getValue();
@@ -153,7 +168,9 @@ public class CalificacionesController {
         }
     }
 
-    /** Buscar/filtrar por matrícula (manteniendo el curso actual). */
+    /**
+     * Buscar/filtrar por matrícula (manteniendo el curso actual).
+     */
     @FXML
     private void onBuscarPorMatricula() {
         try {
@@ -177,7 +194,7 @@ public class CalificacionesController {
             // Filtrar sobre lo que ya está cargado
             var listaFiltrada = tblCalificaciones.getItems().stream()
                     .filter(c -> c.getAlumnoMatricula() != null &&
-                                 c.getAlumnoMatricula().equalsIgnoreCase(matricula))
+                            c.getAlumnoMatricula().equalsIgnoreCase(matricula))
                     .toList();
 
             if (listaFiltrada.isEmpty()) {
@@ -266,5 +283,29 @@ public class CalificacionesController {
         Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
         a.setHeaderText(null);
         a.showAndWait();
+    }
+@FXML
+    private void onCerrarSesion(ActionEvent event) {
+        try {
+            // 1. Obtener ventana actual
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // 2. Cargar Login.fxml
+            Parent root = FXMLLoader.load(
+                    Objects.requireNonNull(
+                            MainApp.class.getResource("/cbtis239/front/views/Login.fxml"),
+                            "No se encontró Login.fxml"
+                    )
+            );
+
+            // 3. Cambiar escena
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al cerrar sesión: " + e.getMessage());
+        }
     }
 }
