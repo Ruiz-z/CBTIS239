@@ -167,9 +167,9 @@ public class KardexController {
 @FXML
 private void onVolverMenu() {
     try {
-        var url = getClass().getResource("/cbtis239/front/views/Menu3.fxml");
+        var url = getClass().getResource("/cbtis239/front/views/Menu2.fxml");
         if (url == null) {
-            throw new IllegalStateException("No se encontró Menu3.fxml");
+            throw new IllegalStateException("No se encontró Menu2.fxml");
         }
 
         Parent root = FXMLLoader.load(url);
