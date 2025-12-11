@@ -21,8 +21,8 @@ public class DocenteBO {
             throw new BusinessException("Debes capturar la contraseña.");
         if (!pass.equals(pass2))
             throw new BusinessException("Las contraseñas no coinciden.");
-        if (pass.length() < 6)
-            throw new BusinessException("La contraseña debe tener al menos 6 caracteres.");
+        if (pass.length() < 4)
+            throw new BusinessException("La contraseña debe tener al menos 4 caracteres.");
 
         validarDocenteBasico(d);
 

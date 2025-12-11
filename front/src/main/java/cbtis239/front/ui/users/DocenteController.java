@@ -31,21 +31,19 @@ public class DocenteController {
     @FXML private TextField     txtUsuario;
     @FXML private PasswordField txtPass, txtPass2;
 
-    // --------- Tabla (solo nombre completo) ---------
+    // --------- Tabla ---------
     @FXML private TableView<Docente> tblDocentes;
     @FXML private TableColumn<Docente, String> colNombreCompleto;
 
     private final DocenteBO bo = new DocenteBO();
     private final ObservableList<Docente> data = FXCollections.observableArrayList();
 
-    // Docente actualmente seleccionado
     private Docente seleccionado;
 
     @FXML
     private void initialize() {
         configurarValidacionesTexto();
 
-        // Columna nombre completo
         colNombreCompleto.setCellValueFactory(c ->
                 Bindings.createStringBinding(() -> nombreCompleto(c.getValue()))
         );
@@ -53,7 +51,6 @@ public class DocenteController {
         tblDocentes.setItems(data);
         tblDocentes.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // Selección en tabla
         tblDocentes.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
             if (n != null) {
                 seleccionado = n;
@@ -61,7 +58,6 @@ public class DocenteController {
             }
         });
 
-        // Doble clic
         tblDocentes.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
                 Docente d = tblDocentes.getSelectionModel().getSelectedItem();
@@ -91,8 +87,15 @@ public class DocenteController {
             d.setGeneroId(gen.getId());
 
             String usuario = get(txtUsuario);
-            String pass    = txtPass.getText();
-            String pass2   = txtPass2.getText();
+            String pass  = txtPass.getText();
+            String pass2 = txtPass2.getText();
+
+            // VALIDACIÓN DE CONTRASEÑA EXACTAMENTE 4
+            if (pass.length() != 4)
+                throw new BusinessException("La contraseña debe tener exactamente 4 caracteres.");
+
+            if (!pass.equals(pass2))
+                throw new BusinessException("Las contraseñas no coinciden.");
 
             int id = bo.crearDocenteConUsuario(d, usuario, pass, pass2);
             info("Docente creado (ID " + id + ") con usuario '" + usuario + "'.");
@@ -186,7 +189,7 @@ public class DocenteController {
         }
     }
 
-    // ====================== Helpers UI ======================
+    // ====================== Helpers ======================
 
     private void cargarCombos() {
         try {
@@ -275,75 +278,58 @@ public class DocenteController {
         seleccionado = null;
     }
 
-    // ====================== Validaciones TextFormatter ======================
+    // ====================== Validaciones ======================
 
     private void configurarValidacionesTexto() {
 
-        // ========= CURP =========
-        // TextFormatter: solo permite A-Z y 0-9, hasta 18 caracteres, y fuerza MAYÚSCULAS
-        txtCurp.setTextFormatter(createFormatter(
-                18,
-                "[A-Z0-9]*",
-                true
-        ));
+        // CURP
+        txtCurp.setTextFormatter(createFormatter(18, "[A-Z0-9]*", true));
 
-        // Al perder el foco: validar el CURP COMPLETO con regex oficial
         txtCurp.focusedProperty().addListener((obs, oldV, newV) -> {
-            if (!newV) { // pierde foco
+            if (!newV) {
                 String curp = txtCurp.getText();
                 if (curp != null && !curp.isBlank()) {
                     if (!curp.matches("^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[A-Z0-9][0-9]$")) {
                         warn("CURP inválida",
-                                "La CURP no cumple el formato oficial.\n" +
-                                        "Ejemplo: ABCD001122HCLLNS09");
-                        txtCurp.requestFocus();
+                                "La CURP no cumple el formato oficial.\nEjemplo: ABCD001122HCLLNS09");
                     }
                 }
             }
         });
 
-        // ========= Correo (validación estricta con regex) =========
         txtCorreo.setTextFormatter(new TextFormatter<>(change -> {
-            String newText = change.getControlNewText();
-            if (newText.length() > 100)
-                return null;
-            return change;
+            String text = change.getControlNewText();
+            return text.length() > 100 ? null : change;
         }));
 
-        txtCorreo.focusedProperty().addListener((obs, oldV, newV) -> {
-            if (!newV) { // pierde foco
+        txtCorreo.focusedProperty().addListener((obs, o, n) -> {
+            if (!n) {
                 String email = txtCorreo.getText();
-
                 if (email != null && !email.isBlank()) {
-                    // regex profesional para correo
                     if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-                        warn("Correo inválido",
-                                "El correo debe tener un formato válido. Ejemplos:\n" +
-                                        "usuario@gmail.com\n" +
-                                        "nombre.apellido@empresa.com.mx");
-                        txtCorreo.requestFocus();
+                        warn("Correo inválido", "Formato incorrecto.");
                     }
                 }
             }
         });
 
-        // ========= NSS: solo dígitos =========
         txtNss.setTextFormatter(createFormatter(11, "\\d*", false));
 
-        // ========= Nombre / Apellidos =========
         String letras = "[A-Za-zÁÉÍÓÚÑáéíóúñ ]*";
         txtNombre.setTextFormatter(createFormatter(45, letras, false));
         txtPaterno.setTextFormatter(createFormatter(45, letras, false));
         txtMaterno.setTextFormatter(createFormatter(45, letras, false));
 
-        // ========= Teléfono =========
         txtTelefono.setTextFormatter(createFormatter(15, "\\d*", false));
-
-        // ========= Celular =========
         txtCelular.setTextFormatter(createFormatter(12, "\\d*", false));
 
-        // ========= Usuario SOLO LETRAS =========
         txtUsuario.setTextFormatter(createFormatter(20, "[A-Za-z]*", false));
+
+        // ============================
+        //  CONTRASEÑA EXACTAMENTE 4
+        // ============================
+        txtPass.setTextFormatter(createFormatter(4, ".{0,4}", false));
+        txtPass2.setTextFormatter(createFormatter(4, ".{0,4}", false));
     }
 
     private TextFormatter<String> createFormatter(int maxLen, String regex, boolean upper) {
@@ -357,7 +343,7 @@ public class DocenteController {
         return new TextFormatter<>(filter);
     }
 
-    // ========= Alerts =========
+    // ====================== Alerts ======================
 
     private Stage getStage() {
         javafx.stage.Window w = javafx.stage.Window.getWindows().stream()
