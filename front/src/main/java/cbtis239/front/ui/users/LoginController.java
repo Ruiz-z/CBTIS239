@@ -97,8 +97,8 @@ public class LoginController {
 
                     SceneNavigator.switchFromEvent(
                             e,
-                            "/cbtis239/front/views/MenuDocente.fxml",
-                            "Menú Docente"
+                            "/cbtis239/front/views/Calificaciones.fxml",
+                            "ADMINISTRACION DE CALIFICACIONES"
                     );
                     System.out.println("✅ Acceso: Docente (ID " + d.getDocenteId() + ")");
                     System.out.println("Acceso: Docente");

@@ -97,7 +97,7 @@
                 <Button text="Finalizar" onAction="#onFinalizar"
                         style="-fx-background-color:#17a2b8; -fx-text-fill:white; -fx-font-weight:bold;"/>
 
-                <Button text="Volver al menú" onAction="#onVolverMenu"
+                <Button text="Cerrar Sesion" onAction="#onCerrarSesion"
                         style="-fx-background-color:#6c757d; -fx-text-fill:white; -fx-font-weight:bold;"/>
             </HBox>
         </VBox>
