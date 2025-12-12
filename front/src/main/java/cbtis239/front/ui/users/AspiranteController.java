@@ -187,10 +187,10 @@ public class AspiranteController {
         soloLetras(txtCalle);
         soloLetras(txtTutor1);
         soloLetras(txtTutor2);
-        soloLetras(txtSecundaria);
+
         soloLetras(txtEstadoSec);
         soloLetras(txtMunicipioSec);
-        soloLetras(txtNombreSec);
+
 
 // =====================================================
 // === BLOQUEO DE ESPECIALIDADES REPETIDAS ============
