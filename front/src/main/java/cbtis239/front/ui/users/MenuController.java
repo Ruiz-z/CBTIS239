@@ -191,7 +191,23 @@ public class MenuController {
             showError("No se pudo abrir la ventana de Roles\n" + e.getMessage());
         }
     }
-
+    @FXML
+    private void openHistorialAsistencia(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cbtis239/front/views/HistorialAsistencia.fxml"));
+            Parent root = loader.load();
+            Stage newStage = new Stage();
+            newStage.setTitle("Historial Asistencia");
+            newStage.setScene(new Scene(root));
+            newStage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            newStage.setMaximized(true);
+            newStage.show();
+            Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
+        } catch (Exception e) {
+            showError("No se pudo abrir la ventana de Horario de Grupos\n" + e.getMessage());
+        }
+    }
     @FXML
     private void openHorarioGrupo(ActionEvent event) {
         try {

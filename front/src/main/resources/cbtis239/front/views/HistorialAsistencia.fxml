@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="cbtis239.front.ui.users.HistorialAsistenciasController">
+
+    <!-- HEADER -->
+    <top>
+        <VBox spacing="10">
+            <Pane prefHeight="60" style="-fx-background-color: #8B0000;">
+                <children>
+                    <Label text="Historial de Asistencias"
+                           style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"
+                           layoutX="30" layoutY="15"/>
+                </children>
+            </Pane>
+
+            <!-- Formulario -->
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <padding><Insets top="10" bottom="10" left="60"/></padding>
+
+                <Label text="Matrícula:"/>
+                <TextField fx:id="txtMatricula" prefWidth="150"/>
+
+                <Label text="CURP:"/>
+                <TextField fx:id="txtCurp" prefWidth="200"/>
+
+                <Button text="Buscar" fx:id="btnBuscar"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- TABLA -->
+    <center>
+        <VBox>
+            <padding><Insets left="60" right="60" top="10" bottom="10"/></padding>
+            <TableView fx:id="tblAsistencias" prefHeight="380">
+                <columns>
+                    <TableColumn fx:id="colFecha" text="FECHA" prefWidth="150"/>
+                    <TableColumn fx:id="colEstado" text="ESTADO" prefWidth="150"/>
+                    <TableColumn fx:id="colJustificada" text="JUSTIFICADA" prefWidth="150"/>
+                    <TableColumn fx:id="colObservaciones" text="OBSERVACIONES" prefWidth="300"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- BOTONES -->
+    <bottom>
+        <HBox spacing="20" alignment="CENTER">
+            <padding><Insets bottom="20" top="20"/></padding>
+
+            <Button fx:id="btnCancelar"
+                    text="Cancelar"
+                    prefWidth="120"
+                    style="-fx-background-color: #800000; -fx-text-fill: white;"/>
+
+            <Button fx:id="btnGuardar"
+                    text="Guardar"
+                    prefWidth="120"
+                    style="-fx-background-color: #800000; -fx-text-fill: white;"/>
+
+            <Button fx:id="btnPDF"
+                    text="Generar PDF"
+                    prefWidth="150"
+                    style="-fx-background-color: #800000; -fx-text-fill: white;"/>
+
+            <Button fx:id="btnVolverMenu"
+                    text="Volver al menú"
+                    onAction="#volverAlMenu"
+                    prefWidth="150"
+                    style="-fx-background-color: #800000; -fx-text-fill: white;"/>
+        </HBox>
+
+    </bottom>
+
+</BorderPane>

@@ -57,7 +57,8 @@
                     <graphic><FontIcon iconLiteral="fas-user-shield" iconSize="20"/></graphic>
                 </ToggleButton>
 
-                <ToggleButton text="Asistencia" toggleGroup="$menuGroup"
+                <ToggleButton text="Historial de Asistencias" toggleGroup="$menuGroup"
+                              onAction="#openHistorialAsistencia"
                               styleClass="nav-btn" contentDisplay="LEFT" graphicTextGap="10" VBox.vgrow="ALWAYS">
                     <graphic><FontIcon iconLiteral="fas-user-check" iconSize="20"/></graphic>
                 </ToggleButton>
