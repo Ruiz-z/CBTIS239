@@ -3,40 +3,34 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="cbtis239.front.ui.users.HistorialPagosController"
-            prefWidth="840" prefHeight="480"
-            stylesheets="@/cbtis239/front/css/historialPago.css"
-            styleClass="app-root">
+<BorderPane prefHeight="480" prefWidth="840" styleClass="app-root" stylesheets="@/cbtis239/front/css/historialPago.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.HistorialPagosController">
 
     <!-- Barra superior -->
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="8" styleClass="topbar">
-            <Label text="Historial de Pagos" styleClass="topbar-title"/>
+        <HBox alignment="CENTER_LEFT" prefHeight="57.0" prefWidth="847.0" spacing="8" style="-fx-background-color: #800000;" styleClass="topbar">
+            <Label styleClass="topbar-title" text="Historial de Pagos" textFill="WHITE" />
         </HBox>
     </top>
 
     <!-- Contenido -->
     <center>
-        <VBox spacing="14" alignment="TOP_LEFT" styleClass="card">
+        <VBox alignment="TOP_LEFT" spacing="14" styleClass="card">
             <!-- Buscador -->
-            <HBox spacing="8" alignment="CENTER_LEFT">
-                <Label text="Matrícula o folio:"/>
-                <TextField fx:id="txtBusqueda" prefWidth="260" promptText="Ej. 223001 o 1501"/>
-                <Button fx:id="btnBuscar" text="Buscar" onAction="#onBuscar" styleClass="button-primary"/>
-                <Pane HBox.hgrow="ALWAYS"/>
-                <Button text="Volver al menú" onAction="#volverAlMenu"/>
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="Matrícula o folio:" />
+                <TextField fx:id="txtBusqueda" prefWidth="260" promptText="Ej. 223001 o 1501" />
+                <Button fx:id="btnBuscar" onAction="#onBuscar" styleClass="button-primary" text="Buscar" />
+                <Pane HBox.hgrow="ALWAYS" />
+                <Button onAction="#volverAlMenu" style="-fx-background-color: #800000;" text="Volver al menú" textFill="WHITE" />
             </HBox>
 
             <!-- Tabla -->
             <TableView fx:id="tblHistorial" prefHeight="360">
                 <columns>
-                    <TableColumn fx:id="colNombre"  text="Nombre"  prefWidth="360"/>
-                    <TableColumn fx:id="colMonto"   text="Monto"   prefWidth="160"/>
-                    <TableColumn fx:id="colPeriodo" text="Periodo" prefWidth="240"/>
+                    <TableColumn fx:id="colNombre" prefWidth="360" text="Nombre" />
+                    <TableColumn fx:id="colMonto" prefWidth="160" text="Monto" />
+                    <TableColumn fx:id="colPeriodo" prefWidth="240" text="Periodo" />
                 </columns>
             </TableView>
         </VBox>
@@ -44,6 +38,6 @@
 
     <!-- Margen externo agradable -->
     <padding>
-        <Insets top="12" right="12" bottom="12" left="12"/>
+        <Insets bottom="12" left="12" right="12" top="12" />
     </padding>
 </BorderPane>

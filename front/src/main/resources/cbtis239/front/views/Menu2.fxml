@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 
-<BorderPane fx:controller="cbtis239.front.ui.users.Menu2Controller"
-            xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            stylesheets="@/cbtis239/front/css/menu.css">
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.*?>
+
+<BorderPane stylesheets="@/cbtis239/front/css/menu.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.Menu2Controller">
 
     <!-- ===================== -->
     <!-- TOPBAR -->
     <!-- ===================== -->
     <top>
-        <StackPane styleClass="topbar" prefHeight="50" alignment="CENTER">
-            <Label text="Menú Servicios Escolares 2" styleClass="topbar-title" />
+        <StackPane alignment="CENTER" prefHeight="50" styleClass="topbar">
+            <Label styleClass="topbar-title" text="Menú Servicios Escolares 2" />
         </StackPane>
     </top>
 
@@ -26,100 +22,62 @@
                <!-- BOTONES DEL MENÚ -->
     <left>
         <StackPane>
-            <VBox spacing="8" styleClass="sidebar" prefWidth="220"
-                  AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
-                  AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+            <VBox prefWidth="220" spacing="8" styleClass="sidebar" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
 
                 <fx:define>
-                    <ToggleGroup fx:id="menuGroup"/>
+                    <ToggleGroup fx:id="menuGroup" />
                 </fx:define>
 
                 <!-- ===== BOTONES PRINCIPALES ===== -->
 
-                <ToggleButton text="Expediente" toggleGroup="$menuGroup"
-                              onAction="#openExpediente"
-                              styleClass="nav-btn"
-                              contentDisplay="LEFT" graphicTextGap="10"
-                              VBox.vgrow="ALWAYS">
-                    <graphic><FontIcon iconLiteral="fas-clipboard" iconSize="20"/></graphic>
+                <ToggleButton contentDisplay="LEFT" graphicTextGap="10" onAction="#openExpediente" styleClass="nav-btn" text="Expediente" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-clipboard" iconSize="20" /></graphic>
+               <toggleGroup>
+                  <ToggleGroup fx:id="menuGroup" />
+               </toggleGroup>
                 </ToggleButton>
 
-                <ToggleButton text="Docente" toggleGroup="$menuGroup"
-                              onAction="#openDocente"
-                              styleClass="nav-btn"
-                              contentDisplay="LEFT" graphicTextGap="10"
-                              VBox.vgrow="ALWAYS">
-                    <graphic><FontIcon iconLiteral="fas-chalkboard-teacher" iconSize="20"/></graphic>
+                <ToggleButton contentDisplay="LEFT" graphicTextGap="10" onAction="#openDocente" styleClass="nav-btn" text="Docente" toggleGroup="$menuGroup" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-chalkboard-teacher" iconSize="20" /></graphic>
                 </ToggleButton>
 
-                <ToggleButton text="Cursos" toggleGroup="$menuGroup"
-                              onAction="#openCursos"
-                              styleClass="nav-btn"
-                              contentDisplay="LEFT" graphicTextGap="10"
-                              VBox.vgrow="ALWAYS">
-                    <graphic><FontIcon iconLiteral="fas-book" iconSize="20"/></graphic>
+                <ToggleButton contentDisplay="LEFT" graphicTextGap="10" onAction="#openCursos" styleClass="nav-btn" text="Cursos" toggleGroup="$menuGroup" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-book" iconSize="20" /></graphic>
                 </ToggleButton>
 
-                <ToggleButton text="Credencial" toggleGroup="$menuGroup"
-                              onAction="#openCredencial"
-                              styleClass="nav-btn"
-                              contentDisplay="LEFT" graphicTextGap="10"
-                              VBox.vgrow="ALWAYS">
-                    <graphic><FontIcon iconLiteral="fas-credit-card" iconSize="20"/></graphic>
+                <ToggleButton contentDisplay="LEFT" graphicTextGap="10" onAction="#openCredencial" styleClass="nav-btn" text="Credencial" toggleGroup="$menuGroup" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-credit-card" iconSize="20" /></graphic>
                 </ToggleButton>
 
-                <ToggleButton text="Grupo" toggleGroup="$menuGroup"
-                              onAction="#openGrupo"
-                              styleClass="nav-btn"
-                              contentDisplay="LEFT" graphicTextGap="10"
-                              VBox.vgrow="ALWAYS">
-                    <graphic><FontIcon iconLiteral="fas-users" iconSize="20"/></graphic>
+                <ToggleButton contentDisplay="LEFT" graphicTextGap="10" onAction="#openGrupo" styleClass="nav-btn" text="Grupo" toggleGroup="$menuGroup" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-users" iconSize="20" /></graphic>
                 </ToggleButton>
 
-                <ToggleButton text="Asignatura" toggleGroup="$menuGroup"
-                              onAction="#openAsignatura"
-                              styleClass="nav-btn"
-                              contentDisplay="LEFT" graphicTextGap="10"
-                              VBox.vgrow="ALWAYS">
-                    <graphic><FontIcon iconLiteral="fas-book-open" iconSize="20"/></graphic>
+                <ToggleButton contentDisplay="LEFT" graphicTextGap="10" onAction="#openAsignatura" styleClass="nav-btn" text="Asignatura" toggleGroup="$menuGroup" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-book-open" iconSize="20" /></graphic>
                 </ToggleButton>
 
-                <ToggleButton text="Aulas" toggleGroup="$menuGroup"
-                              onAction="#openAulas"
-                              styleClass="nav-btn"
-                              contentDisplay="LEFT" graphicTextGap="10"
-                              VBox.vgrow="ALWAYS">
-                    <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="20"/></graphic>
+                <ToggleButton contentDisplay="LEFT" graphicTextGap="10" onAction="#openAulas" styleClass="nav-btn" text="Aulas" toggleGroup="$menuGroup" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-user-friends" iconSize="20" /></graphic>
                 </ToggleButton>
 
 
-                <Region VBox.vgrow="ALWAYS"/>
+                <Region VBox.vgrow="ALWAYS" />
 
-                <ToggleButton text="Más opciones" toggleGroup="$menuGroup"
-                              onAction="#openMenu3"
-                              styleClass="nav-btn"
-                              contentDisplay="LEFT" graphicTextGap="10"
-                              VBox.vgrow="ALWAYS">
-                    <graphic><FontIcon iconLiteral="fas-arrow-right" iconSize="20"/></graphic>
+                <ToggleButton contentDisplay="LEFT" graphicTextGap="10" onAction="#openMenu3" styleClass="nav-btn" text="Más opciones" toggleGroup="$menuGroup" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-arrow-right" iconSize="20" /></graphic>
                 </ToggleButton>
 
-                <ToggleButton text="Volver" toggleGroup="$menuGroup"
-                              onAction="#onVolver"
-                              styleClass="nav-btn"
-                              contentDisplay="LEFT" graphicTextGap="10"
-                              VBox.vgrow="ALWAYS">
-                    <graphic><FontIcon iconLiteral="fas-arrow-left" iconSize="20"/></graphic>
+                <ToggleButton contentDisplay="LEFT" graphicTextGap="10" onAction="#onVolver" styleClass="nav-btn" text="Volver" toggleGroup="$menuGroup" VBox.vgrow="ALWAYS">
+                    <graphic><FontIcon iconLiteral="fas-arrow-left" iconSize="20" /></graphic>
                 </ToggleButton>
 
                 <!-- 🔥 Espaciador que empuja 'Cerrar sesión' al fondo -->
-                <Region VBox.vgrow="ALWAYS"/>
+                <Region VBox.vgrow="ALWAYS" />
 
                 <!-- CERRAR SESIÓN -->
-                <ToggleButton text="Cerrar sesión"
-                              onAction="#onCerrarSesion"
-                              styleClass="nav-btn"
-                              contentDisplay="LEFT">
-                    <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="20"/></graphic>
+                <ToggleButton contentDisplay="LEFT" onAction="#onCerrarSesion" styleClass="nav-btn" text="Cerrar sesión">
+                    <graphic><FontIcon iconLiteral="fas-sign-out-alt" iconSize="20" /></graphic>
                 </ToggleButton>
 
             </VBox>
@@ -136,17 +94,12 @@
             <VBox alignment="TOP_CENTER" spacing="30" style="-fx-padding: 40;" VBox.vgrow="ALWAYS">
 
                 <!-- 🔹 Texto actualizado -->
-                <Label fx:id="lblBienvenida"
-                       text=""
-                       styleClass="welcome-title"
-                       style="-fx-font-size: 32px; -fx-font-weight: bold;"/>
+                <Label fx:id="lblBienvenida" style="-fx-font-size: 32px; -fx-font-weight: bold;" styleClass="welcome-title" text="" />
 
 
-                <ImageView fx:id="imgMenu"
-                           fitHeight="560" fitWidth="560"
-                           preserveRatio="true" pickOnBounds="true">
+                <ImageView fx:id="imgMenu" fitHeight="560" fitWidth="560" pickOnBounds="true" preserveRatio="true">
                     <image>
-                        <Image url="@/cbtis239/front/Menu.png"/>
+                        <Image url="@/cbtis239/front/Menu.png" />
                     </image>
                 </ImageView>
 

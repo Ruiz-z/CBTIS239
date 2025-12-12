@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
+
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="cbtis239.front.ui.users.RegisterUserController"
-            prefWidth="1280" prefHeight="720"
-            stylesheets="@/cbtis239/front/css/register.css"
-            styleClass="register-root">
+<BorderPane prefHeight="720" prefWidth="1280" styleClass="register-root" stylesheets="@/cbtis239/front/css/register.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.RegisterUserController">
 
     <!-- Barra superior -->
     <top>
         <StackPane styleClass="topbar">
-            <Label text="Registrar Nuevo Usuario" styleClass="topbar-title"/>
+            <Label styleClass="topbar-title" text="Registrar Nuevo Usuario" />
         </StackPane>
     </top>
 
@@ -22,96 +18,98 @@
         <VBox alignment="CENTER" spacing="20">
 
             <!-- Formulario -->
-            <HBox spacing="40" alignment="CENTER_LEFT" styleClass="content-box">
+            <HBox alignment="CENTER_LEFT" spacing="40" styleClass="content-box">
                 <padding>
-                    <Insets top="30" right="30" bottom="30" left="30"/>
+                    <Insets bottom="30" left="30" right="30" top="30" />
                 </padding>
 
-                <GridPane hgap="15" vgap="18" styleClass="form-box">
+                <GridPane hgap="15" styleClass="form-box" vgap="18">
                     <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" minWidth="160"/>
-                        <ColumnConstraints hgrow="ALWAYS" minWidth="300" maxWidth="400"/>
-                        <ColumnConstraints minWidth="140"/>
+                        <ColumnConstraints halignment="RIGHT" minWidth="160" />
+                        <ColumnConstraints hgrow="ALWAYS" maxWidth="400" minWidth="300" />
+                        <ColumnConstraints minWidth="140" />
                     </columnConstraints>
 
                     <!-- Usuario -->
-                    <Label text="Usuario:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtUsuario" GridPane.rowIndex="0" GridPane.columnIndex="1" promptText="usuario.sis"/>
+                    <Label text="Usuario:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="txtUsuario" promptText="usuario.sis" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                     <!-- Contraseña -->
-                    <Label text="Contraseña:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                    <StackPane GridPane.rowIndex="1" GridPane.columnIndex="1">
-                        <PasswordField fx:id="txtPassword" promptText="••••••" prefWidth="250"/>
-                        <TextField fx:id="txtPasswordVisible" promptText="Contraseña visible"
-                                   visible="false" managed="false" prefWidth="250"/>
-                        <Button fx:id="btnVerPass" text="👁" onAction="#onTogglePassword"
-                                styleClass="eye-btn" StackPane.alignment="CENTER_RIGHT"/>
+                    <Label text="Contraseña:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <StackPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <PasswordField fx:id="txtPassword" prefWidth="250" promptText="••••••" />
+                        <TextField fx:id="txtPasswordVisible" managed="false" prefWidth="250" promptText="Contraseña visible" visible="false" />
+                        <Button fx:id="btnVerPass" onAction="#onTogglePassword" styleClass="eye-btn" text="👁" StackPane.alignment="CENTER_RIGHT" />
                     </StackPane>
-                    <Button text="Generar" onAction="#onGeneratePassword" styleClass="btn-skinny"
-                            GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                    <Button onAction="#onGeneratePassword" styleClass="btn-skinny" text="Generar" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 
                     <!-- Confirmar -->
-                    <Label text="Confirmar:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                    <StackPane GridPane.rowIndex="2" GridPane.columnIndex="1">
-                        <PasswordField fx:id="txtConfirm" promptText="••••••" prefWidth="250"/>
-                        <TextField fx:id="txtConfirmVisible" promptText="Confirmar visible"
-                                   visible="false" managed="false" prefWidth="250"/>
-                        <Button fx:id="btnVerConfirm" text="👁" onAction="#onToggleConfirm"
-                                styleClass="eye-btn" StackPane.alignment="CENTER_RIGHT"/>
+                    <Label text="Confirmar:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <StackPane GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <PasswordField fx:id="txtConfirm" prefWidth="250" promptText="••••••" />
+                        <TextField fx:id="txtConfirmVisible" managed="false" prefWidth="250" promptText="Confirmar visible" visible="false" />
+                        <Button fx:id="btnVerConfirm" onAction="#onToggleConfirm" styleClass="eye-btn" text="👁" StackPane.alignment="CENTER_RIGHT" />
                     </StackPane>
 
                     <!-- Nombre -->
-                    <Label text="Nombre(s):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtNombres" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    <Label text="Nombre(s):" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="txtNombres" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
                     <!-- Apellido Paterno -->
-                    <Label text="Apellido Paterno:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtApPat" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                    <Label text="Apellido Paterno:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="txtApPat" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
                     <!-- Apellido Materno -->
-                    <Label text="Apellido Materno:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtApMat" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                    <Label text="Apellido Materno:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <TextField fx:id="txtApMat" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
                     <!-- Rol -->
-                    <Label text="Rol de Usuario:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-                    <ComboBox fx:id="cbRol" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                    <Label text="Rol de Usuario:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                    <ComboBox fx:id="cbRol" GridPane.columnIndex="1" GridPane.rowIndex="6" />
 
                     <!-- Botón registrar -->
-                    <Button text="Registrar Usuario" fx:id="btnRegistrar"
-                            onAction="#onRegistrar" styleClass="btn-primary"
-                            GridPane.rowIndex="7" GridPane.columnIndex="1" GridPane.halignment="CENTER"/>
+                    <Button fx:id="btnRegistrar" onAction="#onRegistrar" styleClass="btn-primary" text="Registrar Usuario" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="7" />
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
                 </GridPane>
             </HBox>
 
             <!-- Tabla de usuarios -->
             <TableView fx:id="tablaUsuarios" prefHeight="200" prefWidth="1000">
                 <columns>
-                    <TableColumn fx:id="colUsuario" text="Usuario" prefWidth="150"/>
-                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="150"/>
-                    <TableColumn fx:id="colApPat" text="Apellido Paterno" prefWidth="150"/>
-                    <TableColumn fx:id="colApMat" text="Apellido Materno" prefWidth="150"/>
-                    <TableColumn fx:id="colRol" text="Rol" prefWidth="150"/>
+                    <TableColumn fx:id="colUsuario" prefWidth="150" text="Usuario" />
+                    <TableColumn fx:id="colNombre" prefWidth="150" text="Nombre" />
+                    <TableColumn fx:id="colApPat" prefWidth="150" text="Apellido Paterno" />
+                    <TableColumn fx:id="colApMat" prefWidth="150" text="Apellido Materno" />
+                    <TableColumn fx:id="colRol" prefWidth="150" text="Rol" />
                 </columns>
             </TableView>
 
             <!-- Botones acciones -->
-            <HBox spacing="15" alignment="CENTER">
-                <Button text="Modificar" fx:id="btnModificar" onAction="#onModificar" styleClass="btn-secondary"/>
-                <Button text="Eliminar" fx:id="btnEliminar" onAction="#onEliminar" styleClass="btn-danger"/>
-                <Button fx:id="btnLimpiar" text="Limpiar" onAction="#onLimpiar"
-                        style="-fx-background-color:#ffc107; -fx-text-fill:black; -fx-font-weight:bold;"/>
+            <HBox alignment="CENTER" spacing="15">
+                <Button fx:id="btnModificar" onAction="#onModificar" prefHeight="25.0" prefWidth="88.0" style="-fx-background-color: #800000; -fx-text-fill: White;" styleClass="btn-secondary" text="Modificar" textFill="WHITE" />
+                <Button fx:id="btnEliminar" onAction="#onEliminar" prefHeight="32.0" prefWidth="74.0" style="-fx-background-color: #800000; -fx-text-fill: White;" styleClass="btn-danger" text="Eliminar" />
+                <Button fx:id="btnLimpiar" onAction="#onLimpiar" prefHeight="35.0" prefWidth="71.0" style="-fx-background-color: #800000; -fx-text-fill: White; -fx-font-weight: bold;" text="Limpiar" />
             </HBox>
         </VBox>
     </center>
 
     <!-- Barra inferior -->
     <bottom>
-        <HBox spacing="15" alignment="CENTER_RIGHT" styleClass="bottom-bar">
+        <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="bottom-bar">
             <padding>
-                <Insets top="10" right="20" bottom="10" left="20"/>
+                <Insets bottom="10" left="20" right="20" top="10" />
             </padding>
 
-            <Button text="Volver" onAction="#onVolver" styleClass="btn-primary"/>
+            <Button onAction="#onVolver" styleClass="btn-primary" text="Volver" />
         </HBox>
     </bottom>
 </BorderPane>

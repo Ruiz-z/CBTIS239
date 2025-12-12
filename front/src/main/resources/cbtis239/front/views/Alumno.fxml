@@ -1,145 +1,147 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
+
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="cbtis239.front.ui.users.AlumnoController">
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.AlumnoController">
 
     <top>
-        <Label text="Alumno"
-               style="-fx-background-color:#7a0a0a;-fx-text-fill:white;-fx-font-size:20px;-fx-padding:10 0 10 0;"
-               maxWidth="Infinity" BorderPane.alignment="CENTER"/>
+        <Label maxWidth="Infinity" style="-fx-background-color:#7a0a0a;-fx-text-fill:white;-fx-font-size:20px;-fx-padding:10 0 10 0;" text="Alumno" BorderPane.alignment="CENTER" />
     </top>
 
     <center>
         <VBox spacing="18">
             <padding>
-                <Insets top="16" right="16" bottom="16" left="16"/>
+                <Insets bottom="16" left="16" right="16" top="16" />
             </padding>
 
             <HBox spacing="24">
                 <!-- Columna izquierda: Foto y firma -->
-                <VBox spacing="24" alignment="TOP_CENTER">
-                    <VBox spacing="8" alignment="CENTER">
-                        <StackPane prefWidth="180" prefHeight="180">
-                            <ImageView fx:id="imgFoto"
-                                       fitWidth="180"
-                                       fitHeight="180"
-                                       preserveRatio="true"
-                                       smooth="true"
-                                       pickOnBounds="true"
-                                       style="-fx-opacity: 0.98;"/>
+                <VBox alignment="TOP_CENTER" spacing="24">
+                    <VBox alignment="CENTER" spacing="8">
+                        <StackPane prefHeight="180" prefWidth="180">
+                            <ImageView fx:id="imgFoto" fitHeight="180" fitWidth="180" pickOnBounds="true" preserveRatio="true" smooth="true" style="-fx-opacity: 0.98;" />
                         </StackPane>
-                        <Button text="Subir Fotografía" onAction="#onSubirFoto"/>
+                        <Button onAction="#onSubirFoto" style="-fx-background-color: #800000;" text="Subir Fotografía" textFill="WHITE" />
                     </VBox>
 
-                    <VBox spacing="8" alignment="CENTER">
-                        <StackPane prefWidth="180" prefHeight="120">
-                            <ImageView fx:id="imgFirma" fitWidth="180" fitHeight="90" preserveRatio="true"/>
+                    <VBox alignment="CENTER" spacing="8">
+                        <StackPane prefHeight="120" prefWidth="180">
+                            <ImageView fx:id="imgFirma" fitHeight="90" fitWidth="180" preserveRatio="true" />
                         </StackPane>
-                        <Button text="Subir Firma" onAction="#onSubirFirma"/>
+                        <Button onAction="#onSubirFirma" style="-fx-background-color: #800000;" text="Subir Firma" textFill="WHITE" />
                     </VBox>
                 </VBox>
 
                 <!-- Formulario -->
                 <GridPane hgap="14" vgap="10">
                     <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" minWidth="110"/>
-                        <ColumnConstraints hgrow="ALWAYS"/>
-                        <ColumnConstraints halignment="RIGHT" minWidth="110"/>
-                        <ColumnConstraints hgrow="ALWAYS"/>
+                        <ColumnConstraints halignment="RIGHT" minWidth="110" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                        <ColumnConstraints halignment="RIGHT" minWidth="110" />
+                        <ColumnConstraints hgrow="ALWAYS" />
                     </columnConstraints>
 
                     <!-- fila 0 -->
-                    <Label text="Matrícula:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtMatricula" promptText="Escribe y presiona Enter"
-                               onAction="#onBuscarMatricula"
-                               GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                    <Label text="Estatus:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-                    <ComboBox fx:id="cmbEstatus" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                    <Label text="Matrícula:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="txtMatricula" onAction="#onBuscarMatricula" promptText="Escribe y presiona Enter" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label text="Estatus:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                    <ComboBox fx:id="cmbEstatus" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
                     <!-- fila 1 -->
-                    <Label text="Nombre:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtNombre" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                    <Label text="Apellido Paterno:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-                    <TextField fx:id="txtPaterno" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+                    <Label text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="txtNombre" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label text="Apellido Paterno:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                    <TextField fx:id="txtPaterno" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
                     <!-- fila 2 -->
-                    <Label text="Apellido Materno:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtMaterno" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-                    <Label text="CURP:" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
-                    <TextField fx:id="txtCurp" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+                    <Label text="Apellido Materno:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="txtMaterno" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label text="CURP:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                    <TextField fx:id="txtCurp" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
                     <!-- fila 3 -->
-                    <Label text="Edo. Civil:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                    <ComboBox fx:id="cmbEdoCivil" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-                    <Label text="Género:" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
-                    <ComboBox fx:id="cmbGenero" GridPane.rowIndex="3" GridPane.columnIndex="3"/>
+                    <Label text="Edo. Civil:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <ComboBox fx:id="cmbEdoCivil" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label text="Género:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                    <ComboBox fx:id="cmbGenero" GridPane.columnIndex="3" GridPane.rowIndex="3" />
 
                     <!-- fila 4 -->
-                    <Label text="Correo:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtCorreo" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-                    <Label text="NSS:" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
-                    <TextField fx:id="txtNss" GridPane.rowIndex="4" GridPane.columnIndex="3"/>
+                    <Label text="Correo:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="txtCorreo" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    <Label text="NSS:" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                    <TextField fx:id="txtNss" GridPane.columnIndex="3" GridPane.rowIndex="4" />
 
                     <!-- fila 5 -->
-                    <Label text="Fecha inscripción:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                    <DatePicker fx:id="dpFechaInscripcion" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
-                    <Label text="Semestre:" GridPane.rowIndex="5" GridPane.columnIndex="2"/>
-                    <ComboBox fx:id="cmbSemestre" GridPane.rowIndex="5" GridPane.columnIndex="3"/>
+                    <Label text="Fecha inscripción:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <DatePicker fx:id="dpFechaInscripcion" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                    <Label text="Semestre:" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                    <ComboBox fx:id="cmbSemestre" GridPane.columnIndex="3" GridPane.rowIndex="5" />
 
                     <!-- fila 6 -->
-                    <Label text="Periodo:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-                    <ComboBox fx:id="cmbPeriodo" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
-                    <Label text="Especialidad:" GridPane.rowIndex="6" GridPane.columnIndex="2"/>
-                    <ComboBox fx:id="cmbEspecialidad" onAction="#onEspecialidadChange"
-                              GridPane.rowIndex="6" GridPane.columnIndex="3"/>
+                    <Label text="Periodo:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                    <ComboBox fx:id="cmbPeriodo" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                    <Label text="Especialidad:" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                    <ComboBox fx:id="cmbEspecialidad" onAction="#onEspecialidadChange" GridPane.columnIndex="3" GridPane.rowIndex="6" />
 
                     <!-- fila 7 -->
-                    <Label text="Grupo:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-                    <ComboBox fx:id="cmbGrupo" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
-                    <Label text="Calle:" GridPane.rowIndex="7" GridPane.columnIndex="2"/>
-                    <TextField fx:id="txtCalle" GridPane.rowIndex="7" GridPane.columnIndex="3"/>
+                    <Label text="Grupo:" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                    <ComboBox fx:id="cmbGrupo" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                    <Label text="Calle:" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                    <TextField fx:id="txtCalle" GridPane.columnIndex="3" GridPane.rowIndex="7" />
 
                     <!-- fila 8 -->
-                    <Label text="Número:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtNumero" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
-                    <Label text="Colonia:" GridPane.rowIndex="8" GridPane.columnIndex="2"/>
-                    <TextField fx:id="txtColonia" GridPane.rowIndex="8" GridPane.columnIndex="3"/>
+                    <Label text="Número:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                    <TextField fx:id="txtNumero" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                    <Label text="Colonia:" GridPane.columnIndex="2" GridPane.rowIndex="8" />
+                    <TextField fx:id="txtColonia" GridPane.columnIndex="3" GridPane.rowIndex="8" />
 
                     <!-- fila 9 -->
-                    <Label text="Localidad:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtLocalidad" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
-                    <Label text="Municipio:" GridPane.rowIndex="9" GridPane.columnIndex="2"/>
-                    <TextField fx:id="txtMunicipio" GridPane.rowIndex="9" GridPane.columnIndex="3"/>
+                    <Label text="Localidad:" GridPane.columnIndex="0" GridPane.rowIndex="9" />
+                    <TextField fx:id="txtLocalidad" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                    <Label text="Municipio:" GridPane.columnIndex="2" GridPane.rowIndex="9" />
+                    <TextField fx:id="txtMunicipio" GridPane.columnIndex="3" GridPane.rowIndex="9" />
 
                     <!-- fila 10 -->
-                    <Label text="Estado:" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtEstado" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
-                    <Label text="Teléfono:" GridPane.rowIndex="10" GridPane.columnIndex="2"/>
-                    <TextField fx:id="txtTelefono" GridPane.rowIndex="10" GridPane.columnIndex="3"/>
+                    <Label text="Estado:" GridPane.columnIndex="0" GridPane.rowIndex="10" />
+                    <TextField fx:id="txtEstado" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                    <Label text="Teléfono:" GridPane.columnIndex="2" GridPane.rowIndex="10" />
+                    <TextField fx:id="txtTelefono" GridPane.columnIndex="3" GridPane.rowIndex="10" />
                     <!-- fila 11 -->
-                    <Label text="Tel. Padre:" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtCelPadre" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
-                    <Label text="Tel. Madre:" GridPane.rowIndex="11" GridPane.columnIndex="2"/>
-                    <TextField fx:id="txtCelMadre" GridPane.rowIndex="11" GridPane.columnIndex="3"/>
+                    <Label text="Tel. Padre:" GridPane.columnIndex="0" GridPane.rowIndex="11" />
+                    <TextField fx:id="txtCelPadre" GridPane.columnIndex="1" GridPane.rowIndex="11" />
+                    <Label text="Tel. Madre:" GridPane.columnIndex="2" GridPane.rowIndex="11" />
+                    <TextField fx:id="txtCelMadre" GridPane.columnIndex="3" GridPane.rowIndex="11" />
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
                 </GridPane>
             </HBox>
 
             <!-- Tabla -->
             <VBox spacing="8">
-                <Label text="Alumnos"/>
+                <Label text="Alumnos" />
                 <TitledPane text="Alumnos">
                     <content>
                         <TableView fx:id="tblAlumnos" prefHeight="200">
                             <columns>
-                                <TableColumn fx:id="colMatricula" text="Matrícula" prefWidth="120"/>
-                                <TableColumn fx:id="colNombre"   text="Nombre"    prefWidth="220"/>
-                                <TableColumn fx:id="colSemestre" text="Semestre"  prefWidth="90"/>
-                                <TableColumn fx:id="colGrupo"    text="Grupo"     prefWidth="120"/>
+                                <TableColumn fx:id="colMatricula" prefWidth="120" text="Matrícula" />
+                                <TableColumn fx:id="colNombre" prefWidth="220" text="Nombre" />
+                                <TableColumn fx:id="colSemestre" prefWidth="90" text="Semestre" />
+                                <TableColumn fx:id="colGrupo" prefWidth="120" text="Grupo" />
                             </columns>
                         </TableView>
                     </content>
@@ -149,12 +151,11 @@
             </VBox>
 
             <!-- Botones -->
-            <HBox spacing="12" alignment="CENTER">
-                <Button text="Guardar" onAction="#onGuardar"
-                        style="-fx-background-color:#8b0000;-fx-text-fill:white;"/>
-                <Button text="Eliminar" onAction="#onEliminar"/>
-                <Button text="Volver al Menú" onAction="#onVolver"/>
-                <Button text="Cancelar" onAction="#onCancelar"/>
+            <HBox alignment="CENTER" spacing="12">
+                <Button onAction="#onGuardar" style="-fx-background-color:#8b0000;-fx-text-fill:white;" text="Guardar" />
+                <Button onAction="#onEliminar" style="-fx-background-color: #800000;" text="Eliminar" textFill="#f8f8f8" />
+                <Button onAction="#onVolver" style="-fx-background-color: #800000;" text="Volver al Menú" textFill="#fcfcfc" />
+                <Button onAction="#onCancelar" style="-fx-background-color: #800000;" text="Cancelar" textFill="WHITE" />
             </HBox>
         </VBox>
     </center>

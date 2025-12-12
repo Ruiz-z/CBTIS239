@@ -5,11 +5,11 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="650" prefWidth="1200" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.DirectorController">
+<BorderPane prefHeight="650" prefWidth="1200" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.DirectorController">
 
     <!-- BARRA SUPERIOR -->
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #c8102e;">
+        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #800000;">
             <padding>
                 <Insets bottom="18" left="30" right="20" top="18" />
             </padding>
@@ -50,7 +50,7 @@
                                 <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                     <children>
                                         <ImageView fx:id="imgFirma" fitHeight="140" fitWidth="320" preserveRatio="true" style="-fx-border-color: #cccccc; -fx-border-width: 1;" />
-                                        <Button fx:id="btnCambiarFirma" onAction="#onCambiarFirma" style="-fx-background-color: #c8102e;                                                        -fx-text-fill: white;                                                        -fx-font-weight: bold;" text="Cambiar firma..." />
+                                        <Button fx:id="btnCambiarFirma" onAction="#onCambiarFirma" style="-fx-background-color: #800000; -fx-text-fill: white; -fx-font-weight: bold;" text="Cambiar firma..." />
                                     </children>
                                 </VBox>
                             </children>
@@ -70,10 +70,10 @@
                         <Insets bottom="0" left="0" right="0" top="5" />
                     </padding>
                     <children>
-                        <Button fx:id="btnGuardar" onAction="#onGuardar" style="-fx-background-color: #c8102e;                                        -fx-text-fill: white;                                        -fx-font-weight: bold;" text="Guardar" />
+                        <Button fx:id="btnGuardar" onAction="#onGuardar" style="-fx-background-color: #800000; -fx-text-fill: white; -fx-font-weight: bold;" text="Guardar" />
 
 
-                        <Button fx:id="btnVolverMenu" onAction="#onVolverMenu" style="-fx-background-color: #c8102e;                                        -fx-text-fill: white;                                        -fx-font-weight: bold;" text="Volver al Menú" />
+                        <Button fx:id="btnVolverMenu" onAction="#onVolverMenu" style="-fx-background-color: #800000; -fx-text-fill: white; -fx-font-weight: bold;" text="Volver al Menú" />
                     </children>
                 </HBox>
 

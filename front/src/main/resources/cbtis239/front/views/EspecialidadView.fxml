@@ -1,74 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
+
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="cbtis239.front.ui.users.EspecialidadController"
-            prefWidth="880" prefHeight="520">
+<BorderPane prefHeight="520" prefWidth="880" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.EspecialidadController">
 
     <!-- Barra superior -->
     <top>
         <StackPane style="-fx-background-color:#7A0B0B; -fx-padding:10 14;">
-            <Label text="Especialidades"
-                   style="-fx-text-fill:white; -fx-font-size:18; -fx-font-weight:bold;"/>
+            <Label style="-fx-text-fill:white; -fx-font-size:18; -fx-font-weight:bold;" text="Especialidades" />
         </StackPane>
     </top>
 
     <!-- Cuerpo principal -->
     <center>
         <GridPane hgap="24" vgap="12">
-            <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+            <padding><Insets bottom="18" left="18" right="18" top="18" /></padding>
             <columnConstraints>
-                <ColumnConstraints minWidth="300" halignment="LEFT"/>
-                <ColumnConstraints hgrow="ALWAYS"/>
+                <ColumnConstraints halignment="LEFT" minWidth="300" />
+                <ColumnConstraints hgrow="ALWAYS" />
             </columnConstraints>
 
             <!-- Formulario -->
             <VBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0">
                 <GridPane hgap="10" vgap="12">
                     <columnConstraints>
-                        <ColumnConstraints minWidth="120" halignment="RIGHT"/>
-                        <ColumnConstraints minWidth="160" halignment="LEFT"/>
+                        <ColumnConstraints halignment="RIGHT" minWidth="120" />
+                        <ColumnConstraints halignment="LEFT" minWidth="160" />
                     </columnConstraints>
 
-                    <Label text="Clave:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtClave"
-                               promptText="(auto si se deja vacío)"
-                               GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                    <Label text="Clave:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="txtClave" promptText="(auto si se deja vacío)" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                    <Label text="Nombre especialidad:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                    <TextField fx:id="txtNombre"
-                               promptText="p.ej. Programación"
-                               GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <Label text="Nombre especialidad:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="txtNombre" promptText="p.ej. Programación" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
                 </GridPane>
 
                 <HBox spacing="10">
-                    <Button text="Agregar"   onAction="#onAgregar"/>
-                    <Button text="Modificar" onAction="#onModificar"/>
+                    <Button onAction="#onAgregar" style="-fx-background-color: #800000;" text="Agregar" textFill="WHITE" />
+                    <Button onAction="#onModificar" style="-fx-background-color: #800000;" text="Modificar" textFill="WHITE" />
+                   <Button maxWidth="120" onAction="#onEliminar" style="-fx-background-color: #800000;" text="Eliminar" textFill="WHITE" />
                 </HBox>
-                <Button text="Eliminar" onAction="#onEliminar" maxWidth="120"/>
             </VBox>
 
             <!-- Tabla -->
             <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                <Label text="Especialidades:" style="-fx-font-weight:bold;"/>
+                <Label style="-fx-font-weight:bold;" text="Especialidades:" />
                 <TableView fx:id="tabla" prefHeight="360">
                     <columns>
-                        <TableColumn fx:id="colClave"  text="Clave"  prefWidth="120"/>
-                        <TableColumn fx:id="colNombre" text="Nombre" prefWidth="360"/>
+                        <TableColumn fx:id="colClave" prefWidth="120" text="Clave" />
+                        <TableColumn fx:id="colNombre" prefWidth="360" text="Nombre" />
                     </columns>
                 </TableView>
             </VBox>
+         <rowConstraints>
+            <RowConstraints />
+         </rowConstraints>
         </GridPane>
     </center>
 
     <!-- Botón de regreso -->
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding:10 18;">
-            <Button text="Regresar al menú" onAction="#onVolverMenu"
-                    style="-fx-background-color:#7A0B0B; -fx-text-fill:white;"/>
+            <Button onAction="#onVolverMenu" style="-fx-background-color:#7A0B0B; -fx-text-fill:white;" text="Regresar al menú" />
         </HBox>
     </bottom>
 </BorderPane>

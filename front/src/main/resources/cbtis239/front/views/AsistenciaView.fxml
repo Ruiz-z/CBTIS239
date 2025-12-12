@@ -4,14 +4,14 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.AsistenciaController">
+<AnchorPane style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.AsistenciaController">
 
     <children>
         <VBox spacing="10" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
             <!-- BARRA SUPERIOR ROJA -->
             <children>
-                <HBox prefHeight="70.0" spacing="10" style="-fx-background-color: #b40001; -fx-padding: 10;">
+                <HBox prefHeight="70.0" spacing="10" style="-fx-background-color: #800000; -fx-padding: 10;">
                     <children>
                         <!-- Si tienes logo, descomenta y ajusta la ruta -->
                         <!--
@@ -63,7 +63,7 @@
                                 <Label text="Hora:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                                 <TextField fx:id="txtHora" editable="false" prefWidth="120" GridPane.columnIndex="4" GridPane.rowIndex="2" />
       
-                              <Button fx:id="btnSalir" onAction="#onSalir" style="-fx-font-weight: bold;" text="Salir" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+                              <Button fx:id="btnSalir" onAction="#onSalir" style="-fx-font-weight: bold; -fx-background-color: #800000;" text="Salir" textFill="#f5f5f5" GridPane.columnIndex="4" GridPane.rowIndex="5" />
                             </children>
                      <rowConstraints>
                         <RowConstraints />

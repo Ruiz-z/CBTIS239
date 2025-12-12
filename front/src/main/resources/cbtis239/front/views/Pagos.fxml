@@ -1,51 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="cbtis239.front.ui.users.pagosController"
-            stylesheets="@/cbtis239/front/css/pagos.css">
+<BorderPane stylesheets="@/cbtis239/front/css/pagos.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cbtis239.front.ui.users.pagosController">
 
     <top>
-        <StackPane styleClass="top-bar" prefHeight="60">
-            <Label text="Pagos" styleClass="title-top"/>
+        <StackPane prefHeight="60" style="-fx-background-color: #800000;" styleClass="top-bar">
+            <Label styleClass="title-top" text="Pagos" />
         </StackPane>
     </top>
 
     <center>
-        <VBox spacing="16" alignment="TOP_CENTER" styleClass="main-container">
-            <VBox spacing="8" alignment="CENTER_LEFT">
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Matrícula o folio:"/>
-                    <TextField fx:id="txtBusqueda" prefWidth="220"/>
-                    <Button text="Buscar" onAction="#onBuscar"/>
+        <VBox alignment="TOP_CENTER" spacing="16" styleClass="main-container">
+            <VBox alignment="CENTER_LEFT" spacing="8">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="Matrícula o folio:" />
+                    <TextField fx:id="txtBusqueda" prefWidth="220" />
+                    <Button onAction="#onBuscar" style="-fx-background-color: #800000;" text="Buscar" textFill="WHITE" />
                 </HBox>
-                <HBox spacing="20" alignment="CENTER_LEFT">
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Monto"/>
-                        <TextField fx:id="txtMonto" prefWidth="100" editable="false"/>
+                <HBox alignment="CENTER_LEFT" spacing="20">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Monto" />
+                        <TextField fx:id="txtMonto" editable="false" prefWidth="100" />
                     </HBox>
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <Label text="Periodo"/>
-                        <TextField fx:id="txtPeriodo" prefWidth="160" editable="false"/>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Periodo" />
+                        <TextField fx:id="txtPeriodo" editable="false" prefWidth="160" />
                     </HBox>
                 </HBox>
             </VBox>
 
-            <TableView fx:id="tablaPagos" prefWidth="650" prefHeight="300">
+            <TableView fx:id="tablaPagos" prefHeight="300" prefWidth="650">
                 <columns>
-                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="280"/>
-                    <TableColumn fx:id="colMonto"  text="Monto"  prefWidth="180"/>
-                    <TableColumn fx:id="colPagado" text="Pagado" prefWidth="160"/>
+                    <TableColumn fx:id="colNombre" prefWidth="280" text="Nombre" />
+                    <TableColumn fx:id="colMonto" prefWidth="180" text="Monto" />
+                    <TableColumn fx:id="colPagado" prefWidth="160" text="Pagado" />
                 </columns>
             </TableView>
 
-            <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 10;">
-                <Button text="Registrar Pago" onAction="#onRegistrarPago"/>
-                <Button text="Cancelar" onAction="#onCancelar" styleClass="btn-cancelar"/>
-                <Button text="volver al menu" onAction="#onVolver" styleClass="btn-menu"/>
+            <HBox alignment="CENTER_RIGHT" spacing="12" style="-fx-padding: 10;">
+                <Button onAction="#onRegistrarPago" style="-fx-background-color: #800000;" text="Registrar Pago" textFill="WHITE" />
+                <Button onAction="#onCancelar" style="-fx-background-color: #800000;" styleClass="btn-cancelar" text="Cancelar" textFill="WHITE" />
+                <Button onAction="#onVolver" style="-fx-background-color: #800000;" styleClass="btn-menu" text="volver al menu" textFill="WHITE" />
             </HBox>
         </VBox>
     </center>
