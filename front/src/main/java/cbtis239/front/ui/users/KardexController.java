@@ -146,25 +146,56 @@ public class KardexController {
             return;
         }
 
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Guardar kardex en PDF");
-        chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Archivo PDF (*.pdf)", "*.pdf")
-        );
-        chooser.setInitialFileName("kardex_" + matricula + ".pdf");
+        try {
+            // ============================================================
+            // 1) Crear carpeta kardex_pdf dentro del proyecto
+            // ============================================================
+            String projectPath = System.getProperty("user.dir");  // Ruta base del proyecto
+            File carpeta = new File(projectPath + File.separator + "kardex_pdf");
 
-        File file = chooser.showSaveDialog(getStage());
-        if (file == null) return;
+            if (!carpeta.exists()) {
+                carpeta.mkdirs(); // Crear si no existe
+            }
 
-        try (OutputStream out = new FileOutputStream(file)) {
-            new KardexPDF().generar(matricula, out);
-            info("Kardex generado correctamente:\n" + file.getAbsolutePath());
+            // Archivo final
+            File archivoPDF = new File(carpeta, "kardex_" + matricula + ".pdf");
+
+            // ============================================================
+            // 2) Generar el PDF automáticamente
+            // ============================================================
+            try (OutputStream out = new FileOutputStream(archivoPDF)) {
+                new KardexPDF().generar(matricula, out);
+            }
+
+            // ============================================================
+            // 3) Abrir explorador mostrando la carpeta
+            // ============================================================
+            abrirExplorador(carpeta);
+
+            info("Kardex generado correctamente:\n" + archivoPDF.getAbsolutePath());
+
         } catch (Exception e) {
             e.printStackTrace();
             error("No se pudo generar el PDF", e.getMessage());
         }
     }
-@FXML
+    private void abrirExplorador(File carpeta) {
+        try {
+            String os = System.getProperty("os.name").toLowerCase();
+            if (os.contains("win")) {
+                new ProcessBuilder("explorer.exe", carpeta.getAbsolutePath()).start();
+            } else if (os.contains("mac")) {
+                new ProcessBuilder("open", carpeta.getAbsolutePath()).start();
+            } else {
+                new ProcessBuilder("xdg-open", carpeta.getAbsolutePath()).start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            error("No se pudo abrir la carpeta", e.getMessage());
+        }
+    }
+
+    @FXML
 private void onVolverMenu() {
     try {
         var url = getClass().getResource("/cbtis239/front/views/Menu2.fxml");
