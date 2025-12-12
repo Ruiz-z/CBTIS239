@@ -432,6 +432,12 @@ public class AspiranteController {
                 showWarning("El aspirante NO ha pagado. Solo los aspirantes con pago pueden inscribirse.");
                 return;
             }
+            String est = sel.getEstatusInscripcion();
+
+            if (!"Aceptado".equalsIgnoreCase(est)) {
+                showWarning("Solo los aspirantes ACEPTADOS pueden inscribirse. Estatus actual: " + est);
+                return;
+            }
 
             // =====================================================
             // 3) EXTRAER ESPECIALIDADES EVITANDO NULOS
