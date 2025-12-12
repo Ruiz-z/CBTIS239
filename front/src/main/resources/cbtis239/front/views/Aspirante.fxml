@@ -123,7 +123,7 @@
                         <TextField fx:id="txtTutor2" GridPane.columnIndex="1" GridPane.rowIndex="12" />
 
                         <!-- Datos académicos -->
-                        <Label text="Secundaria:" GridPane.columnIndex="0" GridPane.rowIndex="13" />
+                        <Label text="Dir.Secundaria:" GridPane.columnIndex="0" GridPane.rowIndex="13" />
                         <TextField fx:id="txtSecundaria" GridPane.columnIndex="1" GridPane.rowIndex="13" />
 
                         <Label text="Estado Sec.:" GridPane.columnIndex="2" GridPane.rowIndex="13" />
