@@ -56,6 +56,7 @@ public class AspiranteController {
     private final AspiranteBO aspiranteBO = new AspiranteBO();
     private final CatalogoDAO catalogoDAO = new CatalogoDAO();
 
+    private boolean cargandoAspirante = false;
     // ============================================================
     // ===================== VALIDACIONES AGREGADAS ===============
     // ============================================================
@@ -187,10 +188,10 @@ public class AspiranteController {
         soloLetras(txtCalle);
         soloLetras(txtTutor1);
         soloLetras(txtTutor2);
-        soloLetras(txtSecundaria);
+
         soloLetras(txtEstadoSec);
         soloLetras(txtMunicipioSec);
-        soloLetras(txtNombreSec);
+
 
 // =====================================================
 // === BLOQUEO DE ESPECIALIDADES REPETIDAS ============
@@ -430,6 +431,12 @@ public class AspiranteController {
             if (sel.getEstatusPago() == null ||
                     !sel.getEstatusPago().equalsIgnoreCase("Pagado")) {
                 showWarning("El aspirante NO ha pagado. Solo los aspirantes con pago pueden inscribirse.");
+                return;
+            }
+            String est = sel.getEstatusInscripcion();
+
+            if (!"Aceptado".equalsIgnoreCase(est)) {
+                showWarning("Solo los aspirantes ACEPTADOS pueden inscribirse. Estatus actual: " + est);
                 return;
             }
 
@@ -749,8 +756,10 @@ public class AspiranteController {
         a.setNombreSEC(v(txtNombreSec));
         return a;
     }
-    private void rellenarCampos(Aspirante a) {
 
+
+    private void rellenarCampos(Aspirante a) {
+        cargandoAspirante = true;
         txtFolio.setText(String.format("%03d", a.getFolio()));
         txtCurp.setText(a.getCurp());
         txtNombre.setText(a.getNombre());
@@ -800,6 +809,7 @@ public class AspiranteController {
         txtEstadoSec.setText(a.getEstadoSec());
         txtMunicipioSec.setText(a.getMunicipioSec());
         txtNombreSec.setText(a.getNombreSEC());
+        cargandoAspirante = false;
     }
 
 
@@ -940,6 +950,7 @@ public class AspiranteController {
 // === EVITAR ESPECIALIDADES REPETIDAS CORREGIDO
 // =============================================
     private void actualizarEspecialidades(Catalogo oldVal, Catalogo newVal, ComboBox<Catalogo> origen) {
+        if (cargandoAspirante) return;
 
         // Si no eligió nada, no hacemos nada.
         if (newVal == null) return;
