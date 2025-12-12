@@ -310,16 +310,9 @@ public class AlumnoController {
             cmbGenero.getSelectionModel().select(matchId(cmbGenero, a.getGeneroId()));
             dpFechaInscripcion.setValue(a.getFechaInscripcion());
 
-            // Especialidad
-            if (a.getCarrera()!=null) {
-                for (Catalogo c : cmbEspecialidad.getItems()) {
-                    if (Objects.equals(c.getNombre(), a.getCarrera())) {
-                        cmbEspecialidad.getSelectionModel().select(c);
-                        break;
-                    }
-                }
-                onEspecialidadChange();
-            }
+            // Especialidad + grupo
+            seleccionarEspecialidadYGrupoDesdeAlumno(a);
+
 
             cmbGrupo.getSelectionModel().select(matchId(cmbGrupo, a.getGrupoId()));
 
@@ -561,20 +554,8 @@ public class AlumnoController {
             cmbGenero.getSelectionModel().select(matchId(cmbGenero, a.getGeneroId()));
             dpFechaInscripcion.setValue(a.getFechaInscripcion());
 
-            if (a.getCarrera()!=null) {
-                for (Catalogo c : cmbEspecialidad.getItems()) {
-                    if (Objects.equals(c.getNombre(), a.getCarrera())) {
-                        cmbEspecialidad.getSelectionModel().select(c);
-                        break;
-                    }
-                }
+            seleccionarEspecialidadYGrupoDesdeAlumno(a);
 
-                onEspecialidadChange();
-
-                if (a.getGrupoId() != null) {
-                    cmbGrupo.getSelectionModel().select(matchId(cmbGrupo, a.getGrupoId()));
-                }
-            }
 
             txtCalle.setText(a.getCalle());
             txtNumero.setText(a.getNumero());
@@ -593,6 +574,40 @@ public class AlumnoController {
 
         } catch (SQLException e) {
             showError("Error al cargar alumno:\n" + e.getMessage());
+        }
+    }
+    private void seleccionarEspecialidadYGrupoDesdeAlumno(Alumno a) {
+        String carrera = a.getCarrera();
+        if (carrera == null || carrera.isBlank()) {
+            cmbEspecialidad.getSelectionModel().clearSelection();
+            cmbGrupo.getItems().clear();
+            return;
+        }
+
+        Catalogo seleccion = null;
+        for (Catalogo c : cmbEspecialidad.getItems()) {
+            // Soporta dos casos:
+            // 1) Carrera guarda el NOMBRE ("Programación")
+            // 2) Carrera guarda el ID como texto ("1", "2", etc.)
+            if (Objects.equals(c.getNombre(), carrera) ||
+                    Objects.equals(String.valueOf(c.getId()), carrera)) {
+                seleccion = c;
+                break;
+            }
+        }
+
+        if (seleccion != null) {
+            cmbEspecialidad.getSelectionModel().select(seleccion);
+            // Cargar grupos de esa especialidad
+            onEspecialidadChange();
+
+            // Seleccionar el grupo si el alumno lo tiene
+            if (a.getGrupoId() != null) {
+                cmbGrupo.getSelectionModel().select(matchId(cmbGrupo, a.getGrupoId()));
+            }
+        } else {
+            cmbEspecialidad.getSelectionModel().clearSelection();
+            cmbGrupo.getItems().clear();
         }
     }
 
