@@ -104,26 +104,59 @@ public class BoletaCalificacionesController {
             return;
         }
 
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Guardar boleta en PDF");
-        chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Archivo PDF (*.pdf)", "*.pdf")
-        );
-        chooser.setInitialFileName("boleta_" + matricula + ".pdf");
+        try {
+            // ============================================================
+            // 1) Crear carpeta boletas_pdf dentro del proyecto
+            // ============================================================
+            String projectPath = System.getProperty("user.dir");  // Ruta del proyecto
+            File carpeta = new File(projectPath + File.separator + "boletas_pdf");
 
-        File file = chooser.showSaveDialog(getStage());
-        if (file == null) return;
+            if (!carpeta.exists()) {
+                carpeta.mkdirs(); // Crear carpeta si no existe
+            }
 
-        try (OutputStream out = new java.io.FileOutputStream(file)) {
-            cbtis239.report.BoletaCalificacionesPDF pdf =
-                    new cbtis239.report.BoletaCalificacionesPDF();
-            pdf.generar(matricula, out);
-            info("Boleta generada correctamente:\n" + file.getAbsolutePath());
+            // Ruta final del PDF
+            File archivoPDF = new File(carpeta, "boleta_" + matricula + ".pdf");
+
+            // ============================================================
+            // 2) Generar el PDF AUTOMÁTICAMENTE en esa carpeta
+            // ============================================================
+            try (OutputStream out = new java.io.FileOutputStream(archivoPDF)) {
+                cbtis239.report.BoletaCalificacionesPDF pdf =
+                        new cbtis239.report.BoletaCalificacionesPDF();
+                pdf.generar(matricula, out);
+            }
+
+            // ============================================================
+            // 3) Abrir explorador de archivos en esa carpeta
+            // ============================================================
+            abrirExplorador(carpeta);
+
+            info("Boleta generada correctamente:\n" + archivoPDF.getAbsolutePath());
+
         } catch (Exception e) {
             e.printStackTrace();
             error("No se pudo generar el PDF", e.getMessage());
         }
     }
+    private void abrirExplorador(File carpeta) {
+        try {
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                // Windows
+                new ProcessBuilder("explorer.exe", carpeta.getAbsolutePath()).start();
+            } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+                // MacOS
+                new ProcessBuilder("open", carpeta.getAbsolutePath()).start();
+            } else {
+                // Linux
+                new ProcessBuilder("xdg-open", carpeta.getAbsolutePath()).start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            error("No se pudo abrir la carpeta", e.getMessage());
+        }
+    }
+
 
     @FXML
     private void onVolverMenu() {
