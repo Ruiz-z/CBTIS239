@@ -41,9 +41,10 @@ El proyecto fue desarrollado bajo la metodología **Rational Unified Process (RU
 
 **Equipo 3 – Grupo A**
 
-- Jesús Contreras Castillo — *22050648*  
-- Hugo Emilio Espinoza Tun — *22050627*  
-- Mauro Rodrigo Ruiz Álvarez — *22050727*  
+- Jesús Contreras Castillo   — 
+- Hugo Emilio Espinoza Tun —   
+- Mauro Rodrigo Ruiz Álvarez —
+- Ricardo Sanchez Fraustro -
 
 ---
 
