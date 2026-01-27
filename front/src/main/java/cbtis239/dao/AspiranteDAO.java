@@ -82,7 +82,7 @@ public class AspiranteDAO {
         String sql = """
         SELECT Folio, CURP, Nombre, Paterno, Materno,
                EstatusInscripcion, EstatusPago,
-               Telefono, Estado, Municipio, Localidad,
+               Telefono, Correo, Estado, Municipio, Localidad,
                NSS, Calle, Numero, Colonia,
                CelPadre, CelMadre, EdoCivil_idEdoCivil, Generos_idGenero
         FROM aspirante
@@ -104,6 +104,7 @@ public class AspiranteDAO {
                 a.setEstatusInscripcion(rs.getString("EstatusInscripcion"));
                 a.setEstatusPago(rs.getString("EstatusPago"));
                 a.setTelefono(rs.getString("Telefono"));
+                a.setCorreo(rs.getString("Correo"));
                 a.setEstado(rs.getString("Estado"));
                 a.setMunicipio(rs.getString("Municipio"));
                 a.setLocalidad(rs.getString("Localidad"));
